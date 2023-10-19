@@ -1,0 +1,76 @@
+#include <Ultrasonic.h>
+
+#define passos_pino 3
+#define direcao_pino 6
+#define entrada_pino 9
+const int echoPin = 5;
+const int trigPin = 4;
+int distancia;
+String result; 
+Ultrasonic ultrasonic(trigPin,echoPin);
+unsigned long valor;
+int MeioPeriodo = 1000;   // MeioPeriodo do pulso STEP em microsegundos F= 1/T = 1/2000 uS = 500 Hz
+float PPS = 0;            // Pulsos por segundo
+boolean sentido = true;   // Variavel de sentido
+long PPR = 200;           // Número de passos por volta
+long Pulsos;              // Pulsos para o driver do motor
+int Voltas;               // voltas do motor
+float RPM;                // Rotacoes por minuto
+
+
+
+
+void setup() {
+ pinMode(entrada_pino, INPUT);
+ pinMode(direcao_pino, OUTPUT);
+ pinMode(passos_pino, OUTPUT);
+ pinMode(echoPin, INPUT); 
+ pinMode(trigPin, OUTPUT);
+ Serial.begin(9600);
+}
+
+
+
+
+void loop() {
+  valor = pulseIn(entrada_pino, HIGH);
+  Serial.println(valor);
+
+
+  if(valor >= 1600){
+  digitalWrite(direcao_pino, LOW);
+  digitalWrite(passos_pino, HIGH);
+  digitalWrite(passos_pino, LOW);
+  for (int i = 0; i <= Pulsos; i++);
+ }
+
+  if(valor <= 1300){
+  digitalWrite(direcao_pino, HIGH);
+  digitalWrite(passos_pino, HIGH);
+  digitalWrite(passos_pino, LOW);
+  for (int i = 0; i <= Pulsos; i++);
+ }
+
+
+  
+
+  hcsr04(); // FAZ A CHAMADA DO MÉTODO "hcsr04()"
+  Serial.print("Distancia "); //IMPRIME O TEXTO NO MONITOR SERIAL
+  Serial.print(result); ////IMPRIME NO MONITOR SERIAL A DISTÂNCIA MEDIDA
+  Serial.println("cm"); //IMPRIME O TEXTO NO MONITOR SERIAL
+ 
+}
+
+void hcsr04(){
+    digitalWrite(trigPin, LOW); //SETA O PINO 6 COM UM PULSO BAIXO "LOW"
+    delayMicroseconds(2); //INTERVALO DE 2 MICROSSEGUNDOS
+    digitalWrite(trigPin, HIGH); //SETA O PINO 6 COM PULSO ALTO "HIGH"
+    delayMicroseconds(10); //INTERVALO DE 10 MICROSSEGUNDOS
+    digitalWrite(trigPin, LOW); //SETA O PINO 6 COM PULSO BAIXO "LOW" NOVAMENTE
+    //FUNÇÃO RANGING, FAZ A CONVERSÃO DO TEMPO DE
+    //RESPOSTA DO ECHO EM CENTIMETROS, E ARMAZENA
+    //NA VARIAVEL "distancia"
+    distancia = (ultrasonic.Ranging(CM)); //VARIÁVEL GLOBAL RECEBE O VALOR DA DISTÂNCIA MEDIDA
+    result = String(distancia); //VARIÁVEL GLOBAL DO TIPO STRING RECEBE A DISTÂNCIA(CONVERTIDO DE INTEIRO PARA STRING)
+    delay(500); //INTERVALO DE 500 MILISSEGUNDOS
+ }
