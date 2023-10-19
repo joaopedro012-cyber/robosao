@@ -44,12 +44,6 @@
   NewPing sensor12(trigger_sensor12, echo_sensor12);
 /* ENTRADA E SAÍDA DE SENSORES FIM */
 
-/* Armazena a quantidade de vezes que a medição deve ocorrer, para cada sensor */
-unsigned long pingTimer[SONAR_NUM]; 
-
-/* Armazena o número de medições */
-unsigned int cm[SONAR_NUM]; 
-
 void setup() {
   Serial.begin(9600);
 }
@@ -68,4 +62,30 @@ void loop() {
   int distance10 = sensor10.ping_cm();
   int distance11 = sensor11.ping_cm();
   int distance12 = sensor12.ping_cm();
+
+  Serial.println("distance01");
+  Serial.println(sensor12.ping_cm());
+  Serial.println("distance02");
+  Serial.println(distance02);
+  Serial.println("distance03");
+  Serial.println(distance03);
+  Serial.println("distance04");
+  Serial.println(distance04);
+  Serial.println("distance05");
+  Serial.println(distance05);
+  Serial.println("distance06");
+  Serial.println(distance06);
+  Serial.println("distance07");
+  Serial.println(distance07);
+  Serial.println("distance08");
+  Serial.println(distance08);
+  Serial.println("distance09");
+  Serial.println(distance09);
+  Serial.println("distance10");
+  Serial.println(distance10);
+  Serial.println("distance11");
+  Serial.println(distance11);
+  Serial.println("distance12");
+  Serial.println(distance12);
+  delay(10000);
 }
