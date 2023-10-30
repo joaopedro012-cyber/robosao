@@ -32,7 +32,7 @@
 
 <item itemtype="SR04" CircId="SR04-19" mainComp="false" Show_id="false" Show_Val="false" Pos="1144,332" rotation="-270" hflip="1" vflip="1" label="SR04-19" idLabPos="-16,-48" labelrot="0" valLabPos="-16,20" valLabRot="0" />
 
-<item itemtype="SR04" CircId="SR04-21" mainComp="false" Show_id="false" Show_Val="false" Pos="-952,1020" rotation="-180" hflip="-1" vflip="1" label="SR04-21" idLabPos="-16,-48" labelrot="0" valLabPos="-16,20" valLabRot="0" />
+<item itemtype="SR04" CircId="SR04-21" mainComp="false" Show_id="false" Show_Val="false" Pos="-996,1072" rotation="-180" hflip="-1" vflip="1" label="SR04-21" idLabPos="-16,-48" labelrot="0" valLabPos="-16,20" valLabRot="0" />
 
 <item itemtype="SR04" CircId="SR04-22" mainComp="false" Show_id="false" Show_Val="false" Pos="-84,1036" rotation="-180" hflip="-1" vflip="1" label="SR04-22" idLabPos="-16,-48" labelrot="0" valLabPos="-16,20" valLabRot="0" />
 
@@ -42,7 +42,7 @@
 
 <item itemtype="SR04" CircId="SR04-25" mainComp="false" Show_id="false" Show_Val="false" Pos="-124,-628" rotation="-180" hflip="-1" vflip="-1" label="SR04-25" idLabPos="-16,-48" labelrot="0" valLabPos="-16,20" valLabRot="0" />
 
-<item itemtype="SR04" CircId="SR04-27" mainComp="false" Show_id="false" Show_Val="false" Pos="-1416,984" rotation="-270" hflip="-1" vflip="1" label="SR04-27" idLabPos="-16,-48" labelrot="0" valLabPos="-16,20" valLabRot="0" />
+<item itemtype="SR04" CircId="SR04-27" mainComp="false" Show_id="false" Show_Val="false" Pos="-1344,920" rotation="-270" hflip="-1" vflip="1" label="SR04-27" idLabPos="-16,-48" labelrot="0" valLabPos="-16,20" valLabRot="0" />
 
 <item itemtype="Subcircuit" CircId="Uno-51" mainComp="false" Show_id="true" Show_Val="false" Pos="-4,-140" rotation="0" hflip="1" vflip="1" label="Uno-51" idLabPos="0,-20" labelrot="0" valLabPos="-16,20" valLabRot="0" Logic_Symbol="false">
 <mainCompProps itemtype="MCU" CircId="51_mega328-109" mainComp="true" Show_id="false" Show_Val="false" Pos="20,20" rotation="0" hflip="1" vflip="1" label="51_mega328-109" idLabPos="0,-20" labelrot="0" valLabPos="-16,20" valLabRot="0" Frequency="16 MHz" Auto_Load="false" Rst_enabled="true" Ext_Osc="true" Wdt_enabled="false" />
@@ -50,7 +50,7 @@
 
 <item itemtype="Rectangle" CircId="Rectangle-52" mainComp="false" Show_id="false" Show_Val="false" Pos="-484,-116" rotation="0" hflip="1" vflip="1" label="RECEBE O CÓDIGO sensores" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" H_size="300 _Pixels" V_size="500 _Pixels" Border="2 _Pixels" Z_Value="-1" Color="#ff0000" Opacity="1" />
 
-<item itemtype="TextComponent" CircId="TextComponent-53" mainComp="false" Show_id="false" Show_Val="false" Pos="-636,-364" rotation="0" hflip="1" vflip="1" label="RECEBE O CÓDIGO sensores" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Margin="5 _Pixels" Border="1 _Pixels" Opacity="1" Font="Helvetica [Cronyx]" Font_Size="20 _Pixels" Fixed_Width="true" Text="RECEBE O CÓDIGO sensores" />
+<item itemtype="TextComponent" CircId="TextComponent-53" mainComp="false" Show_id="false" Show_Val="false" Pos="-628,-368" rotation="0" hflip="1" vflip="1" label="RECEBE O CÓDIGO sensores" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Margin="5 _Pixels" Border="1 _Pixels" Opacity="1" Font="Helvetica [Cronyx]" Font_Size="20 _Pixels" Fixed_Width="true" Text="RECEBE O CÓDIGO sensores" />
 
 <item itemtype="Rectangle" CircId="Rectangle-54" mainComp="false" Show_id="false" Show_Val="false" Pos="-584,-744" rotation="0" hflip="1" vflip="1" label="Rectangle-54" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" H_size="300 _Pixels" V_size="500 _Pixels" Border="2 _Pixels" Z_Value="-1" Color="#008000" Opacity="1" />
 
@@ -80,13 +80,13 @@
 
 <item itemtype="TextComponent" CircId="TextComponent-78" mainComp="false" Show_id="false" Show_Val="false" Pos="-1256,644" rotation="-90" hflip="1" vflip="1" label="TextComponent-78" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Margin="5 _Pixels" Border="1 _Pixels" Opacity="1" Font="Helvetica [Cronyx]" Font_Size="35 _Pixels" Fixed_Width="true" Text="4" />
 
-<item itemtype="Ellipse" CircId="Ellipse-79" mainComp="false" Show_id="false" Show_Val="false" Pos="-1412,984" rotation="-90" hflip="1" vflip="1" label="Ellipse-79" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" H_size="300 _Pixels" V_size="150 _Pixels" Border="2 _Pixels" Z_Value="-1" Color="#a0a0a4" Opacity="1" />
+<item itemtype="Ellipse" CircId="Ellipse-79" mainComp="false" Show_id="false" Show_Val="false" Pos="-1340,920" rotation="-90" hflip="1" vflip="1" label="Ellipse-79" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" H_size="300 _Pixels" V_size="150 _Pixels" Border="2 _Pixels" Z_Value="-1" Color="#a0a0a4" Opacity="1" />
 
-<item itemtype="TextComponent" CircId="TextComponent-80" mainComp="false" Show_id="false" Show_Val="false" Pos="-1508,1012" rotation="-90" hflip="1" vflip="1" label="TextComponent-80" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Margin="5 _Pixels" Border="1 _Pixels" Opacity="1" Font="Helvetica [Cronyx]" Font_Size="35 _Pixels" Fixed_Width="true" Text="5" />
+<item itemtype="TextComponent" CircId="TextComponent-80" mainComp="false" Show_id="false" Show_Val="false" Pos="-1436,948" rotation="-90" hflip="1" vflip="1" label="TextComponent-80" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Margin="5 _Pixels" Border="1 _Pixels" Opacity="1" Font="Helvetica [Cronyx]" Font_Size="35 _Pixels" Fixed_Width="true" Text="5" />
 
-<item itemtype="Ellipse" CircId="Ellipse-81" mainComp="false" Show_id="false" Show_Val="false" Pos="-952,1004" rotation="0" hflip="1" vflip="1" label="Ellipse-81" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" H_size="300 _Pixels" V_size="150 _Pixels" Border="2 _Pixels" Z_Value="-1" Color="#a0a0a4" Opacity="1" />
+<item itemtype="Ellipse" CircId="Ellipse-81" mainComp="false" Show_id="false" Show_Val="false" Pos="-996,1076" rotation="0" hflip="1" vflip="1" label="Ellipse-81" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" H_size="300 _Pixels" V_size="150 _Pixels" Border="2 _Pixels" Z_Value="-1" Color="#a0a0a4" Opacity="1" />
 
-<item itemtype="TextComponent" CircId="TextComponent-82" mainComp="false" Show_id="false" Show_Val="false" Pos="-976,1068" rotation="0" hflip="1" vflip="1" label="TextComponent-82" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Margin="5 _Pixels" Border="1 _Pixels" Opacity="1" Font="Helvetica [Cronyx]" Font_Size="35 _Pixels" Fixed_Width="true" Text="6" />
+<item itemtype="TextComponent" CircId="TextComponent-82" mainComp="false" Show_id="false" Show_Val="false" Pos="-1020,1120" rotation="0" hflip="1" vflip="1" label="TextComponent-82" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Margin="5 _Pixels" Border="1 _Pixels" Opacity="1" Font="Helvetica [Cronyx]" Font_Size="35 _Pixels" Fixed_Width="true" Text="6" />
 
 <item itemtype="Ellipse" CircId="Ellipse-83" mainComp="false" Show_id="false" Show_Val="false" Pos="-64,1032" rotation="0" hflip="1" vflip="1" label="Ellipse-83" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" H_size="300 _Pixels" V_size="150 _Pixels" Border="2 _Pixels" Z_Value="-1" Color="#a0a0a4" Opacity="1" />
 
@@ -112,17 +112,17 @@
 
 <item itemtype="TextComponent" CircId="TextComponent-94" mainComp="false" Show_id="false" Show_Val="false" Pos="1248,-76" rotation="90" hflip="1" vflip="1" label="TextComponent-94" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Margin="5 _Pixels" Border="1 _Pixels" Opacity="1" Font="Helvetica [Cronyx]" Font_Size="35 _Pixels" Fixed_Width="true" Text="12" />
 
-<item itemtype="Voltage Source" CircId="Voltage Source-186" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-1284,-324" rotation="-90" hflip="1" vflip="1" label="Voltage Source-186" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="true" Value_Volt="1.49 V" MaxValue="5 V" />
+<item itemtype="Voltage Source" CircId="Voltage Source-186" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-1284,-324" rotation="-90" hflip="1" vflip="1" label="Voltage Source-186" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="true" Value_Volt="3.84 V" MaxValue="5 V" />
 
-<item itemtype="Voltage Source" CircId="Voltage Source-215" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-328,-648" rotation="0" hflip="1" vflip="1" label="Voltage Source-215" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="true" Value_Volt="0.84 V" MaxValue="5 V" />
+<item itemtype="Voltage Source" CircId="Voltage Source-215" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-328,-648" rotation="0" hflip="1" vflip="1" label="Voltage Source-215" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="true" Value_Volt="2.45 V" MaxValue="5 V" />
 
 <item itemtype="Voltage Source" CircId="Voltage Source-217" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-1260,36" rotation="-90" hflip="1" vflip="1" label="Voltage Source-217" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="true" Value_Volt="4.855 V" MaxValue="5 V" />
 
 <item itemtype="Voltage Source" CircId="Voltage Source-219" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-1300,564" rotation="-90" hflip="1" vflip="1" label="Voltage Source-219" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="true" Value_Volt="2.29 V" MaxValue="5 V" />
 
-<item itemtype="Voltage Source" CircId="Voltage Source-220" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-1496,844" rotation="-90" hflip="1" vflip="1" label="Voltage Source-220" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="true" Value_Volt="3.615 V" MaxValue="5 V" />
+<item itemtype="Voltage Source" CircId="Voltage Source-220" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-1424,780" rotation="-90" hflip="1" vflip="1" label="Voltage Source-220" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="true" Value_Volt="3.615 V" MaxValue="5 V" />
 
-<item itemtype="Voltage Source" CircId="Voltage Source-222" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-1128,992" rotation="0" hflip="1" vflip="1" label="Voltage Source-222" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="true" Value_Volt="1.87 V" MaxValue="5 V" />
+<item itemtype="Voltage Source" CircId="Voltage Source-222" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-1172,1044" rotation="0" hflip="1" vflip="1" label="Voltage Source-222" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="true" Value_Volt="1.87 V" MaxValue="5 V" />
 
 <item itemtype="Voltage Source" CircId="Voltage Source-223" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-296,1020" rotation="0" hflip="1" vflip="1" label="Voltage Source-223" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="true" Value_Volt="2.055 V" MaxValue="5 V" />
 
@@ -136,88 +136,76 @@
 
 <item itemtype="Voltage Source" CircId="Voltage Source-228" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="1256,-180" rotation="90" hflip="1" vflip="1" label="Voltage Source-228" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="true" Value_Volt="3.25 V" MaxValue="5 V" />
 
-<item itemtype="Node" CircId="Node-106" mainComp="false" Pos="-944,972" />
+<item itemtype="Connector" uid="connector-229" startpinid="Voltage Source-186-outPin" endpinid="SR04-13-inpin" pointList="-1268,-352,-1160,-352,-1160,-336" />
 
-<item itemtype="Node" CircId="Node-144" mainComp="false" Pos="1404,1016" />
+<item itemtype="Connector" uid="connector-230" startpinid="Voltage Source-215-outPin" endpinid="SR04-25-inpin" pointList="-300,-632,-252,-632,-252,-652,-212,-652" />
 
-<item itemtype="Node" CircId="Node-156" mainComp="false" Pos="1096,-64" />
+<item itemtype="Connector" uid="connector-231" startpinid="Voltage Source-217-outPin" endpinid="SR04-14-inpin" pointList="-1244,8,-1176,8,-1176,68" />
 
-<item itemtype="Connector" uid="connector-240" startpinid="SR04-13-trigpin" endpinid="Mega-8-23" pointList="-1088,-248,-596,-248,-596,-288,-544,-288,-544,-272" />
+<item itemtype="Connector" uid="connector-232" startpinid="Voltage Source-220-outPin" endpinid="SR04-27-inpin" pointList="-1408,752,-1368,752,-1368,832" />
 
-<item itemtype="Connector" uid="connector-241" startpinid="SR04-13-outpin" endpinid="Mega-8-22" pointList="-1088,-240,-544,-240,-544,-264" />
+<item itemtype="Connector" uid="connector-233" startpinid="Voltage Source-228-outPin" endpinid="SR04-18-inpin" pointList="1240,-152,1164,-152" />
 
-<item itemtype="Connector" uid="connector-242" startpinid="SR04-14-trigpin" endpinid="Mega-8-25" pointList="-1104,156,-604,156,-604,-296,-536,-296,-536,-272" />
+<item itemtype="Connector" uid="connector-234" startpinid="Voltage Source-227-outPin" endpinid="SR04-19-inpin" pointList="1224,220,1224,244,1168,244" />
+
+<item itemtype="Connector" uid="connector-235" startpinid="Voltage Source-226-outPin" endpinid="SR04-17-inpin" pointList="1300,432,1300,488,1252,488" />
+
+<item itemtype="Connector" uid="connector-236" startpinid="Voltage Source-225-outPin" endpinid="SR04-24-inpin" pointList="1448,828,1448,928,1476,928" />
+
+<item itemtype="Connector" uid="connector-237" startpinid="Voltage Source-224-outPin" endpinid="SR04-23-inpin" pointList="560,1056,656,1056,656,1072" />
+
+<item itemtype="Connector" uid="connector-238" startpinid="Voltage Source-223-outPin" endpinid="SR04-22-inpin" pointList="-268,1036,-172,1036,-172,1060" />
+
+<item itemtype="Connector" uid="connector-239" startpinid="Voltage Source-222-outPin" endpinid="SR04-21-inpin" pointList="-1144,1060,-1084,1060,-1084,1096" />
+
+<item itemtype="Connector" uid="connector-240" startpinid="Voltage Source-219-outPin" endpinid="SR04-15-inpin" pointList="-1284,536,-1180,536,-1180,544" />
+
+<item itemtype="Connector" uid="connector-241" startpinid="SR04-25-outpin" endpinid="Mega-8-44" pointList="-116,-580,-116,-56,-456,-56,-456,-264" />
+
+<item itemtype="Connector" uid="connector-242" startpinid="SR04-13-outpin" endpinid="Mega-8-22" pointList="-1088,-240,-660,-240,-660,-256,-544,-256,-544,-264" />
 
 <item itemtype="Connector" uid="connector-243" startpinid="SR04-14-outpin" endpinid="Mega-8-24" pointList="-1104,164,-536,164,-536,-264" />
 
-<item itemtype="Connector" uid="connector-244" startpinid="SR04-15-trigpin" endpinid="Mega-8-27" pointList="-1108,632,-612,632,-612,-304,-528,-304,-528,-272" />
+<item itemtype="Connector" uid="connector-244" startpinid="SR04-15-outpin" endpinid="Mega-8-26" pointList="-1108,640,-528,640,-528,-264" />
 
-<item itemtype="Connector" uid="connector-245" startpinid="SR04-15-outpin" endpinid="Mega-8-26" pointList="-1108,640,-528,640,-528,-264" />
+<item itemtype="Connector" uid="connector-245" startpinid="SR04-27-outpin" endpinid="Mega-8-28" pointList="-1296,928,-520,928,-520,-264" />
 
-<item itemtype="Connector" uid="connector-246" startpinid="SR04-27-trigpin" endpinid="Mega-8-29" pointList="-1368,984,-1368,952,-624,952,-624,-312,-520,-312,-520,-272" />
+<item itemtype="Connector" uid="connector-246" startpinid="SR04-21-outpin" endpinid="Mega-8-30" pointList="-988,1024,-988,932,-512,932,-512,-264" />
 
-<item itemtype="Connector" uid="connector-247" startpinid="SR04-21-trigpin" endpinid="Node-106-0" pointList="-952,972,-944,972" />
+<item itemtype="Connector" uid="connector-247" startpinid="SR04-22-outpin" endpinid="Mega-8-32" pointList="-76,988,-76,932,-504,932,-504,-264" />
 
-<item itemtype="Connector" uid="connector-248" startpinid="SR04-21-outpin" endpinid="Mega-8-28" pointList="-944,972,-520,972,-520,-264" />
+<item itemtype="Connector" uid="connector-248" startpinid="SR04-23-outpin" endpinid="Mega-8-34" pointList="752,1000,752,924,-496,924,-496,-264" />
 
-<item itemtype="Connector" uid="connector-249" startpinid="Node-106-1" endpinid="Mega-8-30" pointList="-944,972,-512,972,-512,-264" />
+<item itemtype="Connector" uid="connector-249" startpinid="SR04-24-outpin" endpinid="Mega-8-36" pointList="1404,1024,908,1024,908,920,-488,920,-488,-264" />
 
-<item itemtype="Connector" uid="connector-250" startpinid="SR04-22-trigpin" endpinid="Mega-8-33" pointList="-84,988,-84,-320,-504,-320,-504,-272" />
+<item itemtype="Connector" uid="connector-250" startpinid="SR04-17-outpin" endpinid="Mega-8-38" pointList="1180,584,-480,584,-480,-264" />
 
-<item itemtype="Connector" uid="connector-251" startpinid="SR04-22-outpin" endpinid="Mega-8-32" pointList="-76,988,-76,-248,-504,-248,-504,-264" />
+<item itemtype="Connector" uid="connector-251" startpinid="SR04-19-outpin" endpinid="Mega-8-40" pointList="1096,340,-472,340,-472,-264" />
 
-<item itemtype="Connector" uid="connector-252" startpinid="SR04-23-trigpin" endpinid="Mega-8-35" pointList="744,1000,744,-316,-496,-316,-496,-272" />
+<item itemtype="Connector" uid="connector-252" startpinid="SR04-18-outpin" endpinid="Mega-8-42" pointList="1092,-56,1044,-56,1044,336,-464,336,-464,-264" />
 
-<item itemtype="Connector" uid="connector-253" startpinid="SR04-23-outpin" endpinid="Mega-8-34" pointList="752,1000,752,-240,-496,-240,-496,-264" />
+<item itemtype="Connector" uid="connector-253" startpinid="SR04-25-trigpin" endpinid="Mega-8-45" pointList="-124,-580,-456,-580,-456,-272" />
 
-<item itemtype="Connector" uid="connector-254" startpinid="SR04-24-outpin" endpinid="Node-144-0" pointList="1404,1024,1404,1016" />
+<item itemtype="Connector" uid="connector-254" startpinid="SR04-13-trigpin" endpinid="Mega-8-23" pointList="-1088,-248,-668,-248,-668,-288,-544,-288,-544,-272" />
 
-<item itemtype="Connector" uid="connector-255" startpinid="Node-144-2" endpinid="Mega-8-36" pointList="1404,1016,1404,-212,-488,-212,-488,-264" />
+<item itemtype="Connector" uid="connector-255" startpinid="SR04-14-trigpin" endpinid="Mega-8-25" pointList="-1104,156,-1104,-64,-1336,-64,-1336,-420,-536,-420,-536,-272" />
 
-<item itemtype="Connector" uid="connector-256" startpinid="Node-144-1" endpinid="Mega-8-37" pointList="1404,1016,1404,-312,-488,-312,-488,-272" />
+<item itemtype="Connector" uid="connector-256" startpinid="SR04-15-trigpin" endpinid="Mega-8-27" pointList="-1108,632,-1108,348,-1340,348,-1340,-424,-528,-424,-528,-272" />
 
-<item itemtype="Connector" uid="connector-257" startpinid="SR04-17-outpin" endpinid="Mega-8-38" pointList="1180,584,-480,584,-480,-264" />
+<item itemtype="Connector" uid="connector-257" startpinid="SR04-27-trigpin" endpinid="Mega-8-29" pointList="-1296,920,-1296,660,-1344,660,-1344,-432,-520,-432,-520,-272" />
 
-<item itemtype="Connector" uid="connector-258" startpinid="SR04-17-trigpin" endpinid="Mega-8-39" pointList="1180,576,1180,-308,-480,-308,-480,-272" />
+<item itemtype="Connector" uid="connector-258" startpinid="SR04-21-trigpin" endpinid="Mega-8-31" pointList="-996,1024,-996,984,-1244,984,-1244,1120,-1456,1120,-1456,-440,-512,-440,-512,-272" />
 
-<item itemtype="Connector" uid="connector-259" startpinid="SR04-19-outpin" endpinid="Mega-8-40" pointList="1096,340,-472,340,-472,-264" />
+<item itemtype="Connector" uid="connector-259" startpinid="SR04-22-trigpin" endpinid="Mega-8-33" pointList="-84,988,-84,940,-332,940,-332,1168,-1464,1168,-1464,-448,-504,-448,-504,-272" />
 
-<item itemtype="Connector" uid="connector-260" startpinid="SR04-19-trigpin" endpinid="Node-156-0" pointList="1096,332,1096,-64" />
+<item itemtype="Connector" uid="connector-260" startpinid="SR04-23-trigpin" endpinid="Mega-8-35" pointList="744,1000,744,928,100,928,100,1192,-1488,1192,-1488,-456,-496,-456,-496,-272" />
 
-<item itemtype="Connector" uid="connector-261" startpinid="SR04-18-outpin" endpinid="Mega-8-42" pointList="1092,-56,-464,-56,-464,-264" />
+<item itemtype="Connector" uid="connector-261" startpinid="SR04-24-trigpin" endpinid="Mega-8-37" pointList="1404,1016,1512,1016,1512,-1168,-488,-1168,-488,-272" />
 
-<item itemtype="Connector" uid="connector-262" startpinid="Node-156-2" endpinid="Mega-8-41" pointList="1096,-64,1096,-304,-472,-304,-472,-272" />
+<item itemtype="Connector" uid="connector-262" startpinid="SR04-17-trigpin" endpinid="Mega-8-39" pointList="1180,576,1500,576,1500,-1148,-480,-1148,-480,-272" />
 
-<item itemtype="Connector" uid="connector-263" startpinid="Node-156-1" endpinid="Mega-8-43" pointList="1096,-64,1096,-300,-464,-300,-464,-272" />
+<item itemtype="Connector" uid="connector-263" startpinid="SR04-19-trigpin" endpinid="Mega-8-41" pointList="1096,332,1476,332,1476,-1128,-472,-1128,-472,-272" />
 
-<item itemtype="Connector" uid="connector-264" startpinid="Voltage Source-186-outPin" endpinid="SR04-13-inpin" pointList="-1268,-352,-1160,-352,-1160,-336" />
-
-<item itemtype="Connector" uid="connector-265" startpinid="Node-106-2" endpinid="Mega-8-31" pointList="-944,972,-628,972,-628,-320,-512,-320,-512,-272" />
-
-<item itemtype="Connector" uid="connector-266" startpinid="Voltage Source-215-outPin" endpinid="SR04-25-inpin" pointList="-300,-632,-252,-632,-252,-652,-212,-652" />
-
-<item itemtype="Connector" uid="connector-267" startpinid="Voltage Source-217-outPin" endpinid="SR04-14-inpin" pointList="-1244,8,-1176,8,-1176,68" />
-
-<item itemtype="Connector" uid="connector-268" startpinid="Voltage Source-220-outPin" endpinid="SR04-27-inpin" pointList="-1480,816,-1440,816,-1440,896" />
-
-<item itemtype="Connector" uid="connector-269" startpinid="Voltage Source-228-outPin" endpinid="SR04-18-inpin" pointList="1240,-152,1164,-152" />
-
-<item itemtype="Connector" uid="connector-270" startpinid="Voltage Source-227-outPin" endpinid="SR04-19-inpin" pointList="1224,220,1224,244,1168,244" />
-
-<item itemtype="Connector" uid="connector-271" startpinid="Voltage Source-226-outPin" endpinid="SR04-17-inpin" pointList="1300,432,1300,488,1252,488" />
-
-<item itemtype="Connector" uid="connector-272" startpinid="Voltage Source-225-outPin" endpinid="SR04-24-inpin" pointList="1448,828,1448,928,1476,928" />
-
-<item itemtype="Connector" uid="connector-273" startpinid="Voltage Source-224-outPin" endpinid="SR04-23-inpin" pointList="560,1056,656,1056,656,1072" />
-
-<item itemtype="Connector" uid="connector-274" startpinid="Voltage Source-223-outPin" endpinid="SR04-22-inpin" pointList="-268,1036,-172,1036,-172,1060" />
-
-<item itemtype="Connector" uid="connector-275" startpinid="Voltage Source-222-outPin" endpinid="SR04-21-inpin" pointList="-1100,1008,-1040,1008,-1040,1044" />
-
-<item itemtype="Connector" uid="connector-276" startpinid="Voltage Source-219-outPin" endpinid="SR04-15-inpin" pointList="-1284,536,-1180,536,-1180,544" />
-
-<item itemtype="Connector" uid="Connector-288" startpinid="SR04-25-trigpin" endpinid="Mega-8-5V02" pointList="-124,-580,-424,-580,-424,-484,-688,-484,-688,-272,-552,-272" />
-
-<item itemtype="Connector" uid="Connector-289" startpinid="SR04-25-outpin" endpinid="Mega-8-5V01" pointList="-116,-580,-116,-252,-552,-252,-552,-264" />
+<item itemtype="Connector" uid="connector-264" startpinid="SR04-18-trigpin" endpinid="Mega-8-43" pointList="1092,-64,1456,-64,1456,-1100,-464,-1100,-464,-272" />
 
 </circuit>
