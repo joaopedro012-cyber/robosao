@@ -1,11 +1,11 @@
 void setup() {
-  Serial1.begin(4800);
+  Serial.begin(9600);
 
 }
 
 void loop() {
-  if(Serial1.available()>0) {
-    String c = Serial1.read();
-    Serial1.println(c);
+  if(Serial.available()>0) {
+    int c = Serial.read();
+    Serial.println(c);
   }
 }
