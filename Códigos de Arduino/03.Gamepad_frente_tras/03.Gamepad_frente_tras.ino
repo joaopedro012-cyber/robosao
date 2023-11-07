@@ -13,11 +13,13 @@
 #define IN3 6
 #define IN4 11
 #include <Dabble.h>
+#include <SoftwareSerial.h>
 
+SoftwareSerial serial1(3, 5); /* RX, TX */
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(115200);      // make sure your Serial Monitor is also set at this baud rate.
+  serial1.begin(115200);      // make sure your serial1 Monitor is also set at this baud rate.
   Dabble.begin(9600);       //Enter baudrate of your bluetooth.Connect bluetooth on Bluetooth port present on evive.
   pinMode(9, OUTPUT);
   pinMode(10, OUTPUT);
@@ -27,10 +29,10 @@ void setup() {
 
 void loop() {
   Dabble.processInput();             //this function is used to refresh data obtained from smartphone.Hence calling this function is mandatory in order to get data properly from your mobile.
-  Serial.print("KeyPressed: ");
+  serial1.print("KeyPressed: ");
   if (GamePad.isUpPressed())
   {
-    Serial.print("UP"); 
+    serial1.print("UP"); 
       analogWrite(9,HIGH);
       analogWrite(10,LOW);
   } else {
@@ -39,7 +41,7 @@ void loop() {
    
   if (GamePad.isDownPressed())
   {
-    Serial.print("DOWN");
+    serial1.print("DOWN");
       analogWrite(9,HIGH);
       analogWrite(10,HIGH);
   } else {
@@ -49,70 +51,70 @@ void loop() {
 
   if (GamePad.isLeftPressed())
   {
-     Serial.print("Left");
+     serial1.print("Left");
      analogWrite(11,HIGH);
      analogWrite(6,LOW);
   } else {
     analogWrite(11,LOW);
-    Serial.print("Left");
+    serial1.print("Left");
   }
 
   if (GamePad.isRightPressed())
   {
-    Serial.print("Right");
+    serial1.print("Right");
     analogWrite(11,HIGH);
     analogWrite(6,HIGH);
   } else {
     analogWrite(11,LOW);
     analogWrite(6,LOW);
-    Serial.print("Right");
+    serial1.print("Right");
   }
 
   if (GamePad.isSquarePressed())
   {
-    Serial.print("Square");
+    serial1.print("Square");
   }
 
   if (GamePad.isCirclePressed())
   {
-    Serial.print("Circle");
+    serial1.print("Circle");
   }
 
   if (GamePad.isCrossPressed())
   {
-    Serial.print("Cross");
+    serial1.print("Cross");
   }
 
   if (GamePad.isTrianglePressed())
   {
-    Serial.print("Triangle");
+    serial1.print("Triangle");
   }
 
   if (GamePad.isStartPressed())
   {
-    Serial.print("Start");
+    serial1.print("Start");
   }
 
   if (GamePad.isSelectPressed())
   {
-    Serial.print("Select");
+    serial1.print("Select");
   }
-  Serial.print('\t');
+  serial1.print('\t');
 
   int a = GamePad.getAngle();
-  Serial.print("Angle: ");
-  Serial.print(a);
-  Serial.print('\t');
+  serial1.print("Angle: ");
+  serial1.print(a);
+  serial1.print('\t');
   int b = GamePad.getRadius();
-  Serial.print("Radius: ");
-  Serial.print(b);
-  Serial.print('\t');
+  serial1.print("Radius: ");
+  serial1.print(b);
+  serial1.print('\t');
   float c = GamePad.getXaxisData();
-  Serial.print("x_axis: ");
-  Serial.print(c);
-  Serial.print('\t');
+  serial1.print("x_axis: ");
+  serial1.print(c);
+  serial1.print('\t');
   float d = GamePad.getYaxisData();
-  Serial.print("y_axis: ");
-  Serial.println(d);
-  Serial.println();
+  serial1.print("y_axis: ");
+  serial1.println(d);
+  serial1.println();
 }

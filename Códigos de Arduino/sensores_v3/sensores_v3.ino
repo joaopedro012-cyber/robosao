@@ -4,7 +4,7 @@
 /* BIBLIOTECAS FINAL */
 
 #define SONAR_NUM 12 /* NÚMERO DE SENSORES */
-#define MAX_DISTANCE 300 /* DISTÂNCIA MÁXIMA DE 200 CM */
+#define MAX_DISTANCE 200 /* DISTÂNCIA MÁXIMA DE 200 CM */
 
 /* ENTRADA E SAÍDA DE SENSORES */
   NewPing sensor01(23, 22, 200);
@@ -38,5 +38,5 @@ void loop() {
   Serial.write(sensor10.ping_cm());
   Serial.write(sensor11.ping_cm());
   Serial.write(sensor12.ping_cm());
-  delay(5000);
+  delay(500);
 }
