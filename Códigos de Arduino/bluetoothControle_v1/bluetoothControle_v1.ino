@@ -17,7 +17,7 @@ void loop() {
   
   if (Serial.available()) {
     char recebidoBluetooth = Serial.read();
-    Serial.println(recebidoBluetooth);
+    //Serial.println(recebidoBluetooth);
     if (recebidoBluetooth == 'W') {
       digitalWrite(DIR, HIGH); // Define a direção do motor
       Serial.println("W");
@@ -30,7 +30,7 @@ void loop() {
     }
     else if (recebidoBluetooth == 'S'){
       digitalWrite(DIR, LOW); // Define a direção do motor
-      Serial.println("S");
+      //Serial.println("S");
       for (int i = 0; i < 200; i++) { // Gere pulsos para girar o motor
         digitalWrite(PUL, HIGH);
         delayMicroseconds(500); // Ajuste a velocidade aqui
