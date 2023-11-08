@@ -7,8 +7,8 @@
 SoftwareSerial serial1(5, 6); /* RX, TX */
 
 void setup() {
-  Serial.begin(4800);
-  serial1.begin(19200);
+  Serial.begin(19200);
+  serial1.begin(4800);
 
   pinMode(PUL, OUTPUT);
   pinMode(DIR, OUTPUT);
@@ -19,13 +19,13 @@ void loop() {
   digitalWrite(ENA, LOW); // Habilita o driver
   
   if (Serial.available()) {
-    byte recebidoBluetooth = Serial.read();
+    char recebidoBluetooth = Serial.read();
     if (recebidoBluetooth = 'W') {
       digitalWrite(DIR, HIGH); // Define a direção do motor
       digitalWrite(PUL, HIGH);
       Serial.println("W");
       }
-      else if (recebidoBluetooth = 'S'){
+      else if (recebidoBluetooth == 'S'){
       digitalWrite(DIR, LOW); // Define a direção do motor  
       digitalWrite(PUL, LOW);
       Serial.println("S");
