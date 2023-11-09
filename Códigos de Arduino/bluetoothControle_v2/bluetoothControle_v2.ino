@@ -24,10 +24,9 @@ void loop() {
   digitalWrite(ENA_V, LOW); // Habilita o driver
   if (Serial.available()) {
     char recebidoBluetooth = Serial.read();
-    Serial.println(recebidoBluetooth);
+    //Serial.println(recebidoBluetooth);
     if (recebidoBluetooth == 'W') {
       digitalWrite(DIR_H, HIGH); // Define a direção do motor
-      //Serial.println("W");
       for (int i = 0; i < 200; i++) { // Gere pulsos para girar o motor
         digitalWrite(PUL_H, HIGH);
         delayMicroseconds(500); // Ajuste a velocidade aqui
@@ -37,7 +36,6 @@ void loop() {
     }
     else if (recebidoBluetooth == 'S'){
       digitalWrite(DIR_H, LOW); // Define a direção do motor
-      //Serial.println("S");
       for (int i = 0; i < 200; i++) { // Gere pulsos para girar o motor
         digitalWrite(PUL_H, HIGH);
         delayMicroseconds(500); // Ajuste a velocidade aqui
@@ -48,7 +46,6 @@ void loop() {
     }
     else if (recebidoBluetooth == 'A'){
       digitalWrite(DIR_V, LOW); // Define a direção do motor
-      //Serial.println("S");
       for (int i = 0; i < 200; i++) { // Gere pulsos para girar o motor
         digitalWrite(PUL_V, HIGH);
         delayMicroseconds(500); // Ajuste a velocidade aqui
@@ -59,7 +56,6 @@ void loop() {
     }
     else if (recebidoBluetooth == 'D'){
       digitalWrite(DIR_V, LOW); // Define a direção do motor
-      //Serial.println("S");
       for (int i = 0; i < 200; i++) { // Gere pulsos para girar o motor
         digitalWrite(PUL_V, HIGH);
         delayMicroseconds(500); // Ajuste a velocidade aqui
