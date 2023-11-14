@@ -1,3 +1,8 @@
+#include <SoftwareSerial.h>
+
+#define rxPin 3
+#define txPin 5
+
 #define PUL_H 8
 #define DIR_H 9
 #define ENA_H 10 
@@ -6,10 +11,11 @@
 #define DIR_V 12
 #define ENA_V 13
 
-#include <Dabble.h>
+SoftwareSerial serialCustom(rxPin, txPin);
 
 void setup() {
   Serial.begin(9600);
+  serialCustom.begin(4800);
   
   pinMode(PUL_H, OUTPUT);
   pinMode(DIR_H, OUTPUT);
@@ -20,12 +26,16 @@ void setup() {
 }
 
 void loop() {
+  serialCustom.write("Enviado");
   digitalWrite(ENA_H, LOW); // Habilita o driver
   digitalWrite(ENA_V, LOW); // Habilita o driver
   if (Serial.available()) {
     char recebidoBluetooth = Serial.read();
     //Serial.println(recebidoBluetooth);
     if (recebidoBluetooth == 'W') {
+      serialCustom.write('W'); 
+      Serial.print('w');
+      delay(10);
       digitalWrite(DIR_H, HIGH); // Define a direção do motor
       for (int i = 0; i < 200; i++) { // Gere pulsos para girar o motor
         digitalWrite(PUL_H, HIGH);
@@ -35,6 +45,9 @@ void loop() {
       }
     }
     else if (recebidoBluetooth == 'S'){
+      serialCustom.write('S');
+      Serial.print('s');
+      delay(10);
       digitalWrite(DIR_H, LOW); // Define a direção do motor
       for (int i = 0; i < 200; i++) { // Gere pulsos para girar o motor
         digitalWrite(PUL_H, HIGH);
@@ -45,6 +58,9 @@ void loop() {
       
     }
     else if (recebidoBluetooth == 'A'){
+      serialCustom.write('A'); 
+      Serial.print('a');
+      delay(10);
       digitalWrite(DIR_V, LOW); // Define a direção do motor
       for (int i = 0; i < 200; i++) { // Gere pulsos para girar o motor
         digitalWrite(PUL_V, HIGH);
@@ -55,7 +71,10 @@ void loop() {
       
     }
     else if (recebidoBluetooth == 'D'){
-      digitalWrite(DIR_V, LOW); // Define a direção do motor
+      serialCustom.write('D');
+      Serial.print('d');
+      delay(10);
+      digitalWrite(DIR_V, HIGH); // Define a direção do motor
       for (int i = 0; i < 200; i++) { // Gere pulsos para girar o motor
         digitalWrite(PUL_V, HIGH);
         delayMicroseconds(500); // Ajuste a velocidade aqui

@@ -21,21 +21,21 @@ void loop() {
     if (recebidoBluetooth == 'W') {
       digitalWrite(DIR, HIGH); // Define a direção do motor
       Serial.println("W");
-      for (int i = 0; i < 200; i++) { // Gere pulsos para girar o motor
+      for (int i = 0; i < 4500; i++) { // Gere pulsos para girar o motor
         digitalWrite(PUL, HIGH);
-        delayMicroseconds(500); // Ajuste a velocidade aqui
+        delayMicroseconds(100); // Ajuste a velocidade aqui
         digitalWrite(PUL, LOW);
-        delayMicroseconds(500);
+        delayMicroseconds(100);
       }
     }
     else if (recebidoBluetooth == 'S'){
       digitalWrite(DIR, LOW); // Define a direção do motor
       //Serial.println("S");
-      for (int i = 0; i < 200; i++) { // Gere pulsos para girar o motor
+      for (int i = 0; i < 6400; i++) { // Gere pulsos para girar o motor
         digitalWrite(PUL, HIGH);
-        delayMicroseconds(500); // Ajuste a velocidade aqui
+        delayMicroseconds(50); // Ajuste a velocidade aqui
         digitalWrite(PUL, LOW);
-        delayMicroseconds(500);
+        delayMicroseconds(50);
       }
       
     }
