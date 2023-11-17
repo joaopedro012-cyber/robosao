@@ -1,7 +1,7 @@
-#include <SoftwareSerial.h>
+ #include <SoftwareSerial.h>
 
-#define rxPin 3
-#define txPin 5
+#define rxPin A0
+#define txPin A1
 
 #define PUL_H 8
 #define DIR_H 9
@@ -14,8 +14,8 @@
 SoftwareSerial serialCustom(rxPin, txPin);
 
 void setup() {
+  serialCustom.begin(9600);
   Serial.begin(9600);
-  serialCustom.begin(4800);
   
   pinMode(PUL_H, OUTPUT);
   pinMode(DIR_H, OUTPUT);
@@ -26,15 +26,14 @@ void setup() {
 }
 
 void loop() {
-  serialCustom.write("Enviado");
   digitalWrite(ENA_H, LOW); // Habilita o driver
   digitalWrite(ENA_V, LOW); // Habilita o driver
-  if (Serial.available()) {
-    char recebidoBluetooth = Serial.read();
-    //Serial.println(recebidoBluetooth);
+  if (serialCustom.available()) {
+    char recebidoBluetooth = serialCustom.read();
+    //serialCustom.println(recebidoBluetooth);
     if (recebidoBluetooth == 'W') {
-      serialCustom.write('W'); 
-      Serial.print('w');
+      Serial.write('W'); 
+      serialCustom.print('w');
       delay(10);
       digitalWrite(DIR_H, HIGH); // Define a direção do motor
       for (int i = 0; i < 200; i++) { // Gere pulsos para girar o motor
@@ -45,8 +44,8 @@ void loop() {
       }
     }
     else if (recebidoBluetooth == 'S'){
-      serialCustom.write('S');
-      Serial.print('s');
+      Serial.write('S');
+      serialCustom.print('s');
       delay(10);
       digitalWrite(DIR_H, LOW); // Define a direção do motor
       for (int i = 0; i < 200; i++) { // Gere pulsos para girar o motor
@@ -58,8 +57,8 @@ void loop() {
       
     }
     else if (recebidoBluetooth == 'A'){
-      serialCustom.write('A'); 
-      Serial.print('a');
+      Serial.write('A'); 
+      serialCustom.print('a');
       delay(10);
       digitalWrite(DIR_V, LOW); // Define a direção do motor
       for (int i = 0; i < 200; i++) { // Gere pulsos para girar o motor
@@ -71,8 +70,8 @@ void loop() {
       
     }
     else if (recebidoBluetooth == 'D'){
-      serialCustom.write('D');
-      Serial.print('d');
+      Serial.write('D');
+      serialCustom.print('d');
       delay(10);
       digitalWrite(DIR_V, HIGH); // Define a direção do motor
       for (int i = 0; i < 200; i++) { // Gere pulsos para girar o motor
