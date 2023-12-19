@@ -36,11 +36,7 @@ void loop() {
       serialCustom.print('w');
       delay(10);
       digitalWrite(DIR_H, HIGH); // Define a direção do motor
-<<<<<<< HEAD
-      for (int i = 0; i < 400; i++) { // Gere pulsos para girar o motor
-=======
       for (int i = 0; i < 25600; i++) { // Gere pulsos para girar o motor
->>>>>>> 35e6769d3df34c99271044da4d83e981a8cc1679
         digitalWrite(PUL_H, HIGH);
         delayMicroseconds(90); // Ajuste a velocidade aqui
         digitalWrite(PUL_H, LOW);
@@ -52,11 +48,7 @@ void loop() {
       serialCustom.print('s');
       delay(10);
       digitalWrite(DIR_H, LOW); // Define a direção do motor
-<<<<<<< HEAD
-      for (int i = 0; i < 1000; i++) { // Gere pulsos para girar o motor
-=======
       for (int i = 0; i < 25600; i++) { // Gere pulsos para girar o motor
->>>>>>> 35e6769d3df34c99271044da4d83e981a8cc1679
         digitalWrite(PUL_H, HIGH);
         delayMicroseconds(90); // Ajuste a velocidade aqui
         digitalWrite(PUL_H, LOW);
@@ -69,11 +61,7 @@ void loop() {
       serialCustom.print('a');
       delay(10);
       digitalWrite(DIR_V, LOW); // Define a direção do motor
-<<<<<<< HEAD
-      for (int i = 0; i < 200; i++) { // Gere pulsos para girar o motor
-=======
       for (int i = 0; i < 25600; i++) { // Gere pulsos para girar o motor
->>>>>>> 35e6769d3df34c99271044da4d83e981a8cc1679
         digitalWrite(PUL_V, HIGH);
         delayMicroseconds(90); // Ajuste a velocidade aqui
         digitalWrite(PUL_V, LOW);
@@ -86,19 +74,7 @@ void loop() {
       serialCustom.print('d');
       delay(10);
       digitalWrite(DIR_V, HIGH); // Define a direção do motor
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-      for (int i = 0; i < 1000; i++) { // Gere pulsos para girar o motor
-=======
-      for (int i = 0; i < 400; i++) { // Gere pulsos para girar o motor
->>>>>>> Stashed changes
-=======
-      for (int i = 0; i < 200; i++) { // Gere pulsos para girar o motor
->>>>>>> parent of 6d6089b (Notas e Código v2.8.5)
-=======
       for (int i = 0; i < 25600; i++) { // Gere pulsos para girar o motor
->>>>>>> 35e6769d3df34c99271044da4d83e981a8cc1679
         digitalWrite(PUL_V, HIGH);
         delayMicroseconds(90); // Ajuste a velocidade aqui
         digitalWrite(PUL_V, LOW);
