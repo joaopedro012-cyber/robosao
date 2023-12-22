@@ -9,47 +9,62 @@ TinyGPSPlus gps;
 File myFile;
 
 void setup() {
-  Serial.begin(9600);  // Recebe Sensores
-  Serial1.begin(9600); // Recebe Pulsos
-  Serial2.begin(9600); // Recebe GPS
-  Serial3.begin(9600); // Envia para o SDCard
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
+  Serial.begin(9600);  // SENSORES
+  Serial1.begin(9600); // PULSO
+  Serial2.begin(9600); // GPS
+  Serial3.begin(9600); // SD
+  while (!Serial3) {
+    ; 
   }
   Serial3.print("Inicializando o SD card...");
 
   if (!SD.begin(4)) {
-    Serial3.println("Falha na inicialização.");
+    Serial3.println("Falha na inicialização do SD.");
     while (1);
   }
-  Serial3.println("Inicialialização concluída.");
+  Serial3.println("Inicialização do SD concluída.");
 
-  // open the file. note that only one file can be open at a time,
-  // so you have to close this one before opening another.
   myFile = SD.open("armazena.csv", FILE_WRITE);
+  if (!myFile) {
+    Serial3.println("Erro ao abrir o arquivo armazena.csv para escrita.");
+    while (1);
+  }
+  Serial3.println("Arquivo aberto com sucesso.");
 }
 
 void loop() {
   // Recebe dados dos sensores
-  if (Serial.available()) {
+  if (Serial1.available()) {
     char recebidoDeSensores = Serial.read();
     Serial.print("Recebido de Sensores: ");
     Serial.println(recebidoDeSensores);
-    myFile.println(recebidoDeSensores);
+    if (myFile) {
+      myFile.println(recebidoDeSensores);
+    } else {
+      Serial3.println("Erro ao escrever no arquivo.");
+    }
   }
 
   // Recebe dados dos pulsos
-  if (Serial1.available()) {
-    char recebidoDePulsos = Serial1.read();
+  if (Serial.available()) {
+    Serial.println("Pulsos estão ativos");
+    char recebidoDePulsos = Serial.read();
     Serial1.print("Recebido de Pulsos: ");
     Serial1.println(recebidoDePulsos);
-    myFile.println(recebidoDePulsos);
+    if (myFile) {
+      myFile.println(recebidoDePulsos);
+    } else {
+      Serial3.println("Erro ao escrever no arquivo.");
+    }
+  }
+  else {
+    Serial.println("Não iniciado os pulsos.");
   }
 
   // Recebe e processa dados do GPS
   while (Serial2.available() > 0) {
     if (gps.encode(Serial2.read())) {
-      // Imprime os dados na porta serial
+ // Imprime os dados na porta serial
       Serial.println("");
       Serial.print("Latitude: ");
       Serial.println(gps.location.lat(), 6);
@@ -76,9 +91,12 @@ void loop() {
       Serial.print(gps.time.minute());
       Serial.print(":");
       Serial.println(gps.time.second());
+    } else {
+      Serial3.println("Erro na leitura do GPS.");
     }
   }
 
-  // Aguarda um curto período para evitar a sobrecarga da CPU
-  delay(1000); // Ajustado para 1 segundo, pode ser ajustado conforme necessário
+  myFile.close();  // Fechar o arquivo após escrever os dados
+
+  delay(1000); 
 }

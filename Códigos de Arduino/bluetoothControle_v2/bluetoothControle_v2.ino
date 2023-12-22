@@ -61,7 +61,7 @@ void loop() {
       serialCustom.print('a');
       delay(10);
       digitalWrite(DIR_V, LOW); // Define a direção do motor
-      for (int i = 0; i < 25600; i++) { // Gere pulsos para girar o motor
+      for (int i = 0; i < 1600; i++) { // Gere pulsos para girar o motor
         digitalWrite(PUL_V, HIGH);
         delayMicroseconds(90); // Ajuste a velocidade aqui
         digitalWrite(PUL_V, LOW);
@@ -74,7 +74,7 @@ void loop() {
       serialCustom.print('d');
       delay(10);
       digitalWrite(DIR_V, HIGH); // Define a direção do motor
-      for (int i = 0; i < 25600; i++) { // Gere pulsos para girar o motor
+      for (int i = 0; i < 1600; i++) { // Gere pulsos para girar o motor
         digitalWrite(PUL_V, HIGH);
         delayMicroseconds(90); // Ajuste a velocidade aqui
         digitalWrite(PUL_V, LOW);
