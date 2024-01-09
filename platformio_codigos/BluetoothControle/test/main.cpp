@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
-
 /* serialCustom */
 #define rxPin A0
 #define txPin A1
@@ -48,18 +47,18 @@ void loop() {
         delayMicroseconds(90);
     }
   }
-  else if (recebidoBluetooth == 'Q') {
-      Serial.write('Q'); 
-      serialCustom.print('Q');
-      delay(10);
-      digitalWrite(DIR_H, HIGH); // Define a direção do motor
-      for (int i = 0; i < 25600; i++) { // Gere pulsos para girar o motor
-        digitalWrite(PUL_H, HIGH);
-        delayMicroseconds(90); // Ajuste a velocidade aqui
-        digitalWrite(PUL_H, LOW);
-        delayMicroseconds(90);
-    }
-  }
+  // else if (recebidoBluetooth == 'Q') {
+  //     Serial.write('Q'); 
+  //     serialCustom.print('Q');
+  //     delay(10);
+  //     digitalWrite(DIR_H, HIGH); // Define a direção do motor
+  //     for (int i = 0; i < 25600; i++) { // Gere pulsos para girar o motor
+  //       digitalWrite(PUL_H, HIGH);
+  //       delayMicroseconds(90); // Ajuste a velocidade aqui
+  //       digitalWrite(PUL_H, LOW);
+  //       delayMicroseconds(90);
+  //   }
+  // }
  }
 }
 /* 25600 - HORIZONTAL*/
