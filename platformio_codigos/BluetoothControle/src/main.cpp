@@ -53,10 +53,11 @@ void loop() {
       serialCustom.print('Q');
       delay(10);
       digitalWrite(DIR_H, HIGH); // Define a direção do motor
-      for (int i = 0; i < 25600; i++) { // Gere pulsos para girar o motor
-        digitalWrite(PUL_H, HIGH);
+      digitalWrite(DIR_v, HIGH);
+      for (int i = 0; i < 100; i++) { // Gere pulsos para girar o motor
+        digitalWrite(PUL_V, HIGH);
         delayMicroseconds(90); // Ajuste a velocidade aqui
-        digitalWrite(PUL_H, LOW);
+        digitalWrite(PUL_V, LOW);
         delayMicroseconds(90);
     }
   }
@@ -65,3 +66,7 @@ void loop() {
 /* 25600 - HORIZONTAL*/
 /* 1600 - VERTICAL*/
 /* 800 - PLATAFORMA*/
+/* 
+#define rxPin A0
+#define txPin A1
+ */
