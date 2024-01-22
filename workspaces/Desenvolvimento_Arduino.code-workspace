@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../platformio_codigos/GPS V2"
+		},
+		{
+			"name": "recebeBluetooth",
+			"path": "../platformio_codigos/recebeBluetooth"
+		}
+	],
+	"settings": {}
+}
