@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "E:/EsteComputadorArquivos/Documents/syncGit/platformio_codigos/GPS V2/.pio/libdeps/uno/Adafruit BusIO"
+    "cmake.sourceDirectory": "/home/trinca/Documentos/github/robo_automacao/platformio_codigos/GPS V2/.pio/libdeps/uno/Unity",
+    "C_Cpp.default.compilerPath": "/home/trinca/.platformio/packages/toolchain-atmelavr/bin/avr-gcc"
 }

@@ -59,6 +59,7 @@ void loop() {
         delayMicroseconds(90); // Ajuste a velocidade aqui
         digitalWrite(PUL_V, LOW);
         delayMicroseconds(90);
+        
     }
   }
  }

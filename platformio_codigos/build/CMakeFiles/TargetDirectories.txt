@@ -1,0 +1,7 @@
+/home/trinca/Documentos/github/robo_automacao/platformio_codigos/build/CMakeFiles/unity.dir
+/home/trinca/Documentos/github/robo_automacao/platformio_codigos/build/CMakeFiles/edit_cache.dir
+/home/trinca/Documentos/github/robo_automacao/platformio_codigos/build/CMakeFiles/rebuild_cache.dir
+/home/trinca/Documentos/github/robo_automacao/platformio_codigos/build/CMakeFiles/list_install_components.dir
+/home/trinca/Documentos/github/robo_automacao/platformio_codigos/build/CMakeFiles/install.dir
+/home/trinca/Documentos/github/robo_automacao/platformio_codigos/build/CMakeFiles/install/local.dir
+/home/trinca/Documentos/github/robo_automacao/platformio_codigos/build/CMakeFiles/install/strip.dir
