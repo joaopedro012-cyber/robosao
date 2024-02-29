@@ -11,12 +11,16 @@
   "dependencies": {
     "@config-plugins/react-native-ble-plx": "^7.0.0",
     "@react-native-async-storage/root": "github:react-native-async-storage/async-storage",
+    "@react-navigation/native": "^6.1.10",
+    "@react-navigation/native-stack": "^6.9.18",
     "@shopify/react-native-skia": "0.1.221",
     "async-storage": "^0.1.0",
-    "expo": "~50.0.6",
+    "expo": "^49.0.23",
+    "expo-device": "^5.9.3",
+    "expo-network": "~5.8.0",
     "expo-status-bar": "~1.11.1",
     "expo-system-ui": "^2.9.3",
-    "korol-joystick": "^1.7.0",
+    "korol-joystick": "^1.5.0",
     "react": "18.2.0",
     "react-joystick-component": "^6.2.1",
     "react-native": "0.73.4",
@@ -26,7 +30,7 @@
     "react-native-gesture-handler": "^2.15.0",
     "react-native-joystick": "^1.0.4",
     "react-native-logs": "^5.1.0",
-    "expo-network": "~5.8.0"
+    "react-redux": "^9.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

@@ -4,7 +4,13 @@ import { StyleSheet, Text, View, PermissionsAndroid} from 'react-native';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KorolJoystick } from "korol-joystick";
 import BluetoothConexao from './src/components/bluetoothConexao';
+import BluetoothListLayout from './src/containers/bluetooth-list-layout';
 
+const App: () => {
+  return(
+    <BluetoothListLayout/>
+  )
+}
 
 export default function App() {
   return (

@@ -53,7 +53,7 @@ void loop() {
       serialCustom.print('Q');
       delay(10);
       digitalWrite(DIR_H, HIGH); // Define a direção do motor
-      digitalWrite(DIR_v, HIGH);
+      digitalWrite(DIR_V, HIGH);
       for (int i = 0; i < 100; i++) { // Gere pulsos para girar o motor
         digitalWrite(PUL_V, HIGH);
         delayMicroseconds(90); // Ajuste a velocidade aqui
