@@ -37,8 +37,7 @@ void loop() {
      }
     }
     if(recebidoMonitorSerial == 'e' || recebidoMonitorSerial == 'E'){
-    digitalWrite(DIR_H, HIGH);
-     for (int c = 0; c < 1066; c++) {
+    for (int v = 0; v < 8534; v++) {
         digitalWrite(DIR_V, LOW);
         digitalWrite(PUL_V, HIGH);
         delayMicroseconds(90); // Ajuste a velocidade aqui
@@ -47,15 +46,28 @@ void loop() {
         digitalWrite(PUL_V, HIGH);
         delayMicroseconds(90); // Ajuste a velocidade aqui
         digitalWrite(PUL_V, LOW);
-
+      int c = 0;
+      int d = 25600;
+         while (c < d) {
+            if (Serial.available() > 0) {
+               digitalWrite(PUL_H, HIGH);
+               delayMicroseconds(90); // Ajuste a velocidade aqui
+               digitalWrite(PUL_H, LOW);
+               delayMicroseconds(90);
+               d++;
+               c++;
+            }
+      }
      }
-     for (int x = 0; x < 1600; x++) { // Gere pulsos para girar o motor
-        delayMicroseconds(90);
-        digitalWrite(PUL_H, HIGH);
+     for (int v = 0; v < 8534; v++) {
+        digitalWrite(DIR_V, HIGH);
+        digitalWrite(PUL_V, HIGH);
         delayMicroseconds(90); // Ajuste a velocidade aqui
-        digitalWrite(PUL_H, LOW);
-        delayMicroseconds(90);
-     }
+        digitalWrite(PUL_V, LOW);
+        digitalWrite(DIR_V, HIGH);
+        digitalWrite(PUL_V, HIGH);
+        delayMicroseconds(90); // Ajuste a velocidade aqui
+        digitalWrite(PUL_V, LOW);
     }
     if(recebidoMonitorSerial == 'q' || recebidoMonitorSerial == 'Q'){
     digitalWrite(DIR_H, HIGH);
@@ -132,4 +144,5 @@ void loop() {
      }
   }
   }
+}
 }
