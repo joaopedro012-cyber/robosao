@@ -11,9 +11,8 @@
 
 #define delayMs 45
 #define pulsosHoriz 6400
-#define pulsosVert 3200
+#define pulsosVert 300
 #define pulsosDiagonais 3200
-
 
 void setup() {
   pinMode(DIR_H, OUTPUT);
@@ -103,7 +102,7 @@ void loop() {
         delayMicroseconds(delayMs);
      }
     }
-    if(recebidoMonitorSerial == 'd' || recebidoMonitorSerial == 'D'){
+    if(recebidoMonitorSerial == 'a' || recebidoMonitorSerial == 'A'){
     digitalWrite(DIR_V, LOW);
      for (int b = 0; b < pulsosVert; b++) { // Gere pulsosVert para girar o motor
         digitalWrite(PUL_V, HIGH);
@@ -112,7 +111,7 @@ void loop() {
         delayMicroseconds(delayMs);
      }
     }
-    if(recebidoMonitorSerial == 'a' || recebidoMonitorSerial == 'A'){
+    if(recebidoMonitorSerial == 'd' || recebidoMonitorSerial == 'D'){
     digitalWrite(DIR_V, HIGH);
      for (int v = 0; v < pulsosVert; v++) { // Gere pulsosVert para girar o motor
         digitalWrite(PUL_V, HIGH);

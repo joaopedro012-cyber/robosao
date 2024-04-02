@@ -6,11 +6,11 @@ import { KorolJoystick } from "korol-joystick";
 import BluetoothConexao from './src/components/bluetoothConexao';
 import BluetoothListLayout from './src/containers/bluetooth-list-layout';
 
-const App: () => {
+/* const App: () => {
   return(
     <BluetoothListLayout/>
   )
-}
+} */
 
 export default function App() {
   return (

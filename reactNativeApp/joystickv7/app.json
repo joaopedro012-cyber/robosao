@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "joystickv7",
+    "slug": "joystickv7",
+    "version": "0.1.0",
+    "sdkVersion": "50.0.0",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "android": {
+      "package": "com.joao_helion.joystickv7"
+    },
+    "ios": {
+      "bundleIdentifier": "joystickv7bluetooth"
+    }
+  }
+}
