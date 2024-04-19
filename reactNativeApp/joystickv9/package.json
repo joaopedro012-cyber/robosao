@@ -10,10 +10,11 @@
     "ts:check": "tsc"
   },
   "dependencies": {
-    "@types/react": "~18.2.45",
-    "expo": "~50.0.14",
+    "@korsolutions/react-native-joystick": "^2.0.1",
+    "@types/react": "^18.2.78",
+    "expo": "^50.0.15",
     "expo-status-bar": "~1.11.1",
-    "korol-joystick": "^1.7.0",
+    "korol-joystick": "^1.5.0",
     "react": "18.2.0",
     "react-native": "0.73.6",
     "react-native-bluetooth-classic": "^1.73.0-rc.8",
