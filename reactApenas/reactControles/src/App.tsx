@@ -11,6 +11,8 @@ const App: React.FC = () => {
   );
 };
 
+//teste
+
 /* const app2: React.FC = () => {
   return (
   <>
