@@ -3,6 +3,7 @@
 
 /*
  * See IbusReader.cs for details about the IBUS protocol
+ * Teste de Commit
  */
 
 #define COMMAND40 0x40
