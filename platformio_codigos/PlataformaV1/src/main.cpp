@@ -16,7 +16,7 @@ void loop() {
   int delayMs = 22;
   if (Serial.available()){
     char recebidoMonitorSerial = Serial.read();
-    if(recebidoMonitorSerial == 'w' || recebidoMonitorSerial == 'W'){
+    if(recebidoMonitorSerial == 'j' || recebidoMonitorSerial == 'J'){
     digitalWrite(DIR_PLAT, HIGH);
      for (int b = 0; b < 10000; b++) { // Gere pulsos para girar o motor
         digitalWrite(PUL_PLAT, HIGH);
@@ -25,7 +25,7 @@ void loop() {
         delayMicroseconds(delayMs);
      }
     }
-    if(recebidoMonitorSerial == 'x' || recebidoMonitorSerial == 'X'){
+    if(recebidoMonitorSerial == 'm' || recebidoMonitorSerial == 'M'){
     digitalWrite(DIR_PLAT, LOW);
      for (int v = 0; v < 10000; v++) { // Gere pulsos para girar o motor
         digitalWrite(PUL_PLAT, HIGH);
