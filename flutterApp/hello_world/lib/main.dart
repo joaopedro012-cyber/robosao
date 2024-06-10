@@ -18,7 +18,7 @@ class _MyAppState extends State<MyApp2> {
   Widget build(BuildContext context) {
     return Center(
       child: Text(
-        'O salário de ${widget.nome} é $salario',
+        'Olá O salário de ${widget.nome} é $salario',
         textDirection: TextDirection.ltr,
       ),
     );
