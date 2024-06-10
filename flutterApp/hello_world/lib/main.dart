@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp2(nome: 'Pedr00000o'));
+  runApp(MyApp2(nome: 'Pedro'));
 }
 
 class MyApp2 extends StatefulWidget {
