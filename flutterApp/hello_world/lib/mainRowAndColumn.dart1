@@ -1,0 +1,46 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp4());
+}
+
+class MyApp4 extends StatefulWidget {
+  MyApp4({Key? key}) : super(key: key);
+
+  @override
+  _MyApp4State createState() => _MyApp4State();
+}
+
+class _MyApp4State extends State<MyApp4> {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        home: Scaffold(
+      appBar: AppBar(
+        title: Text('Aplicativo com o Scaffold'),
+      ),
+      body: Column(
+        children: [
+          Center(
+            child: Text(
+              'Meu Aplicativo teste ',
+              style: TextStyle(fontSize: 32),
+            ),
+          ),
+          Center(
+            child: Text(
+              'Meu Aplicativo teste ',
+              style: TextStyle(fontSize: 32),
+            ),
+          ),
+          Center(
+            child: Text(
+              'Meu Aplicativo teste ',
+              style: TextStyle(fontSize: 32),
+            ),
+          ),
+        ],
+      ),
+    ));
+  }
+}

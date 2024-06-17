@@ -1,26 +1,34 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp2(nome: 'Pedro'));
+  runApp(MyApp5());
 }
 
-class MyApp2 extends StatefulWidget {
-  final String nome;
-  MyApp2({Key? key, this.nome = ''}) : super(key: key);
+class MyApp5 extends StatelessWidget {
+  const MyApp5({Key? key}) : super(key: key);
 
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp2> {
-  int salario = 1237000;
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Olá O salário de ${widget.nome} é $salario',
-        textDirection: TextDirection.ltr,
-      ),
+    return MaterialApp(
+      home: Scaffold(
+          appBar: AppBar(
+            title: Text('Administração do Robo'),
+          ),
+          body: Stack(children: [
+            Container(
+              width: 200,
+              height: 200,
+              color: Colors.blue,
+            ),
+            Positioned(
+              right: -50,
+              child: Container(
+                width: 100,
+                height: 100,
+                color: Colors.red,
+              ),
+            ),
+          ])),
     );
   }
 }

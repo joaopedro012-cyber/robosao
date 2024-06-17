@@ -1,0 +1,33 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp3());
+}
+
+class MyApp3 extends StatefulWidget {
+  final String nome;
+  MyApp3({Key? key, this.nome = ''}) : super(key: key);
+  @override
+  _MyApp3State createState() => _MyApp3State();
+}
+
+class _MyApp3State extends State<MyApp3> {
+  int salario = 9000;
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: GestureDetector(
+        onTap: () {
+          print('clicou');
+          setState(() {
+            salario = salario + 100;
+          });
+        },
+        child: Text(
+          'O salário de ${widget.nome} é $salario',
+          textDirection: TextDirection.ltr,
+        ),
+      ),
+    );
+  }
+}
