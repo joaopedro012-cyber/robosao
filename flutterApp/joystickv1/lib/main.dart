@@ -17,10 +17,19 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Administração Robo'),
+          backgroundColor: Colors.blue,
+          title: Text(
+            'Administração Robo',
+            style: TextStyle(
+                color: Colors.white,
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.bold),
+          ),
         ),
-        body: Wrap(
-          children: [],
+        body: Center(
+          child: Wrap(
+            children: [],
+          ),
         ),
       ),
     );

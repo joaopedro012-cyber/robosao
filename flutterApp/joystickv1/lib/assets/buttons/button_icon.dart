@@ -4,23 +4,25 @@ import 'package:flutter/material.dart';
 class botaoComIcone extends StatelessWidget {
   final Color color;
   final IconData icon;
-  final String link;
+  final VoidCallback onPressed;
 
   const botaoComIcone({
     Key? key,
     required this.color,
     required this.icon,
-    required this.link,
+    required this.onPressed,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      style: ElevatedButton.styleFrom(backgroundColor): color),
-      onPressed: () {
-        //lógica para o link
-      },
-      child: Icon(icon),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        shape: CircleBorder(),
+        padding: EdgeInsets.all(16),
+      ),
+      onPressed: onPressed,
+      child: Icon(icon, color: Colors.white),
     );
   }
 }
