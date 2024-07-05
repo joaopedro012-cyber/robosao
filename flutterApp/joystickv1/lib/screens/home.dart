@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../buttons/button_icon.dart';
+import '../screens/bluetooth.dart';
 
 void main() {
-  runApp(bluetoothPage());
+  runApp(const homePage());
 }
 
-class bluetoothPage extends StatefulWidget {
-  bluetoothPage({Key? key}) : super(key: key);
+class homePage extends StatefulWidget {
+  const homePage({Key? key}) : super(key: key);
 
   @override
-  _bluetoothPageState createState() => _bluetoothPageState();
+  _homePageState createState() => _homePageState();
 }
 
 class _homePageState extends State<homePage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      routes: {
+        '/bluetoothpage': (context) => const bluetoothPage(),
+      },
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.blue,
@@ -33,12 +37,13 @@ class _homePageState extends State<homePage> {
             spacing: 16,
             children: [
               botaoComIcone(
-                  icone: Icons.bluetooth,
-                  textoIcone: 'BLUETOOTH',
-                  corDeFundo: Colors.blue,
-                  onPressed: () {
-                    print('ola');
-                  }),
+                icone: Icons.bluetooth,
+                textoIcone: 'BLUETOOTH',
+                corDeFundo: Color(0xFF7171d5),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/bluetoothpage');
+                },
+              ),
               botaoComIcone(
                   icone: Icons.account_balance_rounded,
                   textoIcone: 'OLá teste 4',

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../buttons/button_icon.dart';
 
 void main() {
-  runApp(bluetoothPage());
+  runApp(const MaterialApp(
+    home: bluetoothPage(),
+  ));
 }
 
 class bluetoothPage extends StatefulWidget {
-  bluetoothPage({Key? key}) : super(key: key);
+  const bluetoothPage({Key? key}) : super(key: key);
 
   @override
   _bluetoothPageState createState() => _bluetoothPageState();
@@ -27,10 +28,15 @@ class _bluetoothPageState extends State<bluetoothPage> {
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.bold),
           ),
-          leading: Icon(
-            Icons.arrow_left,
-            color: Colors.white,
-            size: 32,
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_left,
+              color: Colors.white,
+              size: 32,
+            ),
+            onPressed: () {
+              Navigator.pushNamed(context, '/homepage');
+            },
           ),
         ),
         body: Center(
