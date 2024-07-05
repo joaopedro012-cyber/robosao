@@ -21,6 +21,7 @@ class _botaoComIconeState extends State<botaoComIcone> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: EdgeInsets.only(top: 14),
       width: 150,
       height: 150,
       child: TextButton.icon(

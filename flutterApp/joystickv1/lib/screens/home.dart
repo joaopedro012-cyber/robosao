@@ -45,11 +45,40 @@ class _homePageState extends State<homePage> {
                 },
               ),
               botaoComIcone(
-                  icone: Icons.account_balance_rounded,
-                  textoIcone: 'OLá teste 4',
-                  corDeFundo: Colors.red,
+                icone: Icons.computer_outlined,
+                textoIcone: 'COMPUTADOR',
+                corDeFundo: Color(0xFF8d40b7),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/bluetoothpage');
+                },
+              ),
+              botaoComIcone(
+                  icone: Icons.sports_esports,
+                  textoIcone: 'CONTROLE',
+                  corDeFundo: Color(0xFF42b7ac),
                   onPressed: () {
-                    print('teste 4');
+                    Navigator.pushNamed(context, '/bluetoothpage');
+                  }),
+              botaoComIcone(
+                  icone: Icons.sports_esports,
+                  textoIcone: 'CONTROLE',
+                  corDeFundo: Color(0xFF42b7ac),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/bluetoothpage');
+                  }),
+              botaoComIcone(
+                  icone: Icons.sports_esports,
+                  textoIcone: 'CONTROLE',
+                  corDeFundo: Color(0xFF42b7ac),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/bluetoothpage');
+                  }),
+              botaoComIcone(
+                  icone: Icons.sports_esports,
+                  textoIcone: 'CONTROLE',
+                  corDeFundo: Color(0xFF42b7ac),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/bluetoothpage');
                   })
             ],
           ),
