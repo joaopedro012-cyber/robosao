@@ -60,23 +60,23 @@ class _homePageState extends State<homePage> {
                     Navigator.pushNamed(context, '/bluetoothpage');
                   }),
               botaoComIcone(
-                  icone: Icons.sports_esports,
-                  textoIcone: 'CONTROLE',
-                  corDeFundo: Color(0xFF42b7ac),
+                  icone: Icons.build,
+                  textoIcone: 'MANUTENÇÃO',
+                  corDeFundo: Color(0xFFd5ac4d),
                   onPressed: () {
                     Navigator.pushNamed(context, '/bluetoothpage');
                   }),
               botaoComIcone(
-                  icone: Icons.sports_esports,
-                  textoIcone: 'CONTROLE',
-                  corDeFundo: Color(0xFF42b7ac),
+                  icone: Icons.list,
+                  textoIcone: 'ROTINAS',
+                  corDeFundo: Color(0xFFd57171),
                   onPressed: () {
                     Navigator.pushNamed(context, '/bluetoothpage');
                   }),
               botaoComIcone(
-                  icone: Icons.sports_esports,
-                  textoIcone: 'CONTROLE',
-                  corDeFundo: Color(0xFF42b7ac),
+                  icone: Icons.radar,
+                  textoIcone: 'SENSORES',
+                  corDeFundo: Color(0xFF9ac847),
                   onPressed: () {
                     Navigator.pushNamed(context, '/bluetoothpage');
                   })

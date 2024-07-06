@@ -30,7 +30,7 @@ class _bluetoothPageState extends State<bluetoothPage> {
           ),
           leading: IconButton(
             icon: Icon(
-              Icons.arrow_left,
+              Icons.arrow_back,
               color: Colors.white,
               size: 32,
             ),
