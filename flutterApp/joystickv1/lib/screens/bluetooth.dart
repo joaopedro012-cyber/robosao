@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../buttons/button_icon.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 
 void main() {
   runApp(const MaterialApp(
@@ -9,12 +10,29 @@ void main() {
 
 class bluetoothPage extends StatefulWidget {
   const bluetoothPage({Key? key}) : super(key: key);
-
   @override
   _bluetoothPageState createState() => _bluetoothPageState();
 }
 
 class _bluetoothPageState extends State<bluetoothPage> {
+  final FlutterBlue flutterBlue = FlutterBlue.instance;
+  List<BluetoothDevice> availableDevices = [];
+
+  @override
+  void initState() {
+    super.initState();
+    startScanning();
+  }
+
+  void startScanning() {
+    flutterBlue.startScan(timeout: Duration(seconds: 60));
+    flutterBlue.scanResults.listen((results) {
+      setState(() {
+        availableDevices = results.map((result) => result.device).toList();
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -39,24 +57,41 @@ class _bluetoothPageState extends State<bluetoothPage> {
             },
           ),
         ),
-        body: Center(
+        body: Container(
+          margin: EdgeInsets.only(top: 14, left: 14),
           child: Wrap(
             spacing: 16,
             children: [
-              botaoComIcone(
-                  icone: Icons.bluetooth,
-                  textoIcone: 'BLUETOOTH',
-                  corDeFundo: Color(0xFF7171d5),
-                  onPressed: () {
-                    print('ola');
-                  }),
-              botaoComIcone(
-                  icone: Icons.account_balance_rounded,
-                  textoIcone: 'OLá teste 4',
-                  corDeFundo: Colors.red,
-                  onPressed: () {
-                    print('teste 4');
-                  })
+              Expanded(
+                child: Text(
+                  'DISPOSITIVOS CONECTADOS:',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  'DISPOSITIVOS DISPONÍVEIS:',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: availableDevices.length,
+                  itemBuilder: (context, index) {
+                    final device = availableDevices[index];
+                    return ListTile(
+                      title: Text(device.name),
+                      subtitle: Text(device.id.toString()),
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ),
