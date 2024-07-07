@@ -30,7 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  flutter_blue: ^0.8.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -88,3 +88,52 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+  assets:
+    - lib/assets/fonts/
+
+  fonts:
+    - family: Montserrat
+      fonts:
+        - asset: lib/assets/fonts/Montserrat-Regular.ttf
+        - asset: lib/assets/fonts/Montserrat-Bold.ttf
+          weight: 700
+        - asset: lib/assets/fonts/Montserrat-Italic.ttf
+          style: italic
+        - asset: lib/assets/fonts/Montserrat-BoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: lib/assets/fonts/Montserrat-ExtraLight.ttf
+          weight: 200
+        - asset: lib/assets/fonts/Montserrat-ExtraLightItalic.ttf
+          weight: 200
+          style: italic
+        - asset: lib/assets/fonts/Montserrat-Light.ttf
+          weight: 300
+        - asset: lib/assets/fonts/Montserrat-LightItalic.ttf
+          weight: 300
+          style: italic
+        - asset: lib/assets/fonts/Montserrat-Medium.ttf
+          weight: 500
+        - asset: lib/assets/fonts/Montserrat-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: lib/assets/fonts/Montserrat-SemiBold.ttf
+          weight: 600
+        - asset: lib/assets/fonts/Montserrat-SemiBoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: lib/assets/fonts/Montserrat-Thin.ttf
+          weight: 100
+        - asset: lib/assets/fonts/Montserrat-ThinItalic.ttf
+          weight: 100
+          style: italic
+        - asset: lib/assets/fonts/Montserrat-ExtraBold.ttf
+          weight: 800
+        - asset: lib/assets/fonts/Montserrat-ExtraBoldItalic.ttf
+          weight: 800
+          style: italic
+        - asset: lib/assets/fonts/Montserrat-Black.ttf
+          weight: 900
+        - asset: lib/assets/fonts/Montserrat-BlackItalic.ttf
+          weight: 900
+          style: italic
