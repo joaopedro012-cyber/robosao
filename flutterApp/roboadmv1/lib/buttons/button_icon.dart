@@ -1,12 +1,12 @@
   import "package:flutter/material.dart";
   
 
-class botaoComIcone extends StatefulWidget {
+class BotaoComIcone extends StatefulWidget {
   final IconData icone;
   final String textoIcone;
   final Color corDeFundo;
   final VoidCallback onPressed;
-  const botaoComIcone(
+  const BotaoComIcone(
       {Key? key,
       required this.icone,
       required this.textoIcone,
@@ -15,10 +15,10 @@ class botaoComIcone extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<botaoComIcone> createState() => _botaoComIconeState();
+  State<BotaoComIcone> createState() => _BotaoComIconeState();
 }
 
-class _botaoComIconeState extends State<botaoComIcone> {
+class _BotaoComIconeState extends State<BotaoComIcone> {
   @override
   Widget build(BuildContext context) {
     return Container(

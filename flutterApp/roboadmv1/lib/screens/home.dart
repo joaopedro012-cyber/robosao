@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../buttons/button_icon.dart';
-import '../screens/bluetooth.dart';
+import '../screens/bluetooth/home/home.dart';
 
 void main() {
   runApp(const homePage());
@@ -18,7 +18,7 @@ class _homePageState extends State<homePage> {
   Widget build(BuildContext context) {
     return MaterialApp(
       routes: {
-        '/bluetoothpage': (context) => const bluetoothPage(),
+        '/BluetoothPage': (context) => const BluetoothPage(),
       },
       home: Scaffold(
         appBar: AppBar(
@@ -35,49 +35,49 @@ class _homePageState extends State<homePage> {
           child: Wrap(
             spacing: 16,
             children: [
-              botaoComIcone(
+              BotaoComIcone(
                 icone: Icons.bluetooth,
                 textoIcone: 'BLUETOOTH',
                 corDeFundo: Color(0xFF7171d5),
                 onPressed: () {
-                  Navigator.pushNamed(context, '/bluetoothpage');
+                  Navigator.pushNamed(context, '/BluetoothPage');
                 },
               ),
-              botaoComIcone(
+              BotaoComIcone(
                 icone: Icons.computer_outlined,
                 textoIcone: 'COMPUTADOR',
                 corDeFundo: Color(0xFF8d40b7),
                 onPressed: () {
-                  Navigator.pushNamed(context, '/bluetoothpage');
+                  Navigator.pushNamed(context, '/BluetoothPage');
                 },
               ),
-              botaoComIcone(
+              BotaoComIcone(
                   icone: Icons.sports_esports,
                   textoIcone: 'CONTROLE',
                   corDeFundo: Color(0xFF42b7ac),
                   onPressed: () {
-                    Navigator.pushNamed(context, '/bluetoothpage');
+                    Navigator.pushNamed(context, '/BluetoothPage');
                   }),
-              botaoComIcone(
+              BotaoComIcone(
                   icone: Icons.build,
                   textoIcone: 'MANUTENÇÃO',
                   corDeFundo: Color(0xFFd5ac4d),
                   onPressed: () {
-                    Navigator.pushNamed(context, '/bluetoothpage');
+                    Navigator.pushNamed(context, '/BluetoothPage');
                   }),
-              botaoComIcone(
+              BotaoComIcone(
                   icone: Icons.list,
                   textoIcone: 'ROTINAS',
                   corDeFundo: Color(0xFFd57171),
                   onPressed: () {
-                    Navigator.pushNamed(context, '/bluetoothpage');
+                    Navigator.pushNamed(context, '/BluetoothPage');
                   }),
-              botaoComIcone(
+              BotaoComIcone(
                   icone: Icons.radar,
                   textoIcone: 'SENSORES',
                   corDeFundo: Color(0xFF9ac847),
                   onPressed: () {
-                    Navigator.pushNamed(context, '/bluetoothpage');
+                    Navigator.pushNamed(context, '/BluetoothPage');
                   })
             ],
           ),

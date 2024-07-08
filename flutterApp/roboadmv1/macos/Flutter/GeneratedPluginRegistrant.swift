@@ -5,8 +5,10 @@
 import FlutterMacOS
 import Foundation
 
-import flutter_blue
+import device_info_plus
+import universal_ble
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
-  FlutterBluePlugin.register(with: registry.registrar(forPlugin: "FlutterBluePlugin"))
+  DeviceInfoPlusMacosPlugin.register(with: registry.registrar(forPlugin: "DeviceInfoPlusMacosPlugin"))
+  UniversalBlePlugin.register(with: registry.registrar(forPlugin: "UniversalBlePlugin"))
 }
