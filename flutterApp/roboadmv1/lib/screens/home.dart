@@ -56,7 +56,7 @@ class _homePageState extends State<homePage> {
                   textoIcone: 'CONTROLE',
                   corDeFundo: Color.fromARGB(255, 78, 78, 78),
                   onPressed: () {
-                    Navigator.pushNamed(context, '/BluetoothPage');
+                    Navigator.pushNamed(context, '/ControlePage');
                   }),
               BotaoComIcone(
                   icone: Icons.build,
