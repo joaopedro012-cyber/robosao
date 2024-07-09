@@ -47,7 +47,6 @@ class _ControlePageState extends State<ControlePage> {
       body: SafeArea(
         child: JoystickArea(
           mode: _joystickMode,
-          includeInitialAnimation: false,
           initialJoystickAlignment: const Alignment(0, 0.8),
           listener: (details) {
             setState(() {

@@ -40,8 +40,8 @@ dependencies:
   device_info_plus: ^9.0.2
   flutter_adaptive_scaffold: ^0.1.7+2
   convert: ^3.1.1
-  #simple_joystick: ^0.0.1
   flutter_joystick: ^0.2.0
+  
   
 
 dev_dependencies:
