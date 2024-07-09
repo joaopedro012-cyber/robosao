@@ -54,7 +54,7 @@ class _homePageState extends State<homePage> {
               BotaoComIcone(
                   icone: Icons.sports_esports,
                   textoIcone: 'CONTROLE',
-                  corDeFundo: Color(0xFF42b7ac),
+                  corDeFundo: Color.fromARGB(255, 78, 78, 78),
                   onPressed: () {
                     Navigator.pushNamed(context, '/BluetoothPage');
                   }),

@@ -304,6 +304,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  simple_joystick:
+    dependency: "direct main"
+    description:
+      name: simple_joystick
+      sha256: fbc7ce3840704edeacec0666ca7c606e00e41916be2531001feb413dd11fb688
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   sky_engine:
     dependency: transitive
     description: flutter
