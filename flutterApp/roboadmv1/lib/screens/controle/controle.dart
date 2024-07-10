@@ -68,36 +68,36 @@ class _ControlePageState extends State<ControlePage> {
 
               switch(ValorHorizontal){
                 case >= 0.000000000000001:
-                  String? ValorDeEnvioDireita = "D";
-                  final ValorConvertidoASCIIDireita = ValorDeEnvioDireita.codeUnitAt(0);
-                  final ValorModeloBluetoothDireita = Uint8List.fromList([ValorConvertidoASCIIDireita]);
+                  // String? ValorDeEnvioDireita = "D";
+                  // final ValorConvertidoASCIIDireita = ValorDeEnvioDireita.codeUnitAt(0);
+                  // final ValorModeloBluetoothDireita = Uint8List.fromList([ValorConvertidoASCIIDireita]);
 
-                  UniversalBle.writeValue(deviceIdHorizontal, serviceIdHorizontal, characteristicIdHorizontal, ValorModeloBluetoothDireita,BleOutputProperty.withResponse,);
+                  // UniversalBle.writeValue(deviceIdHorizontal, serviceIdHorizontal, characteristicIdHorizontal, ValorModeloBluetoothDireita,BleOutputProperty.withResponse,);
                   print("Valor de X: é positivo $ValorHorizontal");
                 break;
                 case <= -0.000000000000001:
-                  String? ValorDeEnvioEsquerda = "A";
-                  final ValorConvertidoASCIIEsquerda = ValorDeEnvioEsquerda.codeUnitAt(0);
-                  final ValorModeloBluetoothEsquerda = Uint8List.fromList([ValorConvertidoASCIIEsquerda]);
+                  // String? ValorDeEnvioEsquerda = "A";
+                  // final ValorConvertidoASCIIEsquerda = ValorDeEnvioEsquerda.codeUnitAt(0);
+                  // final ValorModeloBluetoothEsquerda = Uint8List.fromList([ValorConvertidoASCIIEsquerda]);
 
-                  UniversalBle.writeValue(deviceIdHorizontal, serviceIdHorizontal, characteristicIdHorizontal, ValorModeloBluetoothEsquerda,BleOutputProperty.withResponse,);
+                  // UniversalBle.writeValue(deviceIdHorizontal, serviceIdHorizontal, characteristicIdHorizontal, ValorModeloBluetoothEsquerda,BleOutputProperty.withResponse,);
                   print("Valor de X: é negativo $ValorHorizontal");
               }
               switch(ValorVertical){
                 case >= 0.000000000000001:
-                String? ValorDeEnvioAtras = "S";
-                  final ValorConvertidoASCIIAtras = ValorDeEnvioAtras.codeUnitAt(0);
-                  final ValorModeloBluetoothAtras = Uint8List.fromList([ValorConvertidoASCIIAtras]);
-                  UniversalBle.writeValue(deviceIdHorizontal, serviceIdHorizontal, characteristicIdHorizontal, ValorModeloBluetoothAtras,BleOutputProperty.withResponse,);
+                // String? ValorDeEnvioAtras = "S";
+                //   final ValorConvertidoASCIIAtras = ValorDeEnvioAtras.codeUnitAt(0);
+                //   final ValorModeloBluetoothAtras = Uint8List.fromList([ValorConvertidoASCIIAtras]);
+                //   UniversalBle.writeValue(deviceIdHorizontal, serviceIdHorizontal, characteristicIdHorizontal, ValorModeloBluetoothAtras,BleOutputProperty.withResponse,);
 
 
                   print("Valor de Y: é positivo $ValorVertical");
                 break;
                 case <= -0.000000000000001:
-                String? ValorDeEnvioFrente = "W";
-                  final ValorConvertidoASCIIFrente = ValorDeEnvioFrente.codeUnitAt(0);
-                  final ValorModeloBluetoothFrente = Uint8List.fromList([ValorConvertidoASCIIFrente]);
-                  UniversalBle.writeValue(deviceIdHorizontal, serviceIdHorizontal, characteristicIdHorizontal, ValorModeloBluetoothFrente,BleOutputProperty.withResponse,);
+                // String? ValorDeEnvioFrente = "W";
+                //   final ValorConvertidoASCIIFrente = ValorDeEnvioFrente.codeUnitAt(0);
+                //   final ValorModeloBluetoothFrente = Uint8List.fromList([ValorConvertidoASCIIFrente]);
+                //   UniversalBle.writeValue(deviceIdHorizontal, serviceIdHorizontal, characteristicIdHorizontal, ValorModeloBluetoothFrente,BleOutputProperty.withResponse,);
 
 
                   print("Valor de Y: é negativo $ValorVertical");
