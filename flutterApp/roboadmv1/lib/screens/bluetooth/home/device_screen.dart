@@ -46,7 +46,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
           ElevatedButton(
               onPressed: () {
                 try {
-                  widget.connection.writeString("hello world");
+                  widget.connection.writeString("w");
                 } catch (e) {
                   if (kDebugMode) print(e);
                   ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(
