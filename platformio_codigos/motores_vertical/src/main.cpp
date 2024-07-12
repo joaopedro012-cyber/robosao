@@ -1,9 +1,13 @@
 #include <Arduino.h>
+#include <SoftwareSerial.h>
 
 /* VERTICAL */
-#define ENA_V 10
-#define PUL_V 9
-#define DIR_V 8
+#define ENA_V 13
+#define PUL_V 12
+#define DIR_V 11
+
+SoftwareSerial serialfisico(10, 9);     // RX, TX
+SoftwareSerial serialbluetooth(A1, A0); // RX, TX
 
 #define delayMs 45
 #define pulsosVert 300
@@ -13,6 +17,8 @@ void setup()
 {
    pinMode(DIR_V, OUTPUT);
    pinMode(PUL_V, OUTPUT);
+   serialbluetooth.begin(9600);
+   serialfisico.begin(9600);
    Serial.begin(9600);
 }
 
@@ -21,7 +27,7 @@ void loop()
    if (Serial.available())
    {
       char recebidoMonitorSerial = Serial.read();
-      
+
       if (recebidoMonitorSerial == 'a' || recebidoMonitorSerial == 'A')
       {
          digitalWrite(DIR_V, LOW);

@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
-import 'package:universal_ble/universal_ble.dart';
+//import 'package:universal_ble/universal_ble.dart';
 
 void main() {
   runApp(const ControlePage());
@@ -19,7 +19,7 @@ const deviceIdVertical = "ID_AQUI_DENTRO";
 const serviceIdVertical = "ID_AQUI_DENTRO";
 const characteristicIdVertical = "ID_AQUI_DENTRO";
 
- List<BleDevice> pairedDevices = [];
+//List<BleDevice> pairedDevices = [];
 
 class ControlePage extends StatefulWidget {
   const ControlePage({super.key});
@@ -32,7 +32,6 @@ class _ControlePageState extends State<ControlePage> {
   double _x = 100;
   double _y = 100;
   JoystickMode _joystickMode = JoystickMode.all;
-  
 
   @override
   void didChangeDependencies() {
@@ -64,9 +63,9 @@ class _ControlePageState extends State<ControlePage> {
           listener: (details) {
             setState(() {
               double ValorHorizontal = details.x;
-              double ValorVertical  = details.y;
+              double ValorVertical = details.y;
 
-              switch(ValorHorizontal){
+              switch (ValorHorizontal) {
                 case >= 0.000000000000001:
                   // String? ValorDeEnvioDireita = "D";
                   // final ValorConvertidoASCIIDireita = ValorDeEnvioDireita.codeUnitAt(0);
@@ -74,7 +73,7 @@ class _ControlePageState extends State<ControlePage> {
 
                   // UniversalBle.writeValue(deviceIdHorizontal, serviceIdHorizontal, characteristicIdHorizontal, ValorModeloBluetoothDireita,BleOutputProperty.withResponse,);
                   print("Valor de X: é positivo $ValorHorizontal");
-                break;
+                  break;
                 case <= -0.000000000000001:
                   // String? ValorDeEnvioEsquerda = "A";
                   // final ValorConvertidoASCIIEsquerda = ValorDeEnvioEsquerda.codeUnitAt(0);
@@ -83,22 +82,20 @@ class _ControlePageState extends State<ControlePage> {
                   // UniversalBle.writeValue(deviceIdHorizontal, serviceIdHorizontal, characteristicIdHorizontal, ValorModeloBluetoothEsquerda,BleOutputProperty.withResponse,);
                   print("Valor de X: é negativo $ValorHorizontal");
               }
-              switch(ValorVertical){
+              switch (ValorVertical) {
                 case >= 0.000000000000001:
-                // String? ValorDeEnvioAtras = "S";
-                //   final ValorConvertidoASCIIAtras = ValorDeEnvioAtras.codeUnitAt(0);
-                //   final ValorModeloBluetoothAtras = Uint8List.fromList([ValorConvertidoASCIIAtras]);
-                //   UniversalBle.writeValue(deviceIdHorizontal, serviceIdHorizontal, characteristicIdHorizontal, ValorModeloBluetoothAtras,BleOutputProperty.withResponse,);
-
+                  // String? ValorDeEnvioAtras = "S";
+                  //   final ValorConvertidoASCIIAtras = ValorDeEnvioAtras.codeUnitAt(0);
+                  //   final ValorModeloBluetoothAtras = Uint8List.fromList([ValorConvertidoASCIIAtras]);
+                  //   UniversalBle.writeValue(deviceIdHorizontal, serviceIdHorizontal, characteristicIdHorizontal, ValorModeloBluetoothAtras,BleOutputProperty.withResponse,);
 
                   print("Valor de Y: é positivo $ValorVertical");
-                break;
+                  break;
                 case <= -0.000000000000001:
-                // String? ValorDeEnvioFrente = "W";
-                //   final ValorConvertidoASCIIFrente = ValorDeEnvioFrente.codeUnitAt(0);
-                //   final ValorModeloBluetoothFrente = Uint8List.fromList([ValorConvertidoASCIIFrente]);
-                //   UniversalBle.writeValue(deviceIdHorizontal, serviceIdHorizontal, characteristicIdHorizontal, ValorModeloBluetoothFrente,BleOutputProperty.withResponse,);
-
+                  // String? ValorDeEnvioFrente = "W";
+                  //   final ValorConvertidoASCIIFrente = ValorDeEnvioFrente.codeUnitAt(0);
+                  //   final ValorModeloBluetoothFrente = Uint8List.fromList([ValorConvertidoASCIIFrente]);
+                  //   UniversalBle.writeValue(deviceIdHorizontal, serviceIdHorizontal, characteristicIdHorizontal, ValorModeloBluetoothFrente,BleOutputProperty.withResponse,);
 
                   print("Valor de Y: é negativo $ValorVertical");
               }
@@ -116,8 +113,6 @@ class _ControlePageState extends State<ControlePage> {
     );
   }
 }
-
-
 
 class JoystickModeDropdown extends StatelessWidget {
   final JoystickMode mode;

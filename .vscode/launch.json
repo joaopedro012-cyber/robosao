@@ -31,6 +31,12 @@
             "type": "dart"
         },
         {
+            "name": "roboadmv1",
+            "cwd": "flutterApp/roboadmv1",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
             "name": "joystickv1 (profile mode)",
             "cwd": "flutterApp/joystickv1",
             "request": "launch",

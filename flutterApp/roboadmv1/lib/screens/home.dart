@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:roboadmv1/screens/bluetooth/home/home.dart';
+import 'package:roboadmv1/screens/controle/controle.dart';
 import '../buttons/button_icon.dart';
-import '../screens/bluetooth/home/home.dart';
+import 'package:roboadmv1/main.dart';
 
 void main() {
   runApp(const homePage());
@@ -17,9 +19,6 @@ class _homePageState extends State<homePage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      routes: {
-        '/BluetoothPage': (context) => const BluetoothPage(),
-      },
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.blue,
@@ -40,7 +39,12 @@ class _homePageState extends State<homePage> {
                 textoIcone: 'BLUETOOTH',
                 corDeFundo: Color(0xFF7171d5),
                 onPressed: () {
-                  Navigator.pushNamed(context, '/BluetoothPage');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BluetoothPage(),
+                    ),
+                  );
                 },
               ),
               BotaoComIcone(
@@ -56,7 +60,12 @@ class _homePageState extends State<homePage> {
                   textoIcone: 'CONTROLE',
                   corDeFundo: Color.fromARGB(255, 78, 78, 78),
                   onPressed: () {
-                    Navigator.pushNamed(context, '/ControlePage');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ControlePage(),
+                      ),
+                    );
                   }),
               BotaoComIcone(
                   icone: Icons.build,

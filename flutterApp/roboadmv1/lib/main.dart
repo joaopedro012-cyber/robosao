@@ -21,7 +21,6 @@ class roboApp extends StatelessWidget {
         '/homepage': (context) => const homePage(),
         '/BluetoothPage': (context) => const BluetoothPage(),
         '/ControlePage': (context) => const ControlePage(),
-
       },
     );
   }
