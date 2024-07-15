@@ -54,7 +54,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
                           "Error sending to device. Device is ${widget.connection.isConnected ? "connected" : "not connected"}")));
                 }
               },
-              child: const Text("Send hello world to remote device")),
+              child: const Text("Enviar caractere 'w'")),
           const Divider(),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),

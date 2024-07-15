@@ -115,7 +115,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
           const Divider(),
           if (scanResults.isEmpty)
-            const Center(child: Text("No devices found yet"))
+            const Center(child: Text("Não foram encontrados Dispositivos"))
           else
             for (var result in scanResults)
               ListTile(
@@ -141,7 +141,7 @@ class _MainScreenState extends State<MainScreen> {
                     connection?.dispose();
                     ScaffoldMessenger.maybeOf(context)?.showSnackBar(
                         const SnackBar(
-                            content: Text("Error connecting to device")));
+                            content: Text("Erro ao conectar ao dispositivo")));
                   }
                 },
               )
