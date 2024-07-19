@@ -14,7 +14,7 @@ const int txPin = A1;
 SoftwareSerial serialbluetooth(rxPin, txPin); // RX, TX
 
 #define delayMs 45
-#define pulsosHoriz 300
+#define pulsosHoriz 6400
 #define pulsosDiagonais 3200
 
 void setup()

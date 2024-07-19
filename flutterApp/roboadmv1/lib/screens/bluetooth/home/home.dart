@@ -107,8 +107,8 @@ class _MainScreenState extends State<MainScreen> {
       body: ListView(
         children: [
           ListTile(
-            title: const Text("Bluetooth Adapter state"),
-            subtitle: const Text("Tap to enable"),
+            title: const Text("Estado do Bluetooh"),
+            subtitle: const Text("Clique para ativar"),
             trailing: Text(_adapterState.name),
             leading: const Icon(Icons.settings_bluetooth),
             onTap: () => _flutterBlueClassicPlugin.turnOn(),
@@ -156,7 +156,7 @@ class _MainScreenState extends State<MainScreen> {
             _flutterBlueClassicPlugin.startScan();
           }
         },
-        label: Text(_isScanning ? "Scanning..." : "Start device scan"),
+        label: Text(_isScanning ? "Procurando..." : "Começar Busca"),
         icon: Icon(_isScanning ? Icons.bluetooth_searching : Icons.bluetooth),
       ),
     );

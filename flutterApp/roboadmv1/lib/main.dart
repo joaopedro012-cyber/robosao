@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'screens/home.dart';
 import 'package:roboadmv1/screens/bluetooth/home/home.dart';
-import 'package:roboadmv1/screens/controle/controle.dart';
+//import 'package:roboadmv1/screens/controle/controle.dart';
+import 'package:roboadmv1/screens/bluetooth/home/device_screen.dart';
 
 void main() {
   runApp(const roboApp());
@@ -20,7 +21,7 @@ class roboApp extends StatelessWidget {
       routes: {
         '/homepage': (context) => const homePage(),
         '/BluetoothPage': (context) => const BluetoothPage(),
-        '/ControlePage': (context) => const ControlePage(),
+        '/ControlePage': (context) => const DeviceScreen(),
       },
     );
   }

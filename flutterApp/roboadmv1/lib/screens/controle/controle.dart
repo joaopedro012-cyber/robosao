@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
-//import 'package:universal_ble/universal_ble.dart';
 
 void main() {
   runApp(const ControlePage());
