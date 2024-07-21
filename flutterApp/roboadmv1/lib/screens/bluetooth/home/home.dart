@@ -89,7 +89,7 @@ class _MainScreenState extends State<MainScreen> {
       appBar: AppBar(
         title: const Text('BLUETOOTH'),
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back,
             color: Colors.black,
             size: 32,
@@ -98,7 +98,7 @@ class _MainScreenState extends State<MainScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => homePage(),
+                builder: (context) => const HomePage(),
               ),
             );
           },
