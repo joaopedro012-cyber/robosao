@@ -71,6 +71,10 @@ class _DeviceScreenState extends State<DeviceScreen> {
                   child: Joystick(
                     mode: _joystickModeVertical,
                     includeInitialAnimation: false,
+                    stick: const CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.white,
+                    ),
                     listener: (details) {
                       setState(() {
                         double valorVertical = details.y;
@@ -107,6 +111,10 @@ class _DeviceScreenState extends State<DeviceScreen> {
                   child: Joystick(
                     mode: _joystickModeHorizontal,
                     includeInitialAnimation: false,
+                    stick: const CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.white,
+                    ),
                     listener: (details) {
                       setState(() {
                         double valorHorizontal = details.x;

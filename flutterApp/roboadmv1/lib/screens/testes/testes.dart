@@ -6,8 +6,8 @@ void main() {
   runApp(const TestesPage());
 }
 
-const ballSize = 20.0;
-const step = 10.0;
+const ballSize = 50.0;
+const step = 50.0;
 
 class TestesPage extends StatefulWidget {
   const TestesPage({super.key});
@@ -60,6 +60,10 @@ class _TestesPageState extends State<TestesPage> {
                 Container(
                   child: Joystick(
                     mode: _joystickModeVertical,
+                    stick: const CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.white,
+                    ),
                     includeInitialAnimation: false,
                     listener: (details) {
                       setState(() {
