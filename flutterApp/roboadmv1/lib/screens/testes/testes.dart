@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
+import 'package:flutter/services.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(const TestesPage());
 }
 
@@ -49,13 +52,13 @@ class _TestesPageState extends State<TestesPage> {
         children: <Widget>[
           Container(
             width: 1000,
-            height: 70,
+            height: 120,
             color: Colors.blue,
           ),
           Container(
             child: Wrap(
               direction: Axis.horizontal,
-              alignment: WrapAlignment.spaceBetween,
+              alignment: WrapAlignment.center,
               children: [
                 Container(
                   child: Joystick(
@@ -90,7 +93,7 @@ class _TestesPageState extends State<TestesPage> {
                 ),
                 Container(
                   child: FractionallySizedBox(
-                    widthFactor: 0.45,
+                    widthFactor: 0.65,
                     child: Container(
                       color: Colors.green,
                       // Seu conteúdo aqui

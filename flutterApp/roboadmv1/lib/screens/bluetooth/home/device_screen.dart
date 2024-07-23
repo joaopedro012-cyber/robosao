@@ -81,14 +81,14 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
                         switch (valorVertical) {
                           case >= 0.000000000000001:
+                            widget.connection.writeString("x");
                             if (kDebugMode) {
-                              widget.connection.writeString("x");
                               print("Valor de Y: é positivo $valorVertical");
                             }
                             break;
                           case <= -0.000000000000001:
+                            widget.connection.writeString("w");
                             if (kDebugMode) {
-                              widget.connection.writeString("w");
                               print("Valor de Y: é negativo $valorVertical");
                             }
                         }
@@ -100,7 +100,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
                 ),
                 Container(
                   child: FractionallySizedBox(
-                    widthFactor: 0.45,
+                    widthFactor: 0.65,
                     child: Container(
                       color: Colors.green,
                       // Seu conteúdo aqui
@@ -118,18 +118,17 @@ class _DeviceScreenState extends State<DeviceScreen> {
                     listener: (details) {
                       setState(() {
                         double valorHorizontal = details.x;
-                        //double valorVertical = details.y;
 
                         switch (valorHorizontal) {
                           case >= 0.000000000000001:
+                            widget.connection.writeString("d");
                             if (kDebugMode) {
-                              widget.connection.writeString("d");
                               print("Valor de X: é positivo $valorHorizontal");
                             }
                             break;
                           case <= -0.000000000000001:
+                            widget.connection.writeString("a");
                             if (kDebugMode) {
-                              widget.connection.writeString("a");
                               print("Valor de X: é negativo $valorHorizontal");
                             }
                         }

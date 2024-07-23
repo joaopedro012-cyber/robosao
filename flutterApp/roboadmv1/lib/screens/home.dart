@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
               ),
               BotaoComIcone(
                 icone: Icons.computer_outlined,
-                textoIcone: 'COMPUTADOR',
+                textoIcone: 'PC',
                 corDeFundo: const Color(0xFF8d40b7),
                 onPressed: () {
                   Navigator.pushNamed(context, '/BluetoothPage');
