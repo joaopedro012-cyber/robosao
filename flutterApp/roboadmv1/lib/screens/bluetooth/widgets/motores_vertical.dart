@@ -3,7 +3,7 @@ import 'package:roboadmv1/screens/home.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
-import 'package:roboadmv1/screens/bluetooth/home/device_screen.dart';
+import 'package:roboadmv1/screens/bluetooth/widgets/conexao_motor_vertical.dart';
 
 void main() {
   runApp(const MotoresVerticalConexao());
@@ -86,34 +86,8 @@ class _MainScreenState extends State<MainScreen> {
     List<BluetoothDevice> scanResults = _scanResults.toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('BLUETOOTH'),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.black,
-            size: 32,
-          ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const HomePage(),
-              ),
-            );
-          },
-        ),
-      ),
       body: ListView(
         children: [
-          ListTile(
-            title: const Text("Estado do Bluetooh"),
-            subtitle: const Text("Clique para ativar"),
-            trailing: Text(_adapterState.name),
-            leading: const Icon(Icons.settings_bluetooth),
-            onTap: () => _flutterBlueClassicPlugin.turnOn(),
-          ),
-          const Divider(),
           if (scanResults.isEmpty)
             const Center(child: Text("Não foram encontrados Dispositivos"))
           else
@@ -133,8 +107,8 @@ class _MainScreenState extends State<MainScreen> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>
-                                  DeviceScreen(connection: connection!)));
+                              builder: (context) => ConexaoMotorVertical(
+                                  connection: connection!)));
                     }
                   } catch (e) {
                     if (kDebugMode) print(e);

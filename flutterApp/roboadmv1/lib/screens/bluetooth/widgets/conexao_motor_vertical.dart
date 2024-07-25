@@ -5,22 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 
-class DeviceScreen extends StatefulWidget {
-  const DeviceScreen({super.key, required this.connection});
+class ConexaoMotorVertical extends StatefulWidget {
+  const ConexaoMotorVertical({super.key, required this.connection});
 
   final BluetoothConnection connection;
 
   @override
-  State<DeviceScreen> createState() => _DeviceScreenState();
+  State<ConexaoMotorVertical> createState() => _ConexaoMotorVerticalState();
 }
 
 const ballSize = 20.0;
 const step = 10.0;
 
-class _DeviceScreenState extends State<DeviceScreen> {
+class _ConexaoMotorVerticalState extends State<ConexaoMotorVertical> {
   double _x = 100;
   double _y = 100;
-  JoystickMode _joystickModeHorizontal = JoystickMode.horizontal;
   JoystickMode _joystickModeVertical = JoystickMode.vertical;
 
   StreamSubscription? _readSubscription;
@@ -98,56 +97,9 @@ class _DeviceScreenState extends State<DeviceScreen> {
                     },
                   ),
                 ),
-                Container(
-                  child: FractionallySizedBox(
-                    widthFactor: 0.65,
-                    child: Container(
-                      color: Colors.green,
-                      // Seu conteúdo aqui
-                    ),
-                  ),
-                ),
-                Container(
-                  child: Joystick(
-                    mode: _joystickModeHorizontal,
-                    includeInitialAnimation: false,
-                    stick: const CircleAvatar(
-                      radius: 60,
-                      backgroundColor: Colors.white,
-                    ),
-                    listener: (details) {
-                      setState(() {
-                        double valorHorizontal = details.x;
-
-                        switch (valorHorizontal) {
-                          case >= 0.000000000000001:
-                            widget.connection.writeString("d");
-                            if (kDebugMode) {
-                              print("Valor de X: é positivo $valorHorizontal");
-                            }
-                            break;
-                          case <= -0.000000000000001:
-                            widget.connection.writeString("a");
-                            if (kDebugMode) {
-                              print("Valor de X: é negativo $valorHorizontal");
-                            }
-                        }
-
-                        _x = _x + step * details.x;
-                      });
-                    },
-                  ),
-                ),
               ],
             ),
           ),
-          const Divider(),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 1),
-            child: Text("Dados Recebidos",
-                style: Theme.of(context).textTheme.titleLarge),
-          ),
-          for (String input in _receivedInput) Text(input),
         ],
       ),
     );

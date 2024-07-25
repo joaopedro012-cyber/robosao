@@ -52,7 +52,12 @@ class _HomePageState extends State<HomePage> {
                 textoIcone: 'PC',
                 corDeFundo: const Color(0xFF8d40b7),
                 onPressed: () {
-                  Navigator.pushNamed(context, '/BluetoothPage');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const BluetoothPage(),
+                    ),
+                  );
                 },
               ),
               BotaoComIcone(
@@ -80,19 +85,31 @@ class _HomePageState extends State<HomePage> {
                     );
                   }),
               BotaoComIcone(
-                  icone: Icons.list,
-                  textoIcone: 'ROTINAS',
-                  corDeFundo: const Color(0xFFd57171),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/BluetoothPage');
-                  }),
+                icone: Icons.list,
+                textoIcone: 'ROTINAS',
+                corDeFundo: const Color(0xFFd57171),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const BluetoothPage(),
+                    ),
+                  );
+                },
+              ),
               BotaoComIcone(
-                  icone: Icons.radar,
-                  textoIcone: 'SENSORES',
-                  corDeFundo: const Color(0xFF9ac847),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/BluetoothPage');
-                  })
+                icone: Icons.radar,
+                textoIcone: 'SENSORES',
+                corDeFundo: const Color(0xFF9ac847),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const BluetoothPage(),
+                    ),
+                  );
+                },
+              )
             ],
           ),
         ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:roboadmv1/screens/home.dart';
+import 'package:roboadmv1/screens/bluetooth/widgets/motores_vertical.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +30,21 @@ class _TestesPageState extends State<TestesPage> {
       home: Scaffold(
         appBar: AppBar(
           title: Text('Controle'),
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Colors.black,
+              size: 32,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HomePage(),
+                ),
+              );
+            },
+          ),
         ),
         body: Center(
           child: Column(
@@ -40,11 +57,13 @@ class _TestesPageState extends State<TestesPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
+                    //TELA
                     Container(
                       width: 200,
                       height: 200,
                       color: Colors.green,
                     ),
+                    //DADOS EM TEMPO REAL
                     Container(
                       width: 200,
                       height: 200,
@@ -61,11 +80,31 @@ class _TestesPageState extends State<TestesPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
+                    //Joystick Cima e Baixo
                     Container(
                       width: larguraAlturaJoystick,
                       height: larguraAlturaJoystick,
-                      color: Colors.black,
+                      color: Colors.white54,
+                      child: MotoresVerticalConexao(),
                     ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        //Plataforma
+                        Container(
+                          width: 50,
+                          height: larguraAlturaJoystick,
+                          color: Colors.yellow,
+                        ),
+                        //Tomadas
+                        Container(
+                          width: 150,
+                          height: larguraAlturaJoystick,
+                          color: Colors.pink,
+                        ),
+                      ],
+                    ),
+                    //Joystick esquerda e direita
                     Container(
                       width: larguraAlturaJoystick,
                       height: larguraAlturaJoystick,
