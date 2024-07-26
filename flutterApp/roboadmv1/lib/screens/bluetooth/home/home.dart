@@ -86,36 +86,36 @@ class _MainScreenState extends State<MainScreen> {
     List<BluetoothDevice> scanResults = _scanResults.toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('BLUETOOTH'),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.black,
-            size: 32,
-          ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const HomePage(),
-              ),
-            );
-          },
-        ),
-      ),
+      // appBar: AppBar(
+      //   title: const Text('BLUETOOTH'),
+      //   leading: IconButton(
+      //     icon: const Icon(
+      //       Icons.arrow_back,
+      //       color: Colors.black,
+      //       size: 32,
+      //     ),
+      //     onPressed: () {
+      //       Navigator.push(
+      //         context,
+      //         MaterialPageRoute(
+      //           builder: (context) => const HomePage(),
+      //         ),
+      //       );
+      //     },
+      //   ),
+      // ),
       body: ListView(
         children: [
-          ListTile(
-            title: const Text("Estado do Bluetooh"),
-            subtitle: const Text("Clique para ativar"),
-            trailing: Text(_adapterState.name),
-            leading: const Icon(Icons.settings_bluetooth),
-            onTap: () => _flutterBlueClassicPlugin.turnOn(),
-          ),
+          //ListTile(
+          // title: const Text("Estado do Bluetooh"),
+          // subtitle: const Text("Clique para ativar"),
+          // trailing: Text(_adapterState.name),
+          // leading: const Icon(Icons.settings_bluetooth),
+          //onTap: () => _flutterBlueClassicPlugin.turnOn(),
+          //),
           const Divider(),
           if (scanResults.isEmpty)
-            const Center(child: Text("Não foram encontrados Dispositivos"))
+            const Center(child: Text("Não encontrado Dispositivos"))
           else
             for (var result in scanResults)
               ListTile(
@@ -156,8 +156,9 @@ class _MainScreenState extends State<MainScreen> {
             _flutterBlueClassicPlugin.startScan();
           }
         },
-        label: Text(_isScanning ? "Procurando..." : "Começar Busca"),
-        icon: Icon(_isScanning ? Icons.bluetooth_searching : Icons.bluetooth),
+        label: Text(_isScanning ? "Procurando..." : "Buscar"),
+        icon: Icon(
+            _isScanning ? Icons.bluetooth_searching : Icons.search_outlined),
       ),
     );
   }

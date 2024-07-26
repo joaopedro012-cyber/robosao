@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:roboadmv1/screens/home.dart';
-import 'package:roboadmv1/screens/bluetooth/widgets/motores_vertical.dart';
+import 'package:roboadmv1/screens/bluetooth/home/home.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -85,7 +85,7 @@ class _TestesPageState extends State<TestesPage> {
                       width: larguraAlturaJoystick,
                       height: larguraAlturaJoystick,
                       color: Colors.white54,
-                      child: MotoresVerticalConexao(),
+                      child: BluetoothPage(),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -108,7 +108,8 @@ class _TestesPageState extends State<TestesPage> {
                     Container(
                       width: larguraAlturaJoystick,
                       height: larguraAlturaJoystick,
-                      color: Colors.black,
+                      color: Colors.white,
+                      child: BluetoothPage(),
                     ),
                   ],
                 ),
