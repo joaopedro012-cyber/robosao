@@ -20,7 +20,7 @@ const step = 10.0;
 class _DeviceScreenState extends State<DeviceScreen> {
   double _x = 100;
   double _y = 100;
-  JoystickMode _joystickModeHorizontal = JoystickMode.horizontal;
+  final JoystickMode _joystickModeHorizontal = JoystickMode.horizontal;
   JoystickMode _joystickModeVertical = JoystickMode.vertical;
 
   StreamSubscription? _readSubscription;
@@ -62,84 +62,76 @@ class _DeviceScreenState extends State<DeviceScreen> {
             height: 70,
             color: Colors.blue,
           ),
-          Container(
-            child: Wrap(
-              direction: Axis.horizontal,
-              alignment: WrapAlignment.spaceBetween,
-              children: [
-                Container(
-                  child: Joystick(
-                    mode: _joystickModeVertical,
-                    includeInitialAnimation: false,
-                    stick: const CircleAvatar(
-                      radius: 60,
-                      backgroundColor: Colors.white,
-                    ),
-                    listener: (details) {
-                      setState(() {
-                        double valorVertical = details.y;
+          Wrap(
+            direction: Axis.horizontal,
+            alignment: WrapAlignment.spaceBetween,
+            children: [
+              Joystick(
+                mode: _joystickModeVertical,
+                includeInitialAnimation: false,
+                stick: const CircleAvatar(
+                  radius: 60,
+                  backgroundColor: Colors.white,
+                ),
+                listener: (details) {
+                  setState(() {
+                    double valorVertical = details.y;
 
-                        switch (valorVertical) {
-                          case >= 0.000000000000001:
-                            widget.connection.writeString("x");
-                            if (kDebugMode) {
-                              print("Valor de Y: é positivo $valorVertical");
-                            }
-                            break;
-                          case <= -0.000000000000001:
-                            widget.connection.writeString("w");
-                            if (kDebugMode) {
-                              print("Valor de Y: é negativo $valorVertical");
-                            }
+                    switch (valorVertical) {
+                      case >= 0.000000000000001:
+                        widget.connection.writeString("x");
+                        if (kDebugMode) {
+                          print("Valor de Y: é positivo $valorVertical");
                         }
-
-                        _y = _y + step * details.y;
-                      });
-                    },
-                  ),
-                ),
-                Container(
-                  child: FractionallySizedBox(
-                    widthFactor: 0.65,
-                    child: Container(
-                      color: Colors.green,
-                      // Seu conteúdo aqui
-                    ),
-                  ),
-                ),
-                Container(
-                  child: Joystick(
-                    mode: _joystickModeHorizontal,
-                    includeInitialAnimation: false,
-                    stick: const CircleAvatar(
-                      radius: 60,
-                      backgroundColor: Colors.white,
-                    ),
-                    listener: (details) {
-                      setState(() {
-                        double valorHorizontal = details.x;
-
-                        switch (valorHorizontal) {
-                          case >= 0.000000000000001:
-                            widget.connection.writeString("d");
-                            if (kDebugMode) {
-                              print("Valor de X: é positivo $valorHorizontal");
-                            }
-                            break;
-                          case <= -0.000000000000001:
-                            widget.connection.writeString("a");
-                            if (kDebugMode) {
-                              print("Valor de X: é negativo $valorHorizontal");
-                            }
+                        break;
+                      case <= -0.000000000000001:
+                        widget.connection.writeString("w");
+                        if (kDebugMode) {
+                          print("Valor de Y: é negativo $valorVertical");
                         }
+                    }
 
-                        _x = _x + step * details.x;
-                      });
-                    },
-                  ),
+                    _y = _y + step * details.y;
+                  });
+                },
+              ),
+              FractionallySizedBox(
+                widthFactor: 0.65,
+                child: Container(
+                  color: Colors.green,
+                  // Seu conteúdo aqui
                 ),
-              ],
-            ),
+              ),
+              Joystick(
+                mode: _joystickModeHorizontal,
+                includeInitialAnimation: false,
+                stick: const CircleAvatar(
+                  radius: 60,
+                  backgroundColor: Colors.white,
+                ),
+                listener: (details) {
+                  setState(() {
+                    double valorHorizontal = details.x;
+
+                    switch (valorHorizontal) {
+                      case >= 0.000000000000001:
+                        widget.connection.writeString("d");
+                        if (kDebugMode) {
+                          print("Valor de X: é positivo $valorHorizontal");
+                        }
+                        break;
+                      case <= -0.000000000000001:
+                        widget.connection.writeString("a");
+                        if (kDebugMode) {
+                          print("Valor de X: é negativo $valorHorizontal");
+                        }
+                    }
+
+                    _x = _x + step * details.x;
+                  });
+                },
+              ),
+            ],
           ),
           const Divider(),
           Padding(

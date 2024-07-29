@@ -29,7 +29,7 @@ class _TestesPageState extends State<TestesPage> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Controle'),
+          title: const Text('Controle'),
           leading: IconButton(
             icon: const Icon(
               Icons.arrow_back,
@@ -85,7 +85,7 @@ class _TestesPageState extends State<TestesPage> {
                       width: larguraAlturaJoystick,
                       height: larguraAlturaJoystick,
                       color: Colors.white54,
-                      child: BluetoothPage(),
+                      //child: const BluetoothPage(),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -109,7 +109,7 @@ class _TestesPageState extends State<TestesPage> {
                       width: larguraAlturaJoystick,
                       height: larguraAlturaJoystick,
                       color: Colors.white,
-                      child: BluetoothPage(),
+                      child: const BluetoothPage(),
                     ),
                   ],
                 ),
