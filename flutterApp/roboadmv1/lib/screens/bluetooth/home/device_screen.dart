@@ -6,10 +6,11 @@ import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 
 class DeviceScreen extends StatefulWidget {
-  const DeviceScreen({super.key, required this.connection});
+  final BluetoothConnection connection1;
+  final BluetoothConnection connection2;
 
-  final BluetoothConnection connection;
-
+  const DeviceScreen(
+      {super.key, required this.connection1, required this.connection2});
   @override
   State<DeviceScreen> createState() => _DeviceScreenState();
 }
@@ -34,7 +35,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
   @override
   void initState() {
-    _readSubscription = widget.connection.input?.listen((event) {
+    _readSubscription = widget.connection1.input?.listen((event) {
       if (mounted) {
         setState(() => _receivedInput.add(utf8.decode(event)));
       }
@@ -44,7 +45,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
   @override
   void dispose() {
-    widget.connection.dispose();
+    widget.connection1.dispose();
     _readSubscription?.cancel();
     super.dispose();
   }
@@ -53,7 +54,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Conectado ao ${widget.connection.address}"),
+        title: Text("Conectado ao ${widget.connection1.address}"),
       ),
       body: Column(
         children: <Widget>[
@@ -79,13 +80,13 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
                     switch (valorVertical) {
                       case >= 0.000000000000001:
-                        widget.connection.writeString("x");
+                        widget.connection1.writeString("x");
                         if (kDebugMode) {
                           print("Valor de Y: é positivo $valorVertical");
                         }
                         break;
                       case <= -0.000000000000001:
-                        widget.connection.writeString("w");
+                        widget.connection1.writeString("w");
                         if (kDebugMode) {
                           print("Valor de Y: é negativo $valorVertical");
                         }
@@ -115,13 +116,13 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
                     switch (valorHorizontal) {
                       case >= 0.000000000000001:
-                        widget.connection.writeString("d");
+                        widget.connection2.writeString("d");
                         if (kDebugMode) {
                           print("Valor de X: é positivo $valorHorizontal");
                         }
                         break;
                       case <= -0.000000000000001:
-                        widget.connection.writeString("a");
+                        widget.connection2.writeString("a");
                         if (kDebugMode) {
                           print("Valor de X: é negativo $valorHorizontal");
                         }

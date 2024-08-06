@@ -1,5 +1,5 @@
 import 'dart:async';
-//import 'package:roboadmv1/screens/home.dart';
+import 'package:roboadmv1/screens/home.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
@@ -86,33 +86,26 @@ class _MainScreenState extends State<MainScreen> {
     List<BluetoothDevice> scanResults = _scanResults.toList();
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('BLUETOOTH'),
-      //   leading: IconButton(
-      //     icon: const Icon(
-      //       Icons.arrow_back,
-      //       color: Colors.black,
-      //       size: 32,
-      //     ),
-      //     onPressed: () {
-      //       Navigator.push(
-      //         context,
-      //         MaterialPageRoute(
-      //           builder: (context) => const HomePage(),
-      //         ),
-      //       );
-      //     },
-      //   ),
-      // ),
+      appBar: AppBar(
+        title: const Text('BLUETOOTH'),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.black,
+            size: 32,
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const HomePage(),
+              ),
+            );
+          },
+        ),
+      ),
       body: ListView(
         children: [
-          //ListTile(
-          // title: const Text("Estado do Bluetooh"),
-          // subtitle: const Text("Clique para ativar"),
-          // trailing: Text(_adapterState.name),
-          // leading: const Icon(Icons.settings_bluetooth),
-          //onTap: () => _flutterBlueClassicPlugin.turnOn(),
-          //),
           const Divider(),
           if (scanResults.isEmpty)
             const Center(child: Text("Não encontrado Dispositivos"))
@@ -124,24 +117,46 @@ class _MainScreenState extends State<MainScreen> {
                     "Bondstate: ${result.bondState.name}, Device type: ${result.type.name}"),
                 trailing: Text("${result.rssi} dBm"),
                 onTap: () async {
-                  BluetoothConnection? connection;
                   try {
-                    connection =
-                        await _flutterBlueClassicPlugin.connect(result.address);
-                    if (!this.context.mounted) return;
-                    if (connection != null && connection.isConnected) {
-                      Navigator.push(
+                    // Conectando ao primeiro dispositivo
+                    var connection1 = await _flutterBlueClassicPlugin
+                        .connect("98:D3:21:F8:11:61");
+
+                    // Verificando se a primeira conexão foi bem-sucedida
+                    if (connection1 != null && connection1.isConnected) {
+                      // Conectando ao segundo dispositivo
+                      var connection2 = await _flutterBlueClassicPlugin
+                          .connect("98:D3:41:F6:CE:8B");
+
+                      // Verificando se a segunda conexão foi bem-sucedida
+                      if (connection2 != null && connection2.isConnected) {
+                        if (!context.mounted) return;
+
+                        // Navegando para a próxima tela passando ambas as conexões
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>
-                                  DeviceScreen(connection: connection!)));
+                            builder: (context) => DeviceScreen(
+                              connection1: connection1,
+                              connection2: connection2,
+                            ),
+                          ),
+                        );
+                      } else {
+                        // Gerencie o erro de conexão com o segundo dispositivo
+                        print("Falha ao conectar com o segundo dispositivo.");
+                      }
+                    } else {
+                      // Gerencie o erro de conexão com o primeiro dispositivo
+                      print("Falha ao conectar com o primeiro dispositivo.");
                     }
                   } catch (e) {
-                    if (kDebugMode) print(e);
-                    connection?.dispose();
-                    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-                        const SnackBar(
-                            content: Text("Erro ao conectar ao dispositivo")));
+                    // Gerencie exceções durante as tentativas de conexão
+                    print("Erro durante a conexão: $e");
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text("Erro ao conectar ao dispositivo")),
+                    );
                   }
                 },
               )
