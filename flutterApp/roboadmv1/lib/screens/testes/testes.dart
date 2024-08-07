@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:flutter_joystick/flutter_joystick.dart';
+import 'package:flutter/foundation.dart';
 import 'package:roboadmv1/screens/home.dart';
-import 'package:roboadmv1/screens/bluetooth/home/home.dart';
+//import 'package:roboadmv1/screens/bluetooth/home/home.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,6 +22,8 @@ class TestesPage extends StatefulWidget {
 class _TestesPageState extends State<TestesPage> {
   @override
   Widget build(BuildContext context) {
+    final JoystickMode _joystickModeHorizontal = JoystickMode.horizontal;
+    final JoystickMode _joystickModeVertical = JoystickMode.vertical;
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
     double containerLarguraPadrao = screenWidth * 0.98;
@@ -85,7 +90,35 @@ class _TestesPageState extends State<TestesPage> {
                       width: larguraAlturaJoystick,
                       height: larguraAlturaJoystick,
                       color: Colors.white54,
-                      //child: const BluetoothPage(),
+                      child: Joystick(
+                        mode: _joystickModeVertical,
+                        includeInitialAnimation: false,
+                        stick: const CircleAvatar(
+                          radius: 60,
+                          backgroundColor: Colors.white,
+                        ),
+                        listener: (details) {
+                          setState(() {
+                            double valorVertical = details.y;
+
+                            switch (valorVertical) {
+                              case >= 0.000000000000001:
+                                //widget.connection1.writeString("x");
+                                if (kDebugMode) {
+                                  print(
+                                      "Valor de Y: é positivo $valorVertical");
+                                }
+                                break;
+                              case <= -0.000000000000001:
+                                //widget.connection1.writeString("w");
+                                if (kDebugMode) {
+                                  print(
+                                      "Valor de Y: é negativo $valorVertical");
+                                }
+                            }
+                          });
+                        },
+                      ),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -109,7 +142,35 @@ class _TestesPageState extends State<TestesPage> {
                       width: larguraAlturaJoystick,
                       height: larguraAlturaJoystick,
                       color: Colors.white,
-                      child: const BluetoothPage(),
+                      child: Joystick(
+                        mode: _joystickModeHorizontal,
+                        includeInitialAnimation: false,
+                        stick: const CircleAvatar(
+                          radius: 60,
+                          backgroundColor: Colors.white,
+                        ),
+                        listener: (details) {
+                          setState(() {
+                            double valorHorizontal = details.x;
+
+                            switch (valorHorizontal) {
+                              case >= 0.000000000000001:
+                                // widget.connection2.writeString("d");
+                                if (kDebugMode) {
+                                  print(
+                                      "Valor de X: é positivo $valorHorizontal");
+                                }
+                                break;
+                              case <= -0.000000000000001:
+                                //  widget.connection2.writeString("a");
+                                if (kDebugMode) {
+                                  print(
+                                      "Valor de X: é negativo $valorHorizontal");
+                                }
+                            }
+                          });
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -123,8 +184,8 @@ class _TestesPageState extends State<TestesPage> {
 }
 
 // import 'package:flutter/material.dart';
-// import 'package:flutter/foundation.dart';
 // import 'package:flutter_joystick/flutter_joystick.dart';
+// import 'package:flutter/foundation.dart';
 // import 'package:flutter/services.dart';
 
 // void main() {
