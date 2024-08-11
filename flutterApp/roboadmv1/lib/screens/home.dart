@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:roboadmv1/screens/bluetooth/home/home.dart';
 import 'package:roboadmv1/screens/controle/controle.dart';
 import 'package:roboadmv1/screens/testes/testes.dart';
+import 'package:roboadmv1/screens/rotinas.dart';
 import '../buttons/button_icon.dart';
 
 void main() {
@@ -48,6 +49,18 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               BotaoComIcone(
+                  icone: Icons.sports_esports,
+                  textoIcone: 'CONTROLE',
+                  corDeFundo: const Color.fromARGB(255, 78, 78, 78),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ControlePage(),
+                      ),
+                    );
+                  }),
+              BotaoComIcone(
                 icone: Icons.computer_outlined,
                 textoIcone: 'PC',
                 corDeFundo: const Color(0xFF8d40b7),
@@ -61,30 +74,6 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               BotaoComIcone(
-                  icone: Icons.sports_esports,
-                  textoIcone: 'CONTROLE',
-                  corDeFundo: const Color.fromARGB(255, 78, 78, 78),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ControlePage(),
-                      ),
-                    );
-                  }),
-              BotaoComIcone(
-                  icone: Icons.build,
-                  textoIcone: 'TESTES',
-                  corDeFundo: const Color(0xFFd5ac4d),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const TestesPage(),
-                      ),
-                    );
-                  }),
-              BotaoComIcone(
                 icone: Icons.list,
                 textoIcone: 'ROTINAS',
                 corDeFundo: const Color(0xFFd57171),
@@ -92,7 +81,7 @@ class _HomePageState extends State<HomePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const BluetoothPage(),
+                      builder: (context) => const RotinasPage(),
                     ),
                   );
                 },
@@ -109,7 +98,19 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 },
-              )
+              ),
+              BotaoComIcone(
+                  icone: Icons.build,
+                  textoIcone: 'TESTES',
+                  corDeFundo: const Color(0xFFd5ac4d),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const TestesPage(),
+                      ),
+                    );
+                  }),
             ],
           ),
         ),

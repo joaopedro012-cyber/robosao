@@ -22,13 +22,12 @@ class TestesPage extends StatefulWidget {
 class _TestesPageState extends State<TestesPage> {
   @override
   Widget build(BuildContext context) {
-    final JoystickMode _joystickModeHorizontal = JoystickMode.horizontal;
-    final JoystickMode _joystickModeVertical = JoystickMode.vertical;
+    const JoystickMode joystickModeHorizontal = JoystickMode.horizontal;
+    const JoystickMode joystickModeVertical = JoystickMode.vertical;
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
     double containerLarguraPadrao = screenWidth * 0.98;
     double larguraAlturaJoystick = screenWidth * 0.20;
-    double containerSuperior = screenHeight * 0.30;
     double containerInferior = screenHeight * 0.55;
 
     return MaterialApp(
@@ -57,21 +56,21 @@ class _TestesPageState extends State<TestesPage> {
             children: <Widget>[
               Container(
                 width: containerLarguraPadrao,
-                height: containerSuperior,
+                height: 75,
                 color: Colors.blue,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     //TELA
                     Container(
-                      width: 200,
-                      height: 200,
+                      width: larguraAlturaJoystick,
+                      height: 75,
                       color: Colors.green,
                     ),
                     //DADOS EM TEMPO REAL
                     Container(
-                      width: 200,
-                      height: 200,
+                      width: larguraAlturaJoystick,
+                      height: 75,
                       color: Colors.red,
                     ),
                   ],
@@ -91,7 +90,7 @@ class _TestesPageState extends State<TestesPage> {
                       height: larguraAlturaJoystick,
                       color: Colors.white54,
                       child: Joystick(
-                        mode: _joystickModeVertical,
+                        mode: joystickModeVertical,
                         includeInitialAnimation: false,
                         stick: const CircleAvatar(
                           radius: 60,
@@ -106,14 +105,16 @@ class _TestesPageState extends State<TestesPage> {
                                 //widget.connection1.writeString("x");
                                 if (kDebugMode) {
                                   print(
-                                      "Valor de Y: é positivo $valorVertical");
+                                      //  "Valor de Y: é positivo $valorVertical"
+                                      "x");
                                 }
                                 break;
                               case <= -0.000000000000001:
                                 //widget.connection1.writeString("w");
                                 if (kDebugMode) {
                                   print(
-                                      "Valor de Y: é negativo $valorVertical");
+                                      //"Valor de Y: é negativo $valorVertical"
+                                      "w");
                                 }
                             }
                           });
@@ -143,7 +144,7 @@ class _TestesPageState extends State<TestesPage> {
                       height: larguraAlturaJoystick,
                       color: Colors.white,
                       child: Joystick(
-                        mode: _joystickModeHorizontal,
+                        mode: joystickModeHorizontal,
                         includeInitialAnimation: false,
                         stick: const CircleAvatar(
                           radius: 60,
@@ -158,14 +159,16 @@ class _TestesPageState extends State<TestesPage> {
                                 // widget.connection2.writeString("d");
                                 if (kDebugMode) {
                                   print(
-                                      "Valor de X: é positivo $valorHorizontal");
+                                      //"Valor de X: é positivo $valorHorizontal"
+                                      "d");
                                 }
                                 break;
                               case <= -0.000000000000001:
                                 //  widget.connection2.writeString("a");
                                 if (kDebugMode) {
                                   print(
-                                      "Valor de X: é negativo $valorHorizontal");
+                                      //"Valor de X: é negativo $valorHorizontal"
+                                      "a");
                                 }
                             }
                           });
@@ -207,8 +210,8 @@ class _TestesPageState extends State<TestesPage> {
 // class _TestesPageState extends State<TestesPage> {
 //   double _x = 100;
 //   double _y = 100;
-//   JoystickMode _joystickModeHorizontal = JoystickMode.horizontal;
-//   JoystickMode _joystickModeVertical = JoystickMode.vertical;
+//   JoystickMode joystickModeHorizontal = JoystickMode.horizontal;
+//   JoystickMode joystickModeVertical = JoystickMode.vertical;
 
 //   @override
 //   void didChangeDependencies() {
@@ -224,10 +227,10 @@ class _TestesPageState extends State<TestesPage> {
 //         title: const Text("JOYSTICKS V2"),
 //         // actions: [
 //         //   JoystickModeDropdown(
-//         //     mode: _joystickModeHorizontal,
+//         //     mode: joystickModeHorizontal,
 //         //     onChanged: (JoystickMode value) {
 //         //       setState(() {
-//         //         _joystickModeHorizontal = value;
+//         //         joystickModeHorizontal = value;
 //         //       });
 //         //     },s
 //         //   ),
@@ -247,7 +250,7 @@ class _TestesPageState extends State<TestesPage> {
 //               children: [
 //                 Container(
 //                   child: Joystick(
-//                     mode: _joystickModeVertical,
+//                     mode: joystickModeVertical,
 //                     stick: const CircleAvatar(
 //                       radius: 60,
 //                       backgroundColor: Colors.white,
@@ -287,7 +290,7 @@ class _TestesPageState extends State<TestesPage> {
 //                 ),
 //                 Container(
 //                   child: Joystick(
-//                     mode: _joystickModeHorizontal,
+//                     mode: joystickModeHorizontal,
 //                     includeInitialAnimation: false,
 //                     listener: (details) {
 //                       setState(() {

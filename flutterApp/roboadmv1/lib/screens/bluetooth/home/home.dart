@@ -144,15 +144,21 @@ class _MainScreenState extends State<MainScreen> {
                         );
                       } else {
                         // Gerencie o erro de conexão com o segundo dispositivo
-                        print("Falha ao conectar com o segundo dispositivo.");
+                        if (kDebugMode) {
+                          print("Falha ao conectar com o segundo dispositivo.");
+                        }
                       }
                     } else {
                       // Gerencie o erro de conexão com o primeiro dispositivo
-                      print("Falha ao conectar com o primeiro dispositivo.");
+                      if (kDebugMode) {
+                        print("Falha ao conectar com o primeiro dispositivo.");
+                      }
                     }
                   } catch (e) {
                     // Gerencie exceções durante as tentativas de conexão
-                    print("Erro durante a conexão: $e");
+                    if (kDebugMode) {
+                      print("Erro durante a conexão: $e");
+                    }
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                           content: Text("Erro ao conectar ao dispositivo")),
