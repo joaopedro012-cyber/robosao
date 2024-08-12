@@ -23,12 +23,12 @@ class DB {
   }
 
   _onCreate(db, versao) async {
-    await db.execute(_rotina);
-    await db.execute(_execRotina);
+    await db.execute(_createRotina);
+    await db.execute(_createExecRotina);
     await db.execute(_insertExemplo);
   }
 
-  String get _rotina => '''
+  String get _createRotina => '''
     CREATE TABLE ADM_ROTINAS (
       ROTINA INTEGER PRIMARY KEY AUTOINCREMENT,
       NOME VARCHAR(200),
@@ -38,7 +38,7 @@ class DB {
     );
   ''';
 
-  String get _execRotina => '''
+  String get _createExecRotina => '''
     CREATE TABLE ADM_EXECUCAO_ROTINAS (
       EXECUCAO INTEGER PRIMARY KEY AUTOINCREMENT,
       ROTINA INTEGER,
@@ -49,12 +49,7 @@ class DB {
 ''';
 
   String get _insertExemplo => '''
-    CREATE TABLE ADM_ROTINAS (
-      ROTINA INTEGER PRIMARY KEY AUTOINCREMENT,
-      NOME VARCHAR(200),
-      ATIVO CHAR(1) CHECK (ATIVO IN ('S', 'N')),
-      EDITAVEL CHAR(1) CHECK (ATIVO IN ('S', 'N')),
-      DT_CRIACAO TEXT DEFAULT (CURRENT_TIMESTAMP)
-    );
+    INSERT INTO ADM_ROTINAS(NOME, ATIVO, EDITAVEL)
+    VALUES( 'TESTE DE ROTINA', 'S', 'S');
   ''';
 }
