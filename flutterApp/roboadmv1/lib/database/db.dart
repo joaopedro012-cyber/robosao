@@ -23,28 +23,55 @@ class DB {
   }
 
   _onCreate(db, versao) async {
+    await db.execute(_createAcaoRobo);
+    await db.execute(_insereAcoesIniciais);
     await db.execute(_createRotina);
     await db.execute(_createExecRotina);
+    await db.execute(_createTempRotina);
     await db.execute(_insertExemplo);
   }
+
+  String get _createAcaoRobo => '''
+    CREATE TABLE ADM_ACAO_ROBO (
+      ID INTEGER PRIMARY KEY AUTOINCREMENT,
+      ACAO VARCHAR(100),
+      NOME VARCHAR(200)
+    );
+''';
+
+  String get _insereAcoesIniciais => '''
+    INSERT INTO ADM_ACAO_ROBO (ACAO, NOME)
+    VALUES('w','Frente'),('x','Trás'),('a','Esquerda'),('d','Direita');
+''';
 
   String get _createRotina => '''
     CREATE TABLE ADM_ROTINAS (
       ROTINA INTEGER PRIMARY KEY AUTOINCREMENT,
-      NOME VARCHAR(200),
-      ATIVO CHAR(1) CHECK (ATIVO IN ('S', 'N')),
-      EDITAVEL CHAR(1) CHECK (ATIVO IN ('S', 'N')),
-      DT_CRIACAO TEXT DEFAULT (CURRENT_TIMESTAMP)
+      NOME VARCHAR(200) NOT NULL,
+      ATIVO CHAR(1) NOT NULL CHECK (ATIVO IN ('S', 'N')),
+      EDITAVEL CHAR(1) NOT NULL CHECK (ATIVO IN ('S', 'N')),
+      DT_CRIACAO TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
     );
   ''';
 
   String get _createExecRotina => '''
     CREATE TABLE ADM_EXECUCAO_ROTINAS (
       EXECUCAO INTEGER PRIMARY KEY AUTOINCREMENT,
+      ROTINA INTEGER NOT NULL,
+      DT_INI TEXT NOT NULL,  
+      DT_FIM TEXT NOT NULL,
+      FOREIGN KEY (ACAO) REFERENCES ADM_ACAO_ROBO,
+      FOREIGN KEY (ROTINA) REFERENCES ADM_ROTINAS(ROTINA)
+    );
+''';
+
+  String get _createTempRotina => '''
+    CREATE TABLE ADM_TEMP_EXECUCAO_ROTINAS (
+      EXECUCAO INTEGER PRIMARY KEY AUTOINCREMENT,
       ROTINA INTEGER,
-      FOREIGN KEY (ROTINA) REFERENCES ADM_ROTINAS(ROTINA),
-      ACAO VARCHAR(100)
-      DT_EXECUCAO TEXT DEFAULT (CURRENT_TIMESTAMP)
+      DT_EXECUCAO TEXT DEFAULT (CURRENT_TIMESTAMP),
+      FOREIGN KEY (ACAO) REFERENCES ADM_ACAO_ROBO,
+      FOREIGN KEY (ROTINA) REFERENCES ADM_ROTINAS(ROTINA)
     );
 ''';
 
@@ -52,4 +79,9 @@ class DB {
     INSERT INTO ADM_ROTINAS(NOME, ATIVO, EDITAVEL)
     VALUES( 'TESTE DE ROTINA', 'S', 'S');
   ''';
+
+  Future<List<Map<String, dynamic>>> getRotinas() async {
+    final db = await instance.database;
+    return await db.query('ADM_ROTINAS');
+  }
 }
