@@ -79,7 +79,7 @@ class DB {
 
   String get _insertExemplo => '''
     INSERT INTO ADM_ROTINAS(NOME, ATIVO, EDITAVEL)
-    VALUES( 'TESTE DE ROTINA', 'S', 'S');
+    VALUES('TESTE1 DE ROTINA', 'S', 'S'),('TESTE2 DE ROTINA', 'S', 'S'),('TESTE3 DE ROTINA', 'S', 'S');
   ''';
 
   Future<List<Map<String, dynamic>>> getRotinas() async {

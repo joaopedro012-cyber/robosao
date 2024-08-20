@@ -59,79 +59,192 @@ class _RotinasPageState extends State<RotinasPage> {
             },
           ),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.69,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFd57171),
-                      borderRadius: BorderRadius.circular(12.0),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              children: [
+                const SizedBox(
+                  width: 8.0,
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.72,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFd57171),
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  child: const TextField(
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Montserrat',
                     ),
-                    child: const TextField(
-                      style: TextStyle(
-                        color: Colors.white,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(16.0),
+                      hintText: 'Nova rotina...',
+                      hintStyle: TextStyle(
+                        color: Colors.white70,
                         fontFamily: 'Montserrat',
                       ),
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.all(16.0),
-                        hintText: 'Nova rotina...',
-                        hintStyle: TextStyle(
-                          color: Colors.white70,
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 8.0,
+                  height: 7.0,
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.20,
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFd57171),
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(55, 55),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    ),
+                    child: const Icon(CupertinoIcons.plus),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(
+              width: 16.0,
+              height: 7.0,
+            ),
+            const Text(
+              "ROTINAS EXISTENTES:",
+              style: TextStyle(
+                color: Color(0xFFd57171),
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.w800,
+                fontSize: 24,
+              ),
+            ),
+            const Divider(color: Color(0xFFd57171)),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _rotinas.length,
+                itemBuilder: (context, index) {
+                  final rotina = _rotinas[index];
+                  return ListTile(
+                    title: Text(
+                      rotina['NOME'],
+                      style: TextStyle(
                           fontFamily: 'Montserrat',
-                        ),
-                      ),
+                          fontWeight: FontWeight.w600),
                     ),
-                  ),
-                  const SizedBox(width: 8.0),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.20,
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFd57171),
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(55, 55),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                      ),
-                      child: const Icon(CupertinoIcons.plus),
+                    subtitle: Text(
+                      'Ativo: ${rotina['ATIVO']}, Editável: ${rotina['EDITAVEL']}',
+                      style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w500),
                     ),
-                  ),
-                ],
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 3, 0),
+                          child: IconButton(
+                            icon: Icon(CupertinoIcons.share),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('Exportar rotina'),
+                                    actions: [
+                                      TextButton(
+                                        child: Text('Fechar'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFd57171),
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size(55, 55),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 3, 0),
+                          child: IconButton(
+                            icon: Icon(Icons.edit),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('Editar rotina'),
+                                    actions: [
+                                      TextButton(
+                                        child: Text('Fechar'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFd57171),
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size(55, 55),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(CupertinoIcons.xmark_circle),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('Excluir rotina'),
+                                  actions: [
+                                    TextButton(
+                                      child: Text('Fechar'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFd57171),
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(55, 55),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
-              const SizedBox(height: 16.0),
-              const Text(
-                "ROTINAS EXISTENTES:",
-                style: TextStyle(
-                  color: Color(0xFFd57171),
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w800,
-                  fontSize: 24,
-                ),
-              ),
-              const Divider(color: Color(0xFFd57171)),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _rotinas.length,
-                  itemBuilder: (context, index) {
-                    final rotina = _rotinas[index];
-                    return ListTile(
-                      title: Text(rotina['NOME']),
-                      subtitle: Text(
-                          'Ativo: ${rotina['ATIVO']}, Editável: ${rotina['EDITAVEL']}'),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
