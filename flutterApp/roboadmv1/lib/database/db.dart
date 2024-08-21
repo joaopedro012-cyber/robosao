@@ -82,8 +82,18 @@ class DB {
     VALUES('TESTE1 DE ROTINA', 'S', 'S'),('TESTE2 DE ROTINA', 'S', 'S'),('TESTE3 DE ROTINA', 'S', 'S');
   ''';
 
+  static Future<int> insertRotina(
+      String nome, String ativo, String editavel) async {
+    final db = await instance.database;
+    final data = {'NOME': nome, 'ATIVO': ativo, 'EDITAVEL': editavel};
+
+    final id = await db.insert('ADM_ROTINAS', data,
+        ConflictAlgorithm: db.ConflictAlgorithm.replace);
+    return id;
+  }
+
   Future<List<Map<String, dynamic>>> getRotinas() async {
     final db = await instance.database;
-    return await db.query('ADM_ROTINAS');
+    return await db.query('ADM_ROTINAS', orderBy: "ROTINA");
   }
 }
