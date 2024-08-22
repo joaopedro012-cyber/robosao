@@ -82,13 +82,42 @@ class DB {
     VALUES('TESTE1 DE ROTINA', 'S', 'S'),('TESTE2 DE ROTINA', 'S', 'S'),('TESTE3 DE ROTINA', 'S', 'S');
   ''';
 
-  static Future<int> insertRotina(
-      String nome, String ativo, String editavel) async {
+  static Future<int> createItem(
+      String NOME, String ATIVO, String EDITAVEL) async {
     final db = await instance.database;
-    final data = {'NOME': nome, 'ATIVO': ativo, 'EDITAVEL': editavel};
 
+    final data = {'NOME': NOME, 'ATIVO': ATIVO, 'EDITAVEL': EDITAVEL};
     final id = await db.insert('ADM_ROTINAS', data,
-        ConflictAlgorithm: db.ConflictAlgorithm.replace);
+        conflictAlgorithm: ConflictAlgorithm.replace);
+    return id;
+  }
+
+  static Future<int> deleteItem(int ROTINA) async {
+    final db = await instance.database;
+
+    final id = await db.transaction((txn) async {
+      final countRotinas = await txn.delete(
+        'ADM_ROTINAS',
+        where: 'ROTINA = ?',
+        whereArgs: [ROTINA],
+      );
+      final countExecucaoRotinas = await txn.delete(
+        'ADM_EXECUCAO_ROTINAS',
+        where: 'ROTINA = ?',
+        whereArgs: [ROTINA],
+      );
+
+      return countRotinas +
+          countExecucaoRotinas; // Retorna o total de linhas deletadas
+    });
+
+    // final id = await db.delete(
+    //   'ADM_ROTINAS',
+    //   where: 'ROTINA = ?',
+    //   whereArgs: [ROTINA],
+
+    // );
+
     return id;
   }
 

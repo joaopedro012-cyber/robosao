@@ -30,8 +30,21 @@ class _RotinasPageState extends State<RotinasPage> {
     });
   }
 
+  Future<void> _insertRotina(nomeRotina) async {
+    await DB.createItem(nomeRotina, "S", "S");
+    _loadRotinas();
+  }
+
+  Future<void> _deleteRotina(idRotina) async {
+    await DB.deleteItem(idRotina);
+    _loadRotinas();
+  }
+
   @override
   Widget build(BuildContext context) {
+    String? valorTextInput;
+    String? valorDelete;
+
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -68,12 +81,16 @@ class _RotinasPageState extends State<RotinasPage> {
                   width: 8.0,
                 ),
                 Container(
+                  margin: EdgeInsets.fromLTRB(5, 12, 0, 0),
                   width: MediaQuery.of(context).size.width * 0.72,
                   decoration: BoxDecoration(
                     color: const Color(0xFFd57171),
                     borderRadius: BorderRadius.circular(12.0),
                   ),
-                  child: const TextField(
+                  child: TextField(
+                    onChanged: (texto) {
+                      valorTextInput = texto;
+                    },
                     style: TextStyle(
                       color: Colors.white,
                       fontFamily: 'Montserrat',
@@ -95,8 +112,30 @@ class _RotinasPageState extends State<RotinasPage> {
                 ),
                 Container(
                   width: MediaQuery.of(context).size.width * 0.20,
+                  margin: EdgeInsets.fromLTRB(0, 12, 0, 0),
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      if (valorTextInput == null || valorTextInput == '') {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Digite um nome para a rotina'),
+                              actions: [
+                                TextButton(
+                                  child: const Text('Fechar'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      } else {
+                        _insertRotina(valorTextInput);
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFd57171),
                       foregroundColor: Colors.white,
@@ -114,13 +153,16 @@ class _RotinasPageState extends State<RotinasPage> {
               width: 16.0,
               height: 7.0,
             ),
-            const Text(
-              "ROTINAS EXISTENTES:",
-              style: TextStyle(
-                color: Color(0xFFd57171),
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w800,
-                fontSize: 24,
+            const Padding(
+              padding: EdgeInsets.fromLTRB(11, 0, 0, 0),
+              child: Text(
+                "ROTINAS EXISTENTES:",
+                style: TextStyle(
+                  color: Color(0xFFd57171),
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w800,
+                  fontSize: 24,
+                ),
               ),
             ),
             const Divider(color: Color(0xFFd57171)),
@@ -132,13 +174,13 @@ class _RotinasPageState extends State<RotinasPage> {
                   return ListTile(
                     title: Text(
                       rotina['NOME'],
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w600),
                     ),
                     subtitle: Text(
-                      'Ativo: ${rotina['ATIVO']}, Editável: ${rotina['EDITAVEL']}',
-                      style: TextStyle(
+                      'ID: ${rotina['ROTINA']}',
+                      style: const TextStyle(
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w500),
                     ),
@@ -148,16 +190,16 @@ class _RotinasPageState extends State<RotinasPage> {
                         Padding(
                           padding: const EdgeInsets.fromLTRB(0, 0, 3, 0),
                           child: IconButton(
-                            icon: Icon(CupertinoIcons.share),
+                            icon: const Icon(CupertinoIcons.share),
                             onPressed: () {
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    title: Text('Exportar rotina'),
+                                    title: const Text('Exportar rotina'),
                                     actions: [
                                       TextButton(
-                                        child: Text('Fechar'),
+                                        child: const Text('Fechar'),
                                         onPressed: () {
                                           Navigator.of(context).pop();
                                         },
@@ -180,16 +222,16 @@ class _RotinasPageState extends State<RotinasPage> {
                         Padding(
                           padding: const EdgeInsets.fromLTRB(0, 0, 3, 0),
                           child: IconButton(
-                            icon: Icon(Icons.edit),
+                            icon: const Icon(Icons.edit),
                             onPressed: () {
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    title: Text('Editar rotina'),
+                                    title: const Text('Editar rotina'),
                                     actions: [
                                       TextButton(
-                                        child: Text('Fechar'),
+                                        child: const Text('Fechar'),
                                         onPressed: () {
                                           Navigator.of(context).pop();
                                         },
@@ -210,17 +252,56 @@ class _RotinasPageState extends State<RotinasPage> {
                           ),
                         ),
                         IconButton(
-                          icon: Icon(CupertinoIcons.xmark_circle),
+                          icon: const Icon(CupertinoIcons.xmark_circle),
                           onPressed: () {
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
-                                  title: Text('Excluir rotina'),
+                                  title:
+                                      Text('Excluir rotina ${rotina['NOME']}?'),
+                                  titleTextStyle: TextStyle(
+                                      color: Colors.black,
+                                      fontFamily: 'Montserrat',
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w500),
+                                  content: const Text(
+                                      'A exclusão da rotina será permanente.'),
+                                  contentTextStyle: TextStyle(
+                                      color: Colors.black,
+                                      fontFamily: 'Montserrat',
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w400),
                                   actions: [
                                     TextButton(
-                                      child: Text('Fechar'),
+                                      child: const Text('Voltar'),
+                                      style: ButtonStyle(
+                                        foregroundColor:
+                                            WidgetStateProperty.all<Color>(
+                                                Colors.black),
+                                        textStyle:
+                                            WidgetStateProperty.all<TextStyle>(
+                                          TextStyle(
+                                              color: Colors.black,
+                                              fontFamily: 'Montserrat',
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      ),
                                       onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: const Text('Excluir'),
+                                      style: ButtonStyle(
+                                        foregroundColor:
+                                            WidgetStateProperty.all<Color>(
+                                                Colors.red),
+                                      ),
+                                      onPressed: () {
+                                        int idRotina = rotina['ROTINA'];
+                                        _deleteRotina(idRotina);
                                         Navigator.of(context).pop();
                                       },
                                     ),
