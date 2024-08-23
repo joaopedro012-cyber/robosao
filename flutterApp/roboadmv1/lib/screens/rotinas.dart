@@ -196,11 +196,50 @@ class _RotinasPageState extends State<RotinasPage> {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    title: const Text('Exportar rotina'),
+                                    title: Text(
+                                        'Exportar rotina ${rotina['NOME']}?'),
+                                    titleTextStyle: TextStyle(
+                                        color: Colors.black,
+                                        fontFamily: 'Montserrat',
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w500),
+                                    content: const Text(
+                                        'A exclusão da rotina será permanente.'),
+                                    contentTextStyle: TextStyle(
+                                        color: Colors.black,
+                                        fontFamily: 'Montserrat',
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w400),
                                     actions: [
                                       TextButton(
-                                        child: const Text('Fechar'),
+                                        child: const Text('Voltar'),
+                                        style: ButtonStyle(
+                                          foregroundColor:
+                                              WidgetStateProperty.all<Color>(
+                                                  Colors.black),
+                                          textStyle: WidgetStateProperty.all<
+                                              TextStyle>(
+                                            TextStyle(
+                                                color: Colors.black,
+                                                fontFamily: 'Montserrat',
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                        ),
                                         onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                      TextButton(
+                                        child: const Text('Excluir'),
+                                        style: ButtonStyle(
+                                          foregroundColor:
+                                              WidgetStateProperty.all<Color>(
+                                                  Colors.red),
+                                        ),
+                                        onPressed: () {
+                                          int idRotina = rotina['ROTINA'];
+                                          _deleteRotina(idRotina);
                                           Navigator.of(context).pop();
                                         },
                                       ),
@@ -228,11 +267,51 @@ class _RotinasPageState extends State<RotinasPage> {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    title: const Text('Editar rotina'),
+                                    title: Text(
+                                        'Editar a rotina ${rotina['NOME']}?'),
+                                    titleTextStyle: TextStyle(
+                                        color: Colors.black,
+                                        fontFamily: 'Montserrat',
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w500),
+                                    content: const Text(
+                                        'A exclusão da rotina será permanente.'),
+                                    contentTextStyle: TextStyle(
+                                        color: Colors.black,
+                                        fontFamily: 'Montserrat',
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w400),
                                     actions: [
                                       TextButton(
-                                        child: const Text('Fechar'),
+                                        child: const Text('Voltar'),
+                                        style: ButtonStyle(
+                                          foregroundColor:
+                                              WidgetStateProperty.all<Color>(
+                                                  Colors.black),
+                                          textStyle: WidgetStateProperty.all<
+                                              TextStyle>(
+                                            TextStyle(
+                                                color: Colors.black,
+                                                fontFamily: 'Montserrat',
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                        ),
                                         onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                      TextButton(
+                                        child: const Text('Excluir'),
+                                        style: ButtonStyle(
+                                          foregroundColor:
+                                              WidgetStateProperty.all<Color>(
+                                            Colors.red,
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          int idRotina = rotina['ROTINA'];
+                                          _deleteRotina(idRotina);
                                           Navigator.of(context).pop();
                                         },
                                       ),
