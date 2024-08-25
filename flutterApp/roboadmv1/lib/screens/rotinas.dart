@@ -81,7 +81,7 @@ class _RotinasPageState extends State<RotinasPage> {
                   width: 8.0,
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(5, 12, 0, 0),
+                  margin: const EdgeInsets.fromLTRB(5, 12, 0, 0),
                   width: MediaQuery.of(context).size.width * 0.72,
                   decoration: BoxDecoration(
                     color: const Color(0xFFd57171),
@@ -91,11 +91,11 @@ class _RotinasPageState extends State<RotinasPage> {
                     onChanged: (texto) {
                       valorTextInput = texto;
                     },
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontFamily: 'Montserrat',
                     ),
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.all(16.0),
                       hintText: 'Nova rotina...',
@@ -112,7 +112,7 @@ class _RotinasPageState extends State<RotinasPage> {
                 ),
                 Container(
                   width: MediaQuery.of(context).size.width * 0.20,
-                  margin: EdgeInsets.fromLTRB(0, 12, 0, 0),
+                  margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
                   child: ElevatedButton(
                     onPressed: () {
                       if (valorTextInput == null || valorTextInput == '') {
@@ -198,14 +198,14 @@ class _RotinasPageState extends State<RotinasPage> {
                                   return AlertDialog(
                                     title: Text(
                                         'Exportar rotina ${rotina['NOME']}?'),
-                                    titleTextStyle: TextStyle(
+                                    titleTextStyle: const TextStyle(
                                         color: Colors.black,
                                         fontFamily: 'Montserrat',
                                         fontSize: 22,
                                         fontWeight: FontWeight.w500),
                                     content: const Text(
-                                        'A exclusão da rotina será permanente.'),
-                                    contentTextStyle: TextStyle(
+                                        'A exportação vai gerar um arquivo .json'),
+                                    contentTextStyle: const TextStyle(
                                         color: Colors.black,
                                         fontFamily: 'Montserrat',
                                         fontSize: 18,
@@ -219,7 +219,7 @@ class _RotinasPageState extends State<RotinasPage> {
                                                   Colors.black),
                                           textStyle: WidgetStateProperty.all<
                                               TextStyle>(
-                                            TextStyle(
+                                            const TextStyle(
                                                 color: Colors.black,
                                                 fontFamily: 'Montserrat',
                                                 fontSize: 14,
@@ -231,11 +231,19 @@ class _RotinasPageState extends State<RotinasPage> {
                                         },
                                       ),
                                       TextButton(
-                                        child: const Text('Excluir'),
+                                        child: const Text('Exportar'),
                                         style: ButtonStyle(
                                           foregroundColor:
                                               WidgetStateProperty.all<Color>(
-                                                  Colors.red),
+                                                  Colors.purple),
+                                                  textStyle: WidgetStateProperty.all<
+                                              TextStyle>(
+                                            const TextStyle(
+                                                color: Colors.black,
+                                                fontFamily: 'Montserrat',
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600),
+                                          ),
                                         ),
                                         onPressed: () {
                                           int idRotina = rotina['ROTINA'];
@@ -266,17 +274,21 @@ class _RotinasPageState extends State<RotinasPage> {
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
-                                  return AlertDialog(
+                                  return Dialog(
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width * 0.98,
+                                      height: MediaQuery.of(context).size.height * 0.98,
+                                      child: AlertDialog(
                                     title: Text(
                                         'Editar a rotina ${rotina['NOME']}?'),
-                                    titleTextStyle: TextStyle(
+                                    titleTextStyle: const TextStyle(
                                         color: Colors.black,
                                         fontFamily: 'Montserrat',
                                         fontSize: 22,
                                         fontWeight: FontWeight.w500),
                                     content: const Text(
-                                        'A exclusão da rotina será permanente.'),
-                                    contentTextStyle: TextStyle(
+                                        'A edição da rotina será permanente.'),
+                                    contentTextStyle: const TextStyle(
                                         color: Colors.black,
                                         fontFamily: 'Montserrat',
                                         fontSize: 18,
@@ -290,7 +302,7 @@ class _RotinasPageState extends State<RotinasPage> {
                                                   Colors.black),
                                           textStyle: WidgetStateProperty.all<
                                               TextStyle>(
-                                            TextStyle(
+                                            const TextStyle(
                                                 color: Colors.black,
                                                 fontFamily: 'Montserrat',
                                                 fontSize: 14,
@@ -302,12 +314,22 @@ class _RotinasPageState extends State<RotinasPage> {
                                         },
                                       ),
                                       TextButton(
-                                        child: const Text('Excluir'),
+                                        child: const Text('Atualizar'),
                                         style: ButtonStyle(
                                           foregroundColor:
                                               WidgetStateProperty.all<Color>(
-                                            Colors.red,
+                                            Colors.blue,
+                                            
                                           ),
+                                          textStyle: WidgetStateProperty.all<
+                                              TextStyle>(
+                                            const TextStyle(
+                                                color: Colors.black,
+                                                fontFamily: 'Montserrat',
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600),
+                                          ),
+                                          
                                         ),
                                         onPressed: () {
                                           int idRotina = rotina['ROTINA'];
@@ -316,6 +338,7 @@ class _RotinasPageState extends State<RotinasPage> {
                                         },
                                       ),
                                     ],
+                                      ),),
                                   );
                                 },
                               );
@@ -339,14 +362,14 @@ class _RotinasPageState extends State<RotinasPage> {
                                 return AlertDialog(
                                   title:
                                       Text('Excluir rotina ${rotina['NOME']}?'),
-                                  titleTextStyle: TextStyle(
+                                  titleTextStyle: const TextStyle(
                                       color: Colors.black,
                                       fontFamily: 'Montserrat',
                                       fontSize: 22,
                                       fontWeight: FontWeight.w500),
                                   content: const Text(
                                       'A exclusão da rotina será permanente.'),
-                                  contentTextStyle: TextStyle(
+                                  contentTextStyle: const TextStyle(
                                       color: Colors.black,
                                       fontFamily: 'Montserrat',
                                       fontSize: 18,
@@ -360,7 +383,7 @@ class _RotinasPageState extends State<RotinasPage> {
                                                 Colors.black),
                                         textStyle:
                                             WidgetStateProperty.all<TextStyle>(
-                                          TextStyle(
+                                          const TextStyle(
                                               color: Colors.black,
                                               fontFamily: 'Montserrat',
                                               fontSize: 14,
@@ -377,6 +400,14 @@ class _RotinasPageState extends State<RotinasPage> {
                                         foregroundColor:
                                             WidgetStateProperty.all<Color>(
                                                 Colors.red),
+                                                textStyle: WidgetStateProperty.all<
+                                              TextStyle>(
+                                            const TextStyle(
+                                                color: Colors.black,
+                                                fontFamily: 'Montserrat',
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600),
+                                          ),
                                       ),
                                       onPressed: () {
                                         int idRotina = rotina['ROTINA'];
