@@ -27,20 +27,20 @@ class DB {
     await db.execute(_insereAcoesIniciais);
     await db.execute(_createRotina);
     await db.execute(_createExecRotina);
-    await db.execute(_createTempRotina);
     await db.execute(_insertExemplo);
   }
 
   String get _createAcaoRobo => '''
     CREATE TABLE ADM_ACAO_ROBO (
       ID_ACAO INTEGER PRIMARY KEY AUTOINCREMENT,
-      COMANDO VARCHAR(100),
-      NOME VARCHAR(200)
+      ACAO VARCHAR(100),
+      NOME VARCHAR(200),
+      DT_EXCLUSAO DATETIME
     );
 ''';
 
   String get _insereAcoesIniciais => '''
-    INSERT INTO ADM_ACAO_ROBO (COMANDO, NOME)
+    INSERT INTO ADM_ACAO_ROBO (ACAO, NOME)
     VALUES('w','Frente'),('x','Trás'),('a','Esquerda'),('d','Direita');
 ''';
 
@@ -50,7 +50,8 @@ class DB {
       NOME VARCHAR(200) NOT NULL,
       ATIVO CHAR(1) NOT NULL CHECK (ATIVO IN ('S', 'N')),
       EDITAVEL CHAR(1) NOT NULL CHECK (ATIVO IN ('S', 'N')),
-      DT_CRIACAO TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+      DT_CRIACAO TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+      DT_EXCLUSAO DATETIME
     );
   ''';
 
@@ -59,21 +60,11 @@ class DB {
       ID_EXECUCAO INTEGER PRIMARY KEY AUTOINCREMENT,
       ID_ROTINA INTEGER NOT NULL,
       ACAO VARCHAR(100),
-      DT_INI TEXT NOT NULL,  
-      DT_FIM TEXT NOT NULL,
+      QTD_SINAIS INT,
+      DT_EXECUCAO DATETIME NOT NULL,  
+      DT_EXCLUSAO DATETIME,
       FOREIGN KEY (ACAO) REFERENCES ADM_ACAO_ROBO(ACAO),
-      FOREIGN KEY (ROTINA) REFERENCES ADM_ROTINAS(ROTINA)
-    );
-''';
-
-  String get _createTempRotina => '''
-    CREATE TABLE ADM_TEMP_EXECUCAO_ROTINAS (
-      ID_EXECUCAO INTEGER PRIMARY KEY AUTOINCREMENT,
-      ID_ROTINA INTEGER,
-      ACAO VARCHAR(100),
-      DT_EXECUCAO TEXT DEFAULT (CURRENT_TIMESTAMP),
-      FOREIGN KEY (ACAO) REFERENCES ADM_ACAO_ROBO(ACAO),
-      FOREIGN KEY (ROTINA) REFERENCES ADM_ROTINAS(ROTINA)
+      FOREIGN KEY (ID_ROTINA) REFERENCES ADM_ROTINAS(ID_ROTINA)
     );
 ''';
 
@@ -83,8 +74,8 @@ class DB {
   ''';
 
   String get _insertExemplo2 => '''
-    INSERT INTO ADM_EXECUCAO_ROTINAS(ROTINA, ACAO, DT_INI, DT_FIM)
-    VALUES('TESTE1 DE ROTINA', 'S', 'S'),('TESTE2 DE ROTINA', 'S', 'S'),('TESTE3 DE ROTINA', 'S', 'S');
+    INSERT INTO ADM_EXECUCAO_ROTINAS(ID_ROTINA, ACAO, DT_EXECUCAO)
+    VALUES(1, 'w', CURRENT_TIMESTAMP),(1, 'w', CURRENT_TIMESTAMP);
   ''';
 
   static Future<int> createItem(
@@ -99,15 +90,19 @@ class DB {
 
   static Future<int> deleteItem(int ROTINA) async {
     final db = await instance.database;
-
+    final DT_ATUAL = DateTime.now()
+        .copyWith(millisecond: 0, microsecond: 0)
+        .toIso8601String();
     final id = await db.transaction((txn) async {
-      final countRotinas = await txn.delete(
+      final countRotinas = await txn.update(
         'ADM_ROTINAS',
+        {'DT_EXCLUSAO': DT_ATUAL},
         where: 'ROTINA = ?',
         whereArgs: [ROTINA],
       );
-      final countExecucaoRotinas = await txn.delete(
+      final countExecucaoRotinas = await txn.update(
         'ADM_EXECUCAO_ROTINAS',
+        {'DT_EXCLUSAO': DT_ATUAL},
         where: 'ROTINA = ?',
         whereArgs: [ROTINA],
       );
@@ -128,6 +123,7 @@ class DB {
 
   Future<List<Map<String, dynamic>>> getRotinas() async {
     final db = await instance.database;
-    return await db.query('ADM_ROTINAS', orderBy: "ROTINA");
+    return await db.query('ADM_ROTINAS',
+        where: 'DT_EXCLUSAO IS NULL', orderBy: "ROTINA");
   }
 }
