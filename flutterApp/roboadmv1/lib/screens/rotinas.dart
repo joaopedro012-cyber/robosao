@@ -16,17 +16,26 @@ class RotinasPage extends StatefulWidget {
 
 class _RotinasPageState extends State<RotinasPage> {
   List<Map<String, dynamic>> _rotinas = [];
+  List<Map<String, dynamic>> _execucoes = [];
 
   @override
   void initState() {
     super.initState();
     _loadRotinas();
+    //_loadExecucaoRotinas(1);
   }
 
   void _loadRotinas() async {
     final data = await DB.instance.getRotinas();
     setState(() {
       _rotinas = data;
+    });
+  }
+
+  void _loadExecucaoRotinas(ID_ROTINA) async {
+    final data = await DB.instance.getExecucaoRotinas(ID_ROTINA);
+    setState(() {
+      _execucoes = data;
     });
   }
 
@@ -44,6 +53,12 @@ class _RotinasPageState extends State<RotinasPage> {
   Widget build(BuildContext context) {
     String? valorTextInput;
     String? valorDelete;
+
+    _loadExecucaoRotinas(1);
+
+    print(
+      _execucoes,
+    );
 
     return MaterialApp(
       home: Scaffold(
@@ -179,7 +194,7 @@ class _RotinasPageState extends State<RotinasPage> {
                           fontWeight: FontWeight.w600),
                     ),
                     subtitle: Text(
-                      'ID: ${rotina['ROTINA']}',
+                      'ID: ${rotina['ID_ROTINA']}',
                       style: const TextStyle(
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w500),
@@ -236,7 +251,7 @@ class _RotinasPageState extends State<RotinasPage> {
                                           foregroundColor:
                                               WidgetStateProperty.all<Color>(
                                                   Colors.purple),
-                                                  textStyle: WidgetStateProperty.all<
+                                          textStyle: WidgetStateProperty.all<
                                               TextStyle>(
                                             const TextStyle(
                                                 color: Colors.black,
@@ -271,74 +286,103 @@ class _RotinasPageState extends State<RotinasPage> {
                           child: IconButton(
                             icon: const Icon(Icons.edit),
                             onPressed: () {
+                              _loadExecucaoRotinas(rotina['ID_ROTINA']);
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
                                   return Dialog(
                                     child: Container(
-                                      width: MediaQuery.of(context).size.width * 0.98,
-                                      height: MediaQuery.of(context).size.height * 0.98,
+                                      width: MediaQuery.of(context).size.width *
+                                          0.99,
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.99,
                                       child: AlertDialog(
-                                    title: Text(
-                                        'Editar a rotina ${rotina['NOME']}?'),
-                                    titleTextStyle: const TextStyle(
-                                        color: Colors.black,
-                                        fontFamily: 'Montserrat',
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.w500),
-                                    content: const Text(
-                                        'A edição da rotina será permanente.'),
-                                    contentTextStyle: const TextStyle(
-                                        color: Colors.black,
-                                        fontFamily: 'Montserrat',
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w400),
-                                    actions: [
-                                      TextButton(
-                                        child: const Text('Voltar'),
-                                        style: ButtonStyle(
-                                          foregroundColor:
-                                              WidgetStateProperty.all<Color>(
-                                                  Colors.black),
-                                          textStyle: WidgetStateProperty.all<
-                                              TextStyle>(
-                                            const TextStyle(
-                                                color: Colors.black,
-                                                fontFamily: 'Montserrat',
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500),
+                                        title: Text('Edição ${rotina['NOME']}'),
+                                        titleTextStyle: const TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: 'Montserrat',
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.w500),
+                                        content: Expanded(
+                                          child: ListView.builder(
+                                            itemCount: _execucoes.length,
+                                            itemBuilder: (context, index) {
+                                              final execucao =
+                                                  _execucoes[index];
+
+                                              return ListTile(
+                                                title: Text(
+                                                  execucao['ACAO'],
+                                                  style: const TextStyle(
+                                                      fontFamily: 'Montserrat',
+                                                      fontWeight:
+                                                          FontWeight.w400),
+                                                ),
+                                                subtitle: Text(
+                                                  execucao['QTD_SINAIS'],
+                                                  style: const TextStyle(
+                                                      fontFamily: 'Montserrat',
+                                                      fontWeight:
+                                                          FontWeight.w400),
+                                                ),
+                                              );
+                                            },
                                           ),
                                         ),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                      TextButton(
-                                        child: const Text('Atualizar'),
-                                        style: ButtonStyle(
-                                          foregroundColor:
-                                              WidgetStateProperty.all<Color>(
-                                            Colors.blue,
-                                            
+                                        contentTextStyle: const TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: 'Montserrat',
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w400),
+                                        actions: [
+                                          TextButton(
+                                            child: const Text('Voltar'),
+                                            style: ButtonStyle(
+                                              foregroundColor:
+                                                  WidgetStateProperty.all<
+                                                      Color>(Colors.black),
+                                              textStyle: WidgetStateProperty
+                                                  .all<TextStyle>(
+                                                const TextStyle(
+                                                    color: Colors.black,
+                                                    fontFamily: 'Montserrat',
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                            ),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
                                           ),
-                                          textStyle: WidgetStateProperty.all<
-                                              TextStyle>(
-                                            const TextStyle(
-                                                color: Colors.black,
-                                                fontFamily: 'Montserrat',
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600),
+                                          TextButton(
+                                            child: const Text('Atualizar'),
+                                            style: ButtonStyle(
+                                              foregroundColor:
+                                                  WidgetStateProperty.all<
+                                                      Color>(
+                                                Colors.blue,
+                                              ),
+                                              textStyle: WidgetStateProperty
+                                                  .all<TextStyle>(
+                                                const TextStyle(
+                                                    color: Colors.black,
+                                                    fontFamily: 'Montserrat',
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              ),
+                                            ),
+                                            onPressed: () {
+                                              int idRotina = rotina['ROTINA'];
+                                              _deleteRotina(idRotina);
+                                              Navigator.of(context).pop();
+                                            },
                                           ),
-                                          
-                                        ),
-                                        onPressed: () {
-                                          int idRotina = rotina['ROTINA'];
-                                          _deleteRotina(idRotina);
-                                          Navigator.of(context).pop();
-                                        },
+                                        ],
                                       ),
-                                    ],
-                                      ),),
+                                    ),
                                   );
                                 },
                               );
@@ -400,14 +444,14 @@ class _RotinasPageState extends State<RotinasPage> {
                                         foregroundColor:
                                             WidgetStateProperty.all<Color>(
                                                 Colors.red),
-                                                textStyle: WidgetStateProperty.all<
-                                              TextStyle>(
-                                            const TextStyle(
-                                                color: Colors.black,
-                                                fontFamily: 'Montserrat',
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600),
-                                          ),
+                                        textStyle:
+                                            WidgetStateProperty.all<TextStyle>(
+                                          const TextStyle(
+                                              color: Colors.black,
+                                              fontFamily: 'Montserrat',
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600),
+                                        ),
                                       ),
                                       onPressed: () {
                                         int idRotina = rotina['ROTINA'];
