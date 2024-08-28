@@ -97,7 +97,7 @@ class DB {
     --SELECT * FROM
     ADM_EXECUCAO_ROTINAS
     (ID_ROTINA, QTD_SINAIS, ACAO, DT_EXECUCAO_UNIX_MICROSSEGUNDOS)
-    VALUES(1, 'w', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000)),(1, 'w', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000));
+    VALUES(1, 20, 'w', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000)),(1, 30, 'w', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000));
   ''';
 
   static Future<int> createItem(
@@ -148,11 +148,13 @@ class DB {
         where: 'DT_EXCLUSAO_UNIX_MICROSSEGUNDOS IS NULL', orderBy: "ID_ROTINA");
   }
 
-  Future<List<Map<String, dynamic>>> getExecucaoRotinas(rotina) async {
+  Future<List<Map<String, dynamic>>> getExecucaoRotinas(int rotinaId) async {
     final db = await instance.database;
-    return await db.query('ADM_EXECUCAO_ROTINAS',
-        where: 'ID_ROTINA = ?',
-        whereArgs: [rotina],
-        orderBy: "DT_EXECUCAO_UNIX_MICROSSEGUNDOS");
+    return await db.query(
+      'ADM_EXECUCAO_ROTINAS',
+      where: 'ID_ROTINA = ? AND DT_EXCLUSAO_UNIX_MICROSSEGUNDOS IS NULL',
+      whereArgs: [rotinaId],
+      print(db),
+    );
   }
 }

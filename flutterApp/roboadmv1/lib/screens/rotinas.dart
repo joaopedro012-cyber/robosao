@@ -18,24 +18,21 @@ class _RotinasPageState extends State<RotinasPage> {
   List<Map<String, dynamic>> _rotinas = [];
   List<Map<String, dynamic>> _execucoes = [];
 
+  Future<void> _loadExecucaoRotinas(int rotinaId) async {
+    _execucoes = await DB.instance.getExecucaoRotinas(rotinaId);
+    //setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
     _loadRotinas();
-    //_loadExecucaoRotinas(1);
   }
 
   void _loadRotinas() async {
     final data = await DB.instance.getRotinas();
     setState(() {
       _rotinas = data;
-    });
-  }
-
-  void _loadExecucaoRotinas(ID_ROTINA) async {
-    final data = await DB.instance.getExecucaoRotinas(ID_ROTINA);
-    setState(() {
-      _execucoes = data;
     });
   }
 
@@ -52,13 +49,7 @@ class _RotinasPageState extends State<RotinasPage> {
   @override
   Widget build(BuildContext context) {
     String? valorTextInput;
-    String? valorDelete;
-
-    _loadExecucaoRotinas(1);
-
-    print(
-      _execucoes,
-    );
+    //String? valorDelete;
 
     return MaterialApp(
       home: Scaffold(
@@ -285,8 +276,9 @@ class _RotinasPageState extends State<RotinasPage> {
                           padding: const EdgeInsets.fromLTRB(0, 0, 3, 0),
                           child: IconButton(
                             icon: const Icon(Icons.edit),
-                            onPressed: () {
+                            onPressed: () async {
                               _loadExecucaoRotinas(rotina['ID_ROTINA']);
+                              print(_execucoes);
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -454,7 +446,7 @@ class _RotinasPageState extends State<RotinasPage> {
                                         ),
                                       ),
                                       onPressed: () {
-                                        int idRotina = rotina['ROTINA'];
+                                        int idRotina = rotina['ID_ROTINA'];
                                         _deleteRotina(idRotina);
                                         Navigator.of(context).pop();
                                       },
