@@ -1,5 +1,3 @@
-
-
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -114,6 +112,20 @@ class DB {
     return id;
   }
 
+  static Future<int> insertExecucaoRotina(
+      int idRotina, String acao, int qtdSinais) async {
+    final db = await instance.database;
+    final data = {
+      'ID_ROTINA': idRotina,
+      'ACAO': acao,
+      'QTD_SINAIS': qtdSinais,
+      'DT_EXECUCAO_UNIX_MICROSSEGUNDOS': DateTime.now().millisecondsSinceEpoch *
+          1000, // Unix timestamp em microssegundos
+    };
+    final id = await db.insert('ADM_EXECUCAO_ROTINAS', data);
+    return id;
+  }
+
   static Future<int> deleteItem(int rotina) async {
     final db = await instance.database;
     const DT_ATUAL =
@@ -153,10 +165,10 @@ class DB {
   }
 
   Future<List<Map<String, dynamic>>> _getRotinas() async {
-  final db = await DB.instance.database; // Certifique-se de que DB.instance.database está corretamente definido
-  return await db.query('ADM_ROTINAS', columns: ['ID_ROTINA', 'NOME']);
-}
-
+    final db = await DB.instance
+        .database; // Certifique-se de que DB.instance.database está corretamente definido
+    return await db.query('ADM_ROTINAS', columns: ['ID_ROTINA', 'NOME']);
+  }
 
   Future<List<Map<String, dynamic>>> getExecucaoRotinas(int rotinaId) async {
     final db = await instance.database;
@@ -168,19 +180,20 @@ class DB {
     );
   }
 
-  Future<void> _atualizaExecucaoRotina(int IdExecucao, String novaAcao, int novaQtdSinais) async {
-  final db = await instance.database;
+  Future<void> _atualizaExecucaoRotina(
+      int IdExecucao, String novaAcao, int novaQtdSinais) async {
+    final db = await instance.database;
 
-  Map<String, dynamic> dadosAtualizados = {
-    'ACAO': novaAcao,
-    'QTD_SINAIS' : novaQtdSinais,
-  };
+    Map<String, dynamic> dadosAtualizados = {
+      'ACAO': novaAcao,
+      'QTD_SINAIS': novaQtdSinais,
+    };
 
-  await db.update(
-    'ADM_EXECUCAO_ROTINAS',
-    dadosAtualizados,
-    where: 'ID_EXECUCAO = ?',
-    whereArgs: [IdExecucao],
-  );
-}
+    await db.update(
+      'ADM_EXECUCAO_ROTINAS',
+      dadosAtualizados,
+      where: 'ID_EXECUCAO = ?',
+      whereArgs: [IdExecucao],
+    );
+  }
 }

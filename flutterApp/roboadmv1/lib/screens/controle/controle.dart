@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:flutter/foundation.dart';
 import 'package:roboadmv1/screens/home.dart';
+import 'package:roboadmv1/database/db.dart';
 //import 'package:roboadmv1/screens/bluetooth/home/home.dart';
 
 void main() {
@@ -15,52 +16,58 @@ void main() {
 class ControlePage extends StatefulWidget {
   const ControlePage({super.key});
 
+  Future<void> insertExecucaoRotina(
+      int idRotina, String acao, int qtdSinais) async {
+    await DB.insertExecucaoRotina(idRotina, acao, qtdSinais);
+  }
+
   @override
   State<ControlePage> createState() => _ControlePageState();
 }
 
 class _ControlePageState extends State<ControlePage> {
-  @override
-  Widget build(BuildContext context) {
-    const JoystickMode joystickModeHorizontal = JoystickMode.horizontal;
-    const JoystickMode joystickModeVertical = JoystickMode.vertical;
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-    double containerLarguraPadrao = screenWidth * 0.98;
-    double larguraAlturaJoystick = screenWidth * 0.20;
-    double containerInferior = screenHeight * 0.55;
-    int wContador = 0;
-    int xContador = 0;
-    int aContador = 0;
-    int dContador = 0;
-    bool wPressionado = false;
-    bool xPressionado = false;
-    bool aPressionado = false;
-    bool dPressionado = false;
+  int wContador = 0;
+  int xContador = 0;
+  int aContador = 0;
+  int dContador = 0;
+  bool wPressionado = false;
+  bool xPressionado = false;
+  bool aPressionado = false;
+  bool dPressionado = false;
 
-    void incrementaContador(
-      String btnPressionado,
-    ) {
+  void incrementaContador(String btnPressionado) {
+    setState(() {
       switch (btnPressionado) {
         case 'w':
-          if (wPressionado = true)
+          if (wPressionado) {
             wContador++;
-          else
-            ;
+            print("w contador é $wContador");
+          }
           break;
         case 'x':
-          if (xPressionado = true) xContador++;
+          if (xPressionado) {
+            xContador++;
+            print("x contador é $xContador");
+          }
           break;
         case 'a':
-          if (aPressionado = true) aContador++;
+          if (aPressionado) {
+            aContador++;
+            print("a contador é $aContador");
+          }
           break;
         case 'd':
-          if (dPressionado = true) dContador++;
+          if (dPressionado) {
+            dContador++;
+            print("d contador é $dContador");
+          }
           break;
       }
-    }
+    });
+  }
 
-    void resetarContadores(contadorParaReset) {
+  void resetarContadores(String contadorParaReset) {
+    setState(() {
       switch (contadorParaReset) {
         case 'w':
           wContador = 0;
@@ -72,10 +79,21 @@ class _ControlePageState extends State<ControlePage> {
           aContador = 0;
           break;
         case 'd':
-          wContador = 0;
+          dContador = 0;
           break;
       }
-    }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const JoystickMode joystickModeHorizontal = JoystickMode.horizontal;
+    const JoystickMode joystickModeVertical = JoystickMode.vertical;
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+    double containerLarguraPadrao = screenWidth * 0.98;
+    double larguraAlturaJoystick = screenWidth * 0.20;
+    double containerInferior = screenHeight * 0.55;
 
     return MaterialApp(
       home: Scaffold(
@@ -108,13 +126,11 @@ class _ControlePageState extends State<ControlePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    //TELA
                     Container(
                       width: larguraAlturaJoystick,
                       height: 75,
                       color: Colors.green,
                     ),
-                    //DADOS EM TEMPO REAL
                     Container(
                       width: larguraAlturaJoystick,
                       height: 75,
@@ -126,7 +142,6 @@ class _ControlePageState extends State<ControlePage> {
               Container(
                 width: containerLarguraPadrao,
                 height: containerInferior,
-                //color: Colors.amber,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -146,25 +161,66 @@ class _ControlePageState extends State<ControlePage> {
                         listener: (details) {
                           setState(() {
                             double valorVertical = details.y;
+                            double valorHorizontal = details.x;
 
-                            switch (valorVertical) {
-                              case >= 0.000000000000001:
-                                wPressionado = true;
+                            if (valorVertical > 0.000000000000001) {
+                              wPressionado = true;
+                              xPressionado = false;
+                              incrementaContador('w');
+                            } else if (valorVertical < -0.000000000000001) {
+                              xPressionado = true;
+                              wPressionado = false;
+                              incrementaContador('x');
+                            } else {
+                              if (wPressionado) {
+                                wPressionado = false;
+                                // Insira no banco quando o joystick é solto
+                                DB.insertExecucaoRotina(1, 'w',
+                                    wContador); // Substitua '1' por seu ID_ROTINA real
+                                wContador = 0; // Reseta o contador após inserir
+                              }
 
-                                //widget.connection1.writeString("x");
-                                if (kDebugMode) {
-                                  print(
-                                      //  "Valor de Y: é positivo $valorVertical"
-                                      "x");
-                                }
-                                break;
-                              case <= -0.000000000000001:
-                                //widget.connection1.writeString("w");
-                                if (kDebugMode) {
-                                  print(
-                                      //"Valor de Y: é negativo $valorVertical"
-                                      "w");
-                                }
+                              if (xPressionado) {
+                                xPressionado = false;
+                                // Insira no banco quando o joystick é solto
+                                DB.insertExecucaoRotina(1, 'x',
+                                    xContador); // Substitua '1' por seu ID_ROTINA real
+                                xContador = 0; // Reseta o contador após inserir
+                              }
+                            }
+
+                            if (valorHorizontal > 0.000000000000001) {
+                              dPressionado = true;
+                              aPressionado = false;
+                              incrementaContador('d');
+                            } else if (valorHorizontal < -0.000000000000001) {
+                              aPressionado = true;
+                              dPressionado = false;
+                              incrementaContador('a');
+                            } else {
+                              if (dPressionado) {
+                                dPressionado = false;
+                                // Insira no banco quando o joystick é solto
+                                DB.insertExecucaoRotina(1, 'd',
+                                    dContador); // Substitua '1' por seu ID_ROTINA real
+                                dContador = 0; // Reseta o contador após inserir
+                              }
+
+                              if (aPressionado) {
+                                aPressionado = false;
+                                // Insira no banco quando o joystick é solto
+                                DB.insertExecucaoRotina(1, 'a',
+                                    aContador); // Substitua '1' por seu ID_ROTINA real
+                                aContador = 0; // Reseta o contador após inserir
+                              }
+                            }
+
+                            // Logs para depuração
+                            if (kDebugMode) {
+                              print(
+                                  "Valor Vertical: $valorVertical, wPressionado: $wPressionado, xPressionado: $xPressionado");
+                              print(
+                                  "Valor Horizontal: $valorHorizontal, aPressionado: $aPressionado, dPressionado: $dPressionado");
                             }
                           });
                         },
@@ -173,13 +229,11 @@ class _ControlePageState extends State<ControlePage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        //Plataforma
                         Container(
                           width: 50,
                           height: larguraAlturaJoystick,
                           color: Colors.yellow,
                         ),
-                        //Tomadas
                         Container(
                           width: 150,
                           height: larguraAlturaJoystick,
@@ -202,23 +256,15 @@ class _ControlePageState extends State<ControlePage> {
                         listener: (details) {
                           setState(() {
                             double valorHorizontal = details.x;
-
-                            switch (valorHorizontal) {
-                              case >= 0.000000000000001:
-                                // widget.connection2.writeString("d");
-                                if (kDebugMode) {
-                                  print(
-                                      //"Valor de X: é positivo $valorHorizontal"
-                                      "d");
-                                }
-                                break;
-                              case <= -0.000000000000001:
-                                //  widget.connection2.writeString("a");
-                                if (kDebugMode) {
-                                  print(
-                                      //"Valor de X: é negativo $valorHorizontal"
-                                      "a");
-                                }
+                            if (valorHorizontal > 0.000000000000001) {
+                              dPressionado = true;
+                              incrementaContador('d');
+                            } else if (valorHorizontal < -0.000000000000001) {
+                              aPressionado = true;
+                              incrementaContador('a');
+                            } else {
+                              dPressionado = false;
+                              aPressionado = false;
                             }
                           });
                         },
