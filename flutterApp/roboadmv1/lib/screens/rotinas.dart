@@ -19,22 +19,36 @@ class _RotinasPageState extends State<RotinasPage> {
   List<Map<String, dynamic>> _rotinas = [];
   List<Map<String, dynamic>> _execucoes = [];
 
-Future<void> _loadExecucaoRotinas(int rotinaId) async {
-  final data2 = await DB.instance.getExecucaoRotinas(rotinaId);
-  setState(() {
-    _execucoes = data2;
-  });
+  Future<void> atualizaExecucaoRotina(
+      int idExecucao, String novaAcao, int novaQtdSinais) async {
+    final db = await DB.instance.database;
 
-  // Debug: Verificar o conteúdo de _execucoes
-  if (kDebugMode) {
-    print(_execucoes);
+    // Define os dados que serão atualizados
+    Map<String, dynamic> dadosAtualizados = {
+      'ACAO': novaAcao,
+      'QTD_SINAIS': novaQtdSinais,
+    };
+
+    // Executa a atualização no banco de dados
+    await db.update(
+      'ADM_EXECUCAO_ROTINAS',
+      dadosAtualizados,
+      where: 'ID_EXECUCAO = ?',
+      whereArgs: [idExecucao],
+    );
   }
-}
 
+  Future<void> _loadExecucaoRotinas(int rotinaId) async {
+    final data2 = await DB.instance.getExecucaoRotinas(rotinaId);
+    setState(() {
+      _execucoes = data2;
+    });
 
-
-    
-
+    // Debug: Verificar o conteúdo de _execucoes
+    if (kDebugMode) {
+      print(_execucoes);
+    }
+  }
 
   @override
   void initState() {
@@ -291,8 +305,22 @@ Future<void> _loadExecucaoRotinas(int rotinaId) async {
                           child: IconButton(
                             icon: const Icon(Icons.edit),
                             onPressed: () async {
-                              int idRotina2 = 1;
-                              _loadExecucaoRotinas(idRotina2);
+                              int idRotina = rotina['ID_ROTINA'];
+                              await _loadExecucaoRotinas(idRotina);
+
+                              // Lista de controladores para campos editáveis
+                              List<TextEditingController> acaoControllers = [];
+                              List<TextEditingController> qtdSinaisControllers =
+                                  [];
+
+                              // Inicializa controladores com os dados atuais
+                              for (var execucao in _execucoes) {
+                                acaoControllers.add(TextEditingController(
+                                    text: execucao['ACAO']));
+                                qtdSinaisControllers.add(TextEditingController(
+                                    text: execucao['QTD_SINAIS'].toString()));
+                              }
+
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -305,82 +333,90 @@ Future<void> _loadExecucaoRotinas(int rotinaId) async {
                                               0.99,
                                       child: AlertDialog(
                                         title: Text('Edição ${rotina['NOME']}'),
-                                        titleTextStyle: const TextStyle(
-                                            color: Colors.black,
-                                            fontFamily: 'Montserrat',
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.w500),
-                                        content: Expanded(
-                                          child: ListView.builder(
-                                            itemCount: _execucoes.length,
-                                            itemBuilder: (context, index) {
-                                              final execucao = _execucoes[index];
-                                              return ListTile(
-                                                title: Text(
-                                                  execucao['ACAO'],
-                                                  style: const TextStyle(
-                                                      fontFamily: 'Montserrat',
-                                                      fontWeight:
-                                                          FontWeight.w400),
-                                                ),
-                                                subtitle: Text(
-                                                  'ID: ${execucao['QTD_SINAIS']}',
-                                                  style: const TextStyle(
-                                                      fontFamily: 'Montserrat',
-                                                      fontWeight:
-                                                          FontWeight.w400),
-                                                ),
-                                              );
-                                            },
-                                          ),
+                                        content: StatefulBuilder(
+                                          builder: (BuildContext context,
+                                              StateSetter setState) {
+                                            return ListView.builder(
+                                              itemCount: _execucoes.length,
+                                              itemBuilder: (context, index) {
+                                                final execucao =
+                                                    _execucoes[index];
+                                                TextEditingController
+                                                    acaoController =
+                                                    TextEditingController(
+                                                        text: execucao['ACAO']);
+                                                TextEditingController
+                                                    qtdSinaisController =
+                                                    TextEditingController(
+                                                        text: execucao[
+                                                                'QTD_SINAIS']
+                                                            .toString());
+
+                                                return ListTile(
+                                                  title: TextField(
+                                                    controller: acaoController,
+                                                    decoration: InputDecoration(
+                                                        labelText: 'ACAO'),
+                                                  ),
+                                                  subtitle: TextField(
+                                                    controller:
+                                                        qtdSinaisController,
+                                                    decoration: InputDecoration(
+                                                        labelText:
+                                                            'QTD_SINAIS'),
+                                                    keyboardType:
+                                                        TextInputType.number,
+                                                  ),
+                                                  trailing: ElevatedButton(
+                                                    onPressed: () {
+                                                      int idExecucao = execucao[
+                                                          'ID_EXECUCAO'];
+                                                      String novaAcao =
+                                                          acaoController.text;
+                                                      int novaQtdSinais =
+                                                          int.parse(
+                                                              qtdSinaisController
+                                                                  .text);
+
+                                                      // Use uma função assíncrona para lidar com a atualização
+                                                      atualizaExecucaoRotina(
+                                                              idExecucao,
+                                                              novaAcao,
+                                                              novaQtdSinais)
+                                                          .then((_) {
+                                                        // Crie uma cópia mutável de execucao
+                                                        final updatedExecucao =
+                                                            Map<String,
+                                                                    dynamic>.from(
+                                                                execucao);
+                                                        updatedExecucao[
+                                                            'ACAO'] = novaAcao;
+                                                        updatedExecucao[
+                                                                'QTD_SINAIS'] =
+                                                            novaQtdSinais;
+
+                                                        setState(() {
+                                                          // Atualize a lista _execucoes com a cópia atualizada
+                                                          _execucoes[index] =
+                                                              updatedExecucao;
+                                                        });
+                                                      }).catchError((error) {
+                                                        // Trate qualquer erro que possa ocorrer
+                                                        print(
+                                                            'Erro ao atualizar execução: $error');
+                                                      });
+                                                    },
+                                                    child: Text('Salvar'),
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          },
                                         ),
-                                        contentTextStyle: const TextStyle(
-                                            color: Colors.black,
-                                            fontFamily: 'Montserrat',
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w400),
                                         actions: [
                                           TextButton(
                                             child: const Text('Voltar'),
-                                            style: ButtonStyle(
-                                              foregroundColor:
-                                                  WidgetStateProperty.all<
-                                                      Color>(Colors.black),
-                                              textStyle: WidgetStateProperty
-                                                  .all<TextStyle>(
-                                                const TextStyle(
-                                                    color: Colors.black,
-                                                    fontFamily: 'Montserrat',
-                                                    fontSize: 14,
-                                                    fontWeight:
-                                                        FontWeight.w500),
-                                              ),
-                                            ),
                                             onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                          TextButton(
-                                            child: const Text('Atualizar'),
-                                            style: ButtonStyle(
-                                              foregroundColor:
-                                                  WidgetStateProperty.all<
-                                                      Color>(
-                                                Colors.blue,
-                                              ),
-                                              textStyle: WidgetStateProperty
-                                                  .all<TextStyle>(
-                                                const TextStyle(
-                                                    color: Colors.black,
-                                                    fontFamily: 'Montserrat',
-                                                    fontSize: 14,
-                                                    fontWeight:
-                                                        FontWeight.w600),
-                                              ),
-                                            ),
-                                            onPressed: () {
-                                              int idRotina = rotina['ROTINA'];
-                                              _deleteRotina(idRotina);
                                               Navigator.of(context).pop();
                                             },
                                           ),

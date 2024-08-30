@@ -98,7 +98,10 @@ class DB {
     --SELECT * FROM
     ADM_EXECUCAO_ROTINAS
     (ID_ROTINA, QTD_SINAIS, ACAO, DT_EXECUCAO_UNIX_MICROSSEGUNDOS)
-    VALUES(1, 20, 'w', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000)),(1, 30, 'w', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000)),(3, 50, 's', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000));
+    VALUES
+       (1, 20, 'w', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000))
+      ,(1, 30, 'w', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000))
+      ,(3, 50, 's', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000));
   ''';
 
   static Future<int> createItem(
@@ -155,6 +158,23 @@ class DB {
       'ADM_EXECUCAO_ROTINAS',
       where: 'ID_ROTINA = ? AND DT_EXCLUSAO_UNIX_MICROSSEGUNDOS IS NULL',
       whereArgs: [rotinaId],
+      orderBy: "DT_EXECUCAO_UNIX_MICROSSEGUNDOS",
     );
   }
+
+  Future<void> _atualizaExecucaoRotina(int IdExecucao, String novaAcao, int novaQtdSinais) async {
+  final db = await instance.database;
+
+  Map<String, dynamic> dadosAtualizados = {
+    'ACAO': novaAcao,
+    'QTD_SINAIS' : novaQtdSinais,
+  };
+
+  await db.update(
+    'ADM_EXECUCAO_ROTINAS',
+    dadosAtualizados,
+    where: 'ID_EXECUCAO = ?',
+    whereArgs: [IdExecucao],
+  );
+}
 }
