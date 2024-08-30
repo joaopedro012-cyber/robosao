@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:roboadmv1/screens/home.dart';
 import 'package:roboadmv1/database/db.dart';
 
@@ -18,15 +19,28 @@ class _RotinasPageState extends State<RotinasPage> {
   List<Map<String, dynamic>> _rotinas = [];
   List<Map<String, dynamic>> _execucoes = [];
 
-  Future<void> _loadExecucaoRotinas(int rotinaId) async {
-    _execucoes = await DB.instance.getExecucaoRotinas(rotinaId);
-    //setState(() {});
+Future<void> _loadExecucaoRotinas(int rotinaId) async {
+  final data2 = await DB.instance.getExecucaoRotinas(rotinaId);
+  setState(() {
+    _execucoes = data2;
+  });
+
+  // Debug: Verificar o conteúdo de _execucoes
+  if (kDebugMode) {
+    print(_execucoes);
   }
+}
+
+
+
+    
+
 
   @override
   void initState() {
     super.initState();
     _loadRotinas();
+    _loadExecucaoRotinas(1);
   }
 
   void _loadRotinas() async {
@@ -277,8 +291,8 @@ class _RotinasPageState extends State<RotinasPage> {
                           child: IconButton(
                             icon: const Icon(Icons.edit),
                             onPressed: () async {
-                              _loadExecucaoRotinas(rotina['ID_ROTINA']);
-                              print(_execucoes);
+                              int idRotina2 = 1;
+                              _loadExecucaoRotinas(idRotina2);
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -300,9 +314,7 @@ class _RotinasPageState extends State<RotinasPage> {
                                           child: ListView.builder(
                                             itemCount: _execucoes.length,
                                             itemBuilder: (context, index) {
-                                              final execucao =
-                                                  _execucoes[index];
-
+                                              final execucao = _execucoes[index];
                                               return ListTile(
                                                 title: Text(
                                                   execucao['ACAO'],
@@ -312,7 +324,7 @@ class _RotinasPageState extends State<RotinasPage> {
                                                           FontWeight.w400),
                                                 ),
                                                 subtitle: Text(
-                                                  execucao['QTD_SINAIS'],
+                                                  'ID: ${execucao['QTD_SINAIS']}',
                                                   style: const TextStyle(
                                                       fontFamily: 'Montserrat',
                                                       fontWeight:

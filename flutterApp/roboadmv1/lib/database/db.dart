@@ -1,4 +1,4 @@
-import 'dart:ffi';
+
 
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -30,6 +30,7 @@ class DB {
     await db.execute(_createRotina);
     await db.execute(_createExecRotina);
     await db.execute(_insertExemplo);
+    await db.execute(_insertExemplo2);
   }
 
   String get _createAcaoRobo => '''
@@ -97,20 +98,20 @@ class DB {
     --SELECT * FROM
     ADM_EXECUCAO_ROTINAS
     (ID_ROTINA, QTD_SINAIS, ACAO, DT_EXECUCAO_UNIX_MICROSSEGUNDOS)
-    VALUES(1, 20, 'w', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000)),(1, 30, 'w', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000));
+    VALUES(1, 20, 'w', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000)),(1, 30, 'w', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000)),(3, 50, 's', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000));
   ''';
 
   static Future<int> createItem(
-      String NOME, String ATIVO, String EDITAVEL) async {
+      String nome, String ativo, String editavel) async {
     final db = await instance.database;
 
-    final data = {'NOME': NOME, 'ATIVO': ATIVO, 'EDITAVEL': EDITAVEL};
+    final data = {'NOME': nome, 'ATIVO': ativo, 'EDITAVEL': editavel};
     final id = await db.insert('ADM_ROTINAS', data,
         conflictAlgorithm: ConflictAlgorithm.replace);
     return id;
   }
 
-  static Future<int> deleteItem(int ROTINA) async {
+  static Future<int> deleteItem(int rotina) async {
     final db = await instance.database;
     const DT_ATUAL =
         "(CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000)";
@@ -119,13 +120,13 @@ class DB {
         'ADM_ROTINAS',
         {'DT_EXCLUSAO_UNIX_MICROSSEGUNDOS': DT_ATUAL},
         where: 'ID_ROTINA = ?',
-        whereArgs: [ROTINA],
+        whereArgs: [rotina],
       );
       final countExecucaoRotinas = await txn.update(
         'ADM_EXECUCAO_ROTINAS',
         {'DT_EXCLUSAO_UNIX_MICROSSEGUNDOS': DT_ATUAL},
         where: 'ID_ROTINA = ?',
-        whereArgs: [ROTINA],
+        whereArgs: [rotina],
       );
 
       return countRotinas +
@@ -154,7 +155,6 @@ class DB {
       'ADM_EXECUCAO_ROTINAS',
       where: 'ID_ROTINA = ? AND DT_EXCLUSAO_UNIX_MICROSSEGUNDOS IS NULL',
       whereArgs: [rotinaId],
-      print(db),
     );
   }
 }
