@@ -152,6 +152,12 @@ class DB {
         where: 'DT_EXCLUSAO_UNIX_MICROSSEGUNDOS IS NULL', orderBy: "ID_ROTINA");
   }
 
+  Future<List<Map<String, dynamic>>> _getRotinas() async {
+  final db = await DB.instance.database; // Certifique-se de que DB.instance.database está corretamente definido
+  return await db.query('ADM_ROTINAS', columns: ['ID_ROTINA', 'NOME']);
+}
+
+
   Future<List<Map<String, dynamic>>> getExecucaoRotinas(int rotinaId) async {
     final db = await instance.database;
     return await db.query(

@@ -3,9 +3,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:roboadmv1/screens/home.dart';
 import 'package:roboadmv1/database/db.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   runApp(const RotinasPage());
+}
+
+// Função para exportar dados para JSON
+Future<void> exportToJson(int idRotina) async {
+  // Obtenha a instância do banco de dados
+  final db = await DB.instance.database;
+
+  // Recupere os dados da tabela ADM_EXECUCAO_ROTINAS
+  final List<Map<String, dynamic>> execucoes = await db.query(
+    'ADM_EXECUCAO_ROTINAS',
+    columns: ['ID_ROTINA', 'QTD_SINAIS', 'ACAO', 'DT_EXECUCAO_UNIX_MICROSSEGUNDOS'],
+    where: 'ID_ROTINA = ? AND DT_EXCLUSAO_UNIX_MICROSSEGUNDOS IS NULL',
+    whereArgs: [idRotina],
+  );
+
+  // Converta os dados para JSON
+  final jsonData = jsonEncode(execucoes);
+
+  // Encontre o diretório para salvar o arquivo
+  final directory = await getApplicationDocumentsDirectory();
+  final path = '${directory.path}/execucao_rotina_${idRotina}.json';
+
+  // Crie e escreva o arquivo JSON
+  final file = File(path);
+  await file.writeAsString(jsonData);
+
+  print('Arquivo exportado para $path');
 }
 
 class RotinasPage extends StatefulWidget {
@@ -233,17 +263,20 @@ class _RotinasPageState extends State<RotinasPage> {
                                     title: Text(
                                         'Exportar rotina ${rotina['NOME']}?'),
                                     titleTextStyle: const TextStyle(
-                                        color: Colors.black,
-                                        fontFamily: 'Montserrat',
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.w500),
+                                      color: Colors.black,
+                                      fontFamily: 'Montserrat',
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                     content: const Text(
-                                        'A exportação vai gerar um arquivo .json'),
+                                      'A exportação vai gerar um arquivo .json',
+                                    ),
                                     contentTextStyle: const TextStyle(
-                                        color: Colors.black,
-                                        fontFamily: 'Montserrat',
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w400),
+                                      color: Colors.black,
+                                      fontFamily: 'Montserrat',
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w400,
+                                    ),
                                     actions: [
                                       TextButton(
                                         child: const Text('Voltar'),
@@ -254,10 +287,11 @@ class _RotinasPageState extends State<RotinasPage> {
                                           textStyle: WidgetStateProperty.all<
                                               TextStyle>(
                                             const TextStyle(
-                                                color: Colors.black,
-                                                fontFamily: 'Montserrat',
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500),
+                                              color: Colors.black,
+                                              fontFamily: 'Montserrat',
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                           ),
                                         ),
                                         onPressed: () {
@@ -273,15 +307,16 @@ class _RotinasPageState extends State<RotinasPage> {
                                           textStyle: WidgetStateProperty.all<
                                               TextStyle>(
                                             const TextStyle(
-                                                color: Colors.black,
-                                                fontFamily: 'Montserrat',
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600),
+                                              color: Colors.black,
+                                              fontFamily: 'Montserrat',
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                         ),
-                                        onPressed: () {
-                                          int idRotina = rotina['ROTINA'];
-                                          _deleteRotina(idRotina);
+                                        onPressed: () async {
+                                          int idRotina = rotina['ID_ROTINA'];
+                                          await exportToJson(idRotina);
                                           Navigator.of(context).pop();
                                         },
                                       ),
