@@ -41,25 +41,33 @@ class _ControlePageState extends State<ControlePage> {
         case 'w':
           if (wPressionado) {
             wContador++;
-            print("w contador é $wContador");
+            if (kDebugMode) {
+              print("w contador é $wContador");
+            }
           }
           break;
         case 'x':
           if (xPressionado) {
             xContador++;
-            print("x contador é $xContador");
+            if (kDebugMode) {
+              print("x contador é $xContador");
+            }
           }
           break;
         case 'a':
           if (aPressionado) {
             aContador++;
-            print("a contador é $aContador");
+            if (kDebugMode) {
+              print("a contador é $aContador");
+            }
           }
           break;
         case 'd':
           if (dPressionado) {
             dContador++;
-            print("d contador é $dContador");
+            if (kDebugMode) {
+              print("d contador é $dContador");
+            }
           }
           break;
       }
@@ -139,7 +147,7 @@ class _ControlePageState extends State<ControlePage> {
                   ],
                 ),
               ),
-              Container(
+              SizedBox(
                 width: containerLarguraPadrao,
                 height: containerInferior,
                 child: Row(
@@ -164,13 +172,13 @@ class _ControlePageState extends State<ControlePage> {
                             double valorHorizontal = details.x;
 
                             if (valorVertical > 0.000000000000001) {
-                              wPressionado = true;
-                              xPressionado = false;
-                              incrementaContador('w');
-                            } else if (valorVertical < -0.000000000000001) {
-                              xPressionado = true;
                               wPressionado = false;
+                              xPressionado = true;
                               incrementaContador('x');
+                            } else if (valorVertical < -0.000000000000001) {
+                              xPressionado = false;
+                              wPressionado = true;
+                              incrementaContador('w');
                             } else {
                               if (wPressionado) {
                                 wPressionado = false;

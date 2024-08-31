@@ -52,13 +52,6 @@ class _DeviceScreenState extends State<DeviceScreen> {
     double larguraAlturaJoystick = screenWidth * 0.20;
     double containerSuperior = screenHeight * 0.30;
     double containerInferior = screenHeight * 0.55;
-    int sinaisEnviados = 0;
-    bool WPressionado = false;
-    bool XPressionado = false;
-    bool APressionado = false;
-    bool DPressionado = false;
-    void sinaisCriadosDuranteExecucao() {}
-    ;
 
     return Scaffold(
       appBar: AppBar(

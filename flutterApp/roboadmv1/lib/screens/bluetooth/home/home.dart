@@ -155,15 +155,26 @@ class _MainScreenState extends State<MainScreen> {
                       }
                     }
                   } catch (e) {
-                    // Gerencie exceções durante as tentativas de conexão
-                    if (kDebugMode) {
-                      print("Erro durante a conexão: $e");
-                    }
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text("Erro ao conectar ao dispositivo")),
-                    );
-                  }
+  // Gerencie exceções durante as tentativas de conexão
+  if (kDebugMode) {
+    print("Erro durante a conexão: $e");
+  }
+void showConnectionError_() {
+  // Verifique se o widget está montado antes de usar o BuildContext
+  if (mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Erro ao conectar ao dispositivo"),
+      ),
+    );
+  }
+}
+  // Chama um método separado para exibir o Snackbar
+  showConnectionError_();
+}
+
+
+
                 },
               )
         ],

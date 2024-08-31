@@ -128,18 +128,18 @@ class DB {
 
   static Future<int> deleteItem(int rotina) async {
     final db = await instance.database;
-    const DT_ATUAL =
+    const dtAtual =
         "(CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000)";
     final id = await db.transaction((txn) async {
       final countRotinas = await txn.update(
         'ADM_ROTINAS',
-        {'DT_EXCLUSAO_UNIX_MICROSSEGUNDOS': DT_ATUAL},
+        {'DT_EXCLUSAO_UNIX_MICROSSEGUNDOS': dtAtual},
         where: 'ID_ROTINA = ?',
         whereArgs: [rotina],
       );
       final countExecucaoRotinas = await txn.update(
         'ADM_EXECUCAO_ROTINAS',
-        {'DT_EXCLUSAO_UNIX_MICROSSEGUNDOS': DT_ATUAL},
+        {'DT_EXCLUSAO_UNIX_MICROSSEGUNDOS': dtAtual},
         where: 'ID_ROTINA = ?',
         whereArgs: [rotina],
       );
@@ -164,11 +164,7 @@ class DB {
         where: 'DT_EXCLUSAO_UNIX_MICROSSEGUNDOS IS NULL', orderBy: "ID_ROTINA");
   }
 
-  Future<List<Map<String, dynamic>>> _getRotinas() async {
-    final db = await DB.instance
-        .database; // Certifique-se de que DB.instance.database está corretamente definido
-    return await db.query('ADM_ROTINAS', columns: ['ID_ROTINA', 'NOME']);
-  }
+  
 
   Future<List<Map<String, dynamic>>> getExecucaoRotinas(int rotinaId) async {
     final db = await instance.database;
@@ -180,20 +176,4 @@ class DB {
     );
   }
 
-  Future<void> _atualizaExecucaoRotina(
-      int IdExecucao, String novaAcao, int novaQtdSinais) async {
-    final db = await instance.database;
-
-    Map<String, dynamic> dadosAtualizados = {
-      'ACAO': novaAcao,
-      'QTD_SINAIS': novaQtdSinais,
-    };
-
-    await db.update(
-      'ADM_EXECUCAO_ROTINAS',
-      dadosAtualizados,
-      where: 'ID_EXECUCAO = ?',
-      whereArgs: [IdExecucao],
-    );
-  }
 }

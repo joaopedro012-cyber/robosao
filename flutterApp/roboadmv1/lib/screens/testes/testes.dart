@@ -70,16 +70,16 @@ class _TestesPageState extends State<TestesPage> {
               future: _rotinasFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   return Center(child: Text('Erro: ${snapshot.error}'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text('Nenhuma rotina disponível'));
+                  return const Center(child: Text('Nenhuma rotina disponível'));
                 } else {
                   final rotinas = snapshot.data!;
                   return DropdownButton<int>(
                     value: _selectedRotinaId,
-                    hint: Text('Selecione uma rotina'),
+                    hint: const Text('Selecione uma rotina'),
                     items: rotinas.map((rotina) {
                       return DropdownMenuItem<int>(
                         value: rotina['ID_ROTINA'],
@@ -123,7 +123,7 @@ class _TestesPageState extends State<TestesPage> {
                   ],
                 ),
               ),
-              Container(
+              SizedBox(
                 width: containerLarguraPadrao,
                 height: containerInferior,
                 //color: Colors.amber,
