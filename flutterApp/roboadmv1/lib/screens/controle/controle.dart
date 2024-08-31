@@ -227,9 +227,7 @@ class _ControlePageState extends State<ControlePage> {
                             if (kDebugMode) {
                               print(
                                   "Valor Vertical: $valorVertical, wPressionado: $wPressionado, xPressionado: $xPressionado");
-                              print(
-                                  "Valor Horizontal: $valorHorizontal, aPressionado: $aPressionado, dPressionado: $dPressionado");
-                            }
+                             }
                           });
                         },
                       ),
@@ -264,15 +262,63 @@ class _ControlePageState extends State<ControlePage> {
                         listener: (details) {
                           setState(() {
                             double valorHorizontal = details.x;
+
                             if (valorHorizontal > 0.000000000000001) {
+                              aPressionado = false;
                               dPressionado = true;
                               incrementaContador('d');
                             } else if (valorHorizontal < -0.000000000000001) {
+                              dPressionado = false;
                               aPressionado = true;
                               incrementaContador('a');
                             } else {
-                              dPressionado = false;
+                              if (aPressionado) {
+                                aPressionado = false;
+                                // Insira no banco quando o joystick é solto
+                                DB.insertExecucaoRotina(1, 'a',
+                                    aContador); // Substitua '1' por seu ID_ROTINA real
+                                aContador = 0; // Reseta o contador após inserir
+                              }
+
+                              if (dPressionado) {
+                                dPressionado = false;
+                                // Insira no banco quando o joystick é solto
+                                DB.insertExecucaoRotina(1, 'd',
+                                    dContador); // Substitua '1' por seu ID_ROTINA real
+                                dContador = 0; // Reseta o contador após inserir
+                              }
+                            }
+
+                            if (valorHorizontal > 0.000000000000001) {
+                              dPressionado = true;
                               aPressionado = false;
+                              incrementaContador('d');
+                            } else if (valorHorizontal < -0.000000000000001) {
+                              aPressionado = true;
+                              dPressionado = false;
+                              incrementaContador('a');
+                            } else {
+                              if (dPressionado) {
+                                dPressionado = false;
+                                // Insira no banco quando o joystick é solto
+                                DB.insertExecucaoRotina(1, 'd',
+                                    dContador); // Substitua '1' por seu ID_ROTINA real
+                                dContador = 0; // Reseta o contador após inserir
+                              }
+
+                              if (aPressionado) {
+                                aPressionado = false;
+                                // Insira no banco quando o joystick é solto
+                                DB.insertExecucaoRotina(1, 'a',
+                                    aContador); // Substitua '1' por seu ID_ROTINA real
+                                aContador = 0; // Reseta o contador após inserir
+                              }
+                            }
+
+                            // Logs para depuração
+                            if (kDebugMode) {
+                              print(
+                                  "Valor Horizontal: $valorHorizontal, aPressionado: $aPressionado, dPressionado: $dPressionado");
                             }
                           });
                         },
