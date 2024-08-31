@@ -24,7 +24,10 @@ class ControlePage extends StatefulWidget {
   @override
   State<ControlePage> createState() => _ControlePageState();
 }
-
+Future<List<Map<String, dynamic>>> _getRotinas() async {
+  final db = await DB.instance.database;
+  return await db.query('ADM_ROTINAS', columns: ['ID_ROTINA', 'NOME']);
+}
 class _ControlePageState extends State<ControlePage> {
   int wContador = 0;
   int xContador = 0;
@@ -34,6 +37,14 @@ class _ControlePageState extends State<ControlePage> {
   bool xPressionado = false;
   bool aPressionado = false;
   bool dPressionado = false;
+  late Future<List<Map<String, dynamic>>> _rotinasFuture;
+  int? _selectedRotinaId;
+
+@override
+  void initState() {
+    super.initState();
+    _rotinasFuture = _getRotinas();
+  }
 
   void incrementaContador(String btnPressionado) {
     setState(() {
@@ -122,6 +133,37 @@ class _ControlePageState extends State<ControlePage> {
               );
             },
           ),
+          actions: [
+            FutureBuilder<List<Map<String, dynamic>>>(
+              future: _rotinasFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Erro: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('Nenhuma rotina disponível'));
+                } else {
+                  final rotinas = snapshot.data!;
+                  return DropdownButton<int>(
+                    value: _selectedRotinaId,
+                    hint: const Text('Selecione uma rotina'),
+                    items: rotinas.map((rotina) {
+                      return DropdownMenuItem<int>(
+                        value: rotina['ID_ROTINA'],
+                        child: Text(rotina['NOME']),
+                      );
+                    }).toList(),
+                    onChanged: (int? newValue) {
+                      setState(() {
+                        _selectedRotinaId = newValue;
+                      });
+                    },
+                  );
+                }
+              },
+            ),
+          ],
         ),
         body: Center(
           child: Column(
@@ -227,7 +269,7 @@ class _ControlePageState extends State<ControlePage> {
                             if (kDebugMode) {
                               print(
                                   "Valor Vertical: $valorVertical, wPressionado: $wPressionado, xPressionado: $xPressionado");
-                             }
+                            }
                           });
                         },
                       ),
