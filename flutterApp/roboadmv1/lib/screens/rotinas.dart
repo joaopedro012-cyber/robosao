@@ -25,7 +25,8 @@ class RotinasPage extends StatefulWidget {
 
 class _RotinasPageState extends State<RotinasPage> {
   List<Map<String, dynamic>> _rotinas = [];
-  List<Map<String, dynamic>> _execucoes = [];
+  final Map<int, List<Map<String, dynamic>>> _execucoesPorRotina = {};
+  // Mapa para armazenar execuções por rotina
 
   Future<void> atualizaExecucaoRotina(
       int idExecucao, String novaAcao, int novaQtdSinais) async {
@@ -47,11 +48,11 @@ class _RotinasPageState extends State<RotinasPage> {
   Future<void> _loadExecucaoRotinas(int rotinaId) async {
     final data2 = await DB.instance.getExecucaoRotinas(rotinaId);
     setState(() {
-      _execucoes = data2;
+      _execucoesPorRotina[rotinaId] = data2;  // Atualiza o mapa de execuções
     });
 
     if (kDebugMode) {
-      print(_execucoes);
+      print(_execucoesPorRotina);
     }
   }
 
@@ -59,7 +60,6 @@ class _RotinasPageState extends State<RotinasPage> {
   void initState() {
     super.initState();
     _loadRotinas();
-    _loadExecucaoRotinas(1);
   }
 
   void _loadRotinas() async {
@@ -67,6 +67,11 @@ class _RotinasPageState extends State<RotinasPage> {
     setState(() {
       _rotinas = data;
     });
+
+    // Carregar execuções para cada rotina
+    for (var rotina in _rotinas) {
+      _loadExecucaoRotinas(rotina['ID_ROTINA']);
+    }
   }
 
   Future<void> _insertRotina(String nomeRotina) async {
@@ -78,42 +83,58 @@ class _RotinasPageState extends State<RotinasPage> {
     await DB.deleteItem(idRotina);
     _loadRotinas();
   }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  // Função para exportar dados para JSON com escolha de pasta
-  Future<void> exportToJsonWithPicker() async {
-    // Verifique e solicite permissões de armazenamento
-    if (Platform.isAndroid) {
-      var status = await Permission.storage.status;
-      if (!status.isGranted) {
-        await Permission.storage.request();
-      }
-    }
-
-    // Abrir o seletor de pasta
-    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
-    if (selectedDirectory == null) {
-      // Usuário cancelou a seleção
+  Future<void> _requestStoragePermission() async {
+  // Verificar se a permissão já foi concedida
+  if (await Permission.storage.request().isGranted) {
+    // A permissão já foi concedida, você pode acessar o armazenamento
+  } else {
+    // Solicitar permissão
+    var status = await Permission.storage.request();
+    if (!status.isGranted) {
+      // Se a permissão não for concedida, você pode mostrar uma mensagem ao usuário ou fechar a função
       return;
     }
+  }
+}
 
-    // Converta os dados da variável _execucoes para JSON
-    final jsonData = jsonEncode(_execucoes);
 
-    // Caminho do arquivo para salvar
-    final path = '$selectedDirectory/execucao_rotina.json';
-
-    final file = File(path);
-    await file.writeAsString(jsonData);
-
-    if (kDebugMode) {
-      print('Arquivo exportado para $path');
+  // Função para exportar dados para JSON com escolha de pasta
+Future<void> exportToJsonWithPicker(int rotinaId) async {
+  // Verifique e solicite permissões de armazenamento
+  if (Platform.isAndroid) {
+    await _requestStoragePermission();
+    var status = await Permission.storage.status;
+    if (!status.isGranted) {
+      await Permission.storage.request();
     }
   }
+
+  // Abrir o seletor de pasta
+  String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+  if (selectedDirectory == null) {
+    // Usuário cancelou a seleção
+    return;
+  }
+
+  // Prepare os dados para exportação
+  List<dynamic> jsonReadyData = _execucoesPorRotina[rotinaId] ?? [];
+
+  // Converta os dados da variável jsonReadyData para JSON
+  final jsonData = jsonEncode(jsonReadyData);
+
+  // Caminho do arquivo para salvar
+  final path = '$selectedDirectory/execucao_rotina_$rotinaId.json';
+
+  final file = File(path);
+  await file.writeAsString(jsonData);
+
+  if (kDebugMode) {
+    print('Arquivo exportado para $path');
+  }
+}
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -227,10 +248,12 @@ class _RotinasPageState extends State<RotinasPage> {
               itemCount: _rotinas.length,
               itemBuilder: (context, index) {
                 final rotina = _rotinas[index];
+                final execucoes = _execucoesPorRotina[rotina['ID_ROTINA']] ?? [];
+
                 final List<TextEditingController> acaoControllers = [];
                 final List<TextEditingController> qtdSinaisControllers = [];
 
-                for (final execucao in _execucoes) {
+                for (final execucao in execucoes) {
                   acaoControllers.add(TextEditingController(
                       text: execucao['ACAO']?.toString()));
                   qtdSinaisControllers.add(TextEditingController(
@@ -261,40 +284,39 @@ class _RotinasPageState extends State<RotinasPage> {
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(CupertinoIcons.share),
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: Text(
-                                          'Exportar rotina ${rotina['NOME']}?'),
-                                      content: const Text(
-                                          'A exportação vai gerar um arquivo .json'),
-                                      actions: [
-                                        TextButton(
-                                          child: const Text('Voltar'),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                        TextButton(
-                                          child: const Text('Exportar'),
-                                          onPressed: () async {
-                                            Navigator.of(context).pop();
-                                            await exportToJsonWithPicker();
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                            ),
+  icon: const Icon(CupertinoIcons.share),
+  onPressed: () {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Exportar rotina ${rotina['NOME']}?'),
+          content: const Text('A exportação vai gerar um arquivo .json'),
+          actions: [
+            TextButton(
+              child: const Text('Voltar'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Exportar'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await exportToJsonWithPicker(rotina['ID_ROTINA']);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  },
+)
+
                           ],
                         ),
                         const SizedBox(height: 16.0),
-                        for (var i = 0; i < _execucoes.length; i++)
+                        for (var i = 0; i < execucoes.length; i++)
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: Row(
@@ -313,22 +335,24 @@ class _RotinasPageState extends State<RotinasPage> {
                                   child: TextField(
                                     controller: qtdSinaisControllers[i],
                                     decoration: const InputDecoration(
-                                      labelText: 'Qtd Sinais',
+                                      labelText: 'Qtd. Sinais',
                                       border: OutlineInputBorder(),
                                     ),
+                                    keyboardType: TextInputType.number,
                                   ),
                                 ),
+                                const SizedBox(width: 16.0),
                                 IconButton(
                                   icon: const Icon(Icons.save),
-                                  onPressed: () async {
+                                  onPressed: () {
                                     final novaAcao = acaoControllers[i].text;
-                                    final novaQtdSinais = int.parse(
-                                        qtdSinaisControllers[i].text);
-                                    await atualizaExecucaoRotina(
-                                      _execucoes[i]['ID_EXECUCAO'],
-                                      novaAcao,
-                                      novaQtdSinais,
-                                    );
+                                    final novaQtdSinais = int.tryParse(
+                                            qtdSinaisControllers[i].text) ??
+                                        0;
+                                    final idExecucao =
+                                        execucoes[i]['ID_EXECUCAO'];
+                                    atualizaExecucaoRotina(idExecucao, novaAcao,
+                                        novaQtdSinais);
                                   },
                                 ),
                               ],
@@ -338,34 +362,12 @@ class _RotinasPageState extends State<RotinasPage> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.delete),
+                              icon: const Icon(
+                                Icons.delete_forever,
+                                color: Colors.red,
+                              ),
                               onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: Text(
-                                          'Excluir rotina ${rotina['NOME']}?'),
-                                      content: const Text(
-                                          'Essa ação não pode ser desfeita.'),
-                                      actions: [
-                                        TextButton(
-                                          child: const Text('Cancelar'),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                        TextButton(
-                                          child: const Text('Excluir'),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                            _deleteRotina(rotina['ID_ROTINA']);
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
+                                _deleteRotina(rotina['ID_ROTINA']);
                               },
                             ),
                           ],

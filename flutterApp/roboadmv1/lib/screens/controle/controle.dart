@@ -4,7 +4,6 @@ import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:flutter/foundation.dart';
 import 'package:roboadmv1/screens/home.dart';
 import 'package:roboadmv1/database/db.dart';
-//import 'package:roboadmv1/screens/bluetooth/home/home.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,18 +14,15 @@ void main() {
 class ControlePage extends StatefulWidget {
   const ControlePage({super.key});
 
-  Future<void> insertExecucaoRotina(
-      int idRotina, String acao, int qtdSinais) async {
-    await DB.insertExecucaoRotina(idRotina, acao, qtdSinais);
-  }
-
   @override
   State<ControlePage> createState() => _ControlePageState();
 }
+
 Future<List<Map<String, dynamic>>> _getRotinas() async {
   final db = await DB.instance.database;
   return await db.query('ADM_ROTINAS', columns: ['ID_ROTINA', 'NOME']);
 }
+
 class _ControlePageState extends State<ControlePage> {
   int wContador = 0;
   int xContador = 0;
@@ -39,7 +35,7 @@ class _ControlePageState extends State<ControlePage> {
   late Future<List<Map<String, dynamic>>> _rotinasFuture;
   int? _selectedRotinaId;
 
-@override
+  @override
   void initState() {
     super.initState();
     _rotinasFuture = _getRotinas();
@@ -101,6 +97,16 @@ class _ControlePageState extends State<ControlePage> {
           break;
       }
     });
+  }
+
+  Future<void> _insertExecucaoRotina(String acao, int qtdSinais) async {
+    if (_selectedRotinaId != null) {
+      await DB.insertExecucaoRotina(_selectedRotinaId!, acao, qtdSinais);
+    } else {
+      if (kDebugMode) {
+        print("ID da rotina não selecionado.");
+      }
+    }
   }
 
   @override
@@ -195,7 +201,7 @@ class _ControlePageState extends State<ControlePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    //Joystick Cima e Baixo
+                    // Joystick Cima e Baixo
                     Container(
                       width: larguraAlturaJoystick,
                       height: larguraAlturaJoystick,
@@ -223,18 +229,14 @@ class _ControlePageState extends State<ControlePage> {
                             } else {
                               if (wPressionado) {
                                 wPressionado = false;
-                                // Insira no banco quando o joystick é solto
-                                DB.insertExecucaoRotina(1, 'w',
-                                    wContador); // Substitua '1' por seu ID_ROTINA real
-                                wContador = 0; // Reseta o contador após inserir
+                                _insertExecucaoRotina('w', wContador);
+                                wContador = 0;
                               }
 
                               if (xPressionado) {
                                 xPressionado = false;
-                                // Insira no banco quando o joystick é solto
-                                DB.insertExecucaoRotina(1, 'x',
-                                    xContador); // Substitua '1' por seu ID_ROTINA real
-                                xContador = 0; // Reseta o contador após inserir
+                                _insertExecucaoRotina('x', xContador);
+                                xContador = 0;
                               }
                             }
 
@@ -249,22 +251,17 @@ class _ControlePageState extends State<ControlePage> {
                             } else {
                               if (dPressionado) {
                                 dPressionado = false;
-                                // Insira no banco quando o joystick é solto
-                                DB.insertExecucaoRotina(1, 'd',
-                                    dContador); // Substitua '1' por seu ID_ROTINA real
-                                dContador = 0; // Reseta o contador após inserir
+                                _insertExecucaoRotina('d', dContador);
+                                dContador = 0;
                               }
 
                               if (aPressionado) {
                                 aPressionado = false;
-                                // Insira no banco quando o joystick é solto
-                                DB.insertExecucaoRotina(1, 'a',
-                                    aContador); // Substitua '1' por seu ID_ROTINA real
-                                aContador = 0; // Reseta o contador após inserir
+                                _insertExecucaoRotina('a', aContador);
+                                aContador = 0;
                               }
                             }
 
-                            // Logs para depuração
                             if (kDebugMode) {
                               print(
                                   "Valor Vertical: $valorVertical, wPressionado: $wPressionado, xPressionado: $xPressionado");
@@ -288,7 +285,7 @@ class _ControlePageState extends State<ControlePage> {
                         ),
                       ],
                     ),
-                    //Joystick esquerda e direita
+                    // Joystick esquerda e direita
                     Container(
                       width: larguraAlturaJoystick,
                       height: larguraAlturaJoystick,
@@ -315,48 +312,17 @@ class _ControlePageState extends State<ControlePage> {
                             } else {
                               if (aPressionado) {
                                 aPressionado = false;
-                                // Insira no banco quando o joystick é solto
-                                DB.insertExecucaoRotina(1, 'a',
-                                    aContador); // Substitua '1' por seu ID_ROTINA real
-                                aContador = 0; // Reseta o contador após inserir
+                                _insertExecucaoRotina('a', aContador);
+                                aContador = 0;
                               }
 
                               if (dPressionado) {
                                 dPressionado = false;
-                                // Insira no banco quando o joystick é solto
-                                DB.insertExecucaoRotina(1, 'd',
-                                    dContador); // Substitua '1' por seu ID_ROTINA real
-                                dContador = 0; // Reseta o contador após inserir
+                                _insertExecucaoRotina('d', dContador);
+                                dContador = 0;
                               }
                             }
 
-                            if (valorHorizontal > 0.000000000000001) {
-                              dPressionado = true;
-                              aPressionado = false;
-                              incrementaContador('d');
-                            } else if (valorHorizontal < -0.000000000000001) {
-                              aPressionado = true;
-                              dPressionado = false;
-                              incrementaContador('a');
-                            } else {
-                              if (dPressionado) {
-                                dPressionado = false;
-                                // Insira no banco quando o joystick é solto
-                                DB.insertExecucaoRotina(1, 'd',
-                                    dContador); // Substitua '1' por seu ID_ROTINA real
-                                dContador = 0; // Reseta o contador após inserir
-                              }
-
-                              if (aPressionado) {
-                                aPressionado = false;
-                                // Insira no banco quando o joystick é solto
-                                DB.insertExecucaoRotina(1, 'a',
-                                    aContador); // Substitua '1' por seu ID_ROTINA real
-                                aContador = 0; // Reseta o contador após inserir
-                              }
-                            }
-
-                            // Logs para depuração
                             if (kDebugMode) {
                               print(
                                   "Valor Horizontal: $valorHorizontal, aPressionado: $aPressionado, dPressionado: $dPressionado");
