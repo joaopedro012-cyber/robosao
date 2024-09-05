@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
@@ -54,7 +53,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
   @override
   void dispose() {
     widget.connection1.dispose();
-    widget.connection2.dispose(); // Dispose the second connection if needed
+    widget.connection2.dispose(); 
     _readSubscription?.cancel();
     super.dispose();
   }
@@ -65,33 +64,25 @@ class _DeviceScreenState extends State<DeviceScreen> {
         case 'w':
           if (wPressionado) {
             wContador++;
-            if (kDebugMode) {
-              print("w contador é $wContador");
-            }
+            
           }
           break;
         case 'x':
           if (xPressionado) {
             xContador++;
-            if (kDebugMode) {
-              print("x contador é $xContador");
-            }
+            
           }
           break;
         case 'a':
           if (aPressionado) {
             aContador++;
-            if (kDebugMode) {
-              print("a contador é $aContador");
-            }
+            
           }
           break;
         case 'd':
           if (dPressionado) {
             dContador++;
-            if (kDebugMode) {
-              print("d contador é $dContador");
-            }
+            
           }
           break;
       }
@@ -121,9 +112,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
     if (_selectedRotinaId != null) {
       await DB.insertExecucaoRotina(_selectedRotinaId!, acao, qtdSinais);
     } else {
-      if (kDebugMode) {
-        print("ID da rotina não selecionado.");
-      }
+     
     }
   }
 
@@ -238,15 +227,15 @@ class _DeviceScreenState extends State<DeviceScreen> {
                         double valorHorizontal = details.x;
 
                         if (valorVertical > 0.000000000000001) {
+                          widget.connection1.writeString("x");
                           wPressionado = false;
                           xPressionado = true;
                           incrementaContador('x');
-                          widget.connection1.writeString("x");
                         } else if (valorVertical < -0.000000000000001) {
+                          widget.connection1.writeString("w");
                           xPressionado = false;
                           wPressionado = true;
                           incrementaContador('w');
-                          widget.connection1.writeString("w");
                         } else {
                           if (wPressionado) {
                             wPressionado = false;
@@ -262,15 +251,15 @@ class _DeviceScreenState extends State<DeviceScreen> {
                         }
 
                         if (valorHorizontal > 0.000000000000001) {
+                          widget.connection2.writeString("d");
                           dPressionado = true;
                           aPressionado = false;
                           incrementaContador('d');
-                          widget.connection2.writeString("d");
                         } else if (valorHorizontal < -0.000000000000001) {
+                          widget.connection2.writeString("a");
                           aPressionado = true;
                           dPressionado = false;
                           incrementaContador('a');
-                          widget.connection2.writeString("a");
                         } else {
                           if (dPressionado) {
                             dPressionado = false;
@@ -285,9 +274,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
                           }
                         }
 
-                        if (kDebugMode) {
-                          print("Valor Vertical: $valorVertical, wPressionado: $wPressionado, xPressionado: $xPressionado");
-                        }
+                        
                       });
                     },
                   ),
@@ -347,9 +334,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
                           }
                         }
 
-                        if (kDebugMode) {
-                          print("Valor Horizontal: $valorHorizontal, aPressionado: $aPressionado, dPressionado: $dPressionado");
-                        }
+                        
                       });
                     },
                   ),
