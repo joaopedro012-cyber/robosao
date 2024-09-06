@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
-import 'package:roboadmv1/database/db.dart';
-import 'package:roboadmv1/screens/home.dart';
+import 'package:roboadmv1_1/database/db.dart';
+import 'package:roboadmv1_1/screens/home.dart';
 
 class DeviceScreen extends StatefulWidget {
   final BluetoothConnection connection1;
@@ -64,26 +64,26 @@ class _DeviceScreenState extends State<DeviceScreen> {
         case 'w':
           if (wPressionado) {
             wContador++;
-            widget.connection1.writeString("w");
+            widget.connection1.output.add(utf8.encode("w"));
           }
           break;
         case 'x':
           if (xPressionado) {
             xContador++;
-             widget.connection1.writeString("x");
+             widget.connection1.output.add(utf8.encode("x"));
           }
           break;
         case 'a':
           if (aPressionado) {
             aContador++;
-            widget.connection2.writeString("a");
+            widget.connection2.output.add(utf8.encode("a"));
             
           }
           break;
         case 'd':
           if (dPressionado) {
             dContador++;
-            widget.connection2.writeString("d");
+            widget.connection2.output.add(utf8.encode("d"));
           }
           break;
       }
