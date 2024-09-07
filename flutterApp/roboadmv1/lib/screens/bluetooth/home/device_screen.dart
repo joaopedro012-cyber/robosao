@@ -5,6 +5,7 @@ import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:roboadmv1/database/db.dart';
 import 'package:roboadmv1/screens/home.dart';
+import 'package:flutter/foundation.dart';
 
 class DeviceScreen extends StatefulWidget {
   final BluetoothConnection connection1;
@@ -53,7 +54,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
   @override
   void dispose() {
     widget.connection1.dispose();
-    widget.connection2.dispose(); 
+    widget.connection2.dispose();
     _readSubscription?.cancel();
     super.dispose();
   }
@@ -70,14 +71,13 @@ class _DeviceScreenState extends State<DeviceScreen> {
         case 'x':
           if (xPressionado) {
             xContador++;
-             widget.connection1.writeString("x");
+            widget.connection1.writeString("x");
           }
           break;
         case 'a':
           if (aPressionado) {
             aContador++;
             widget.connection2.writeString("a");
-            
           }
           break;
         case 'd':
@@ -112,9 +112,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
   Future<void> _insertExecucaoRotina(String acao, int qtdSinais) async {
     if (_selectedRotinaId != null) {
       await DB.insertExecucaoRotina(_selectedRotinaId!, acao, qtdSinais);
-    } else {
-     
-    }
+    } else {}
   }
 
   @override
@@ -130,7 +128,8 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Conexões: ${widget.connection1.address} e ${widget.connection2.address}"),
+        title: Text(
+            "Conexões: ${widget.connection1.address} e ${widget.connection2.address}"),
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back,
@@ -228,12 +227,18 @@ class _DeviceScreenState extends State<DeviceScreen> {
                         double valorHorizontal = details.x;
 
                         if (valorVertical > 0.000000000000001) {
-                          //widget.connection1.writeString("x");
+                          widget.connection2.writeString("x");
+                          if (kDebugMode) {
+                            print('x');
+                          }
                           wPressionado = false;
                           xPressionado = true;
                           incrementaContador('x');
                         } else if (valorVertical < -0.000000000000001) {
-                          //widget.connection1.writeString("w");
+                          widget.connection2.writeString("w");
+                          if (kDebugMode) {
+                            print('w');
+                          }
                           xPressionado = false;
                           wPressionado = true;
                           incrementaContador('w');
@@ -252,12 +257,12 @@ class _DeviceScreenState extends State<DeviceScreen> {
                         }
 
                         if (valorHorizontal > 0.000000000000001) {
-                         // widget.connection2.writeString("d");
+                          
                           dPressionado = true;
                           aPressionado = false;
                           incrementaContador('d');
                         } else if (valorHorizontal < -0.000000000000001) {
-                          //widget.connection2.writeString("a");
+                          
                           aPressionado = true;
                           dPressionado = false;
                           incrementaContador('a');
@@ -274,8 +279,6 @@ class _DeviceScreenState extends State<DeviceScreen> {
                             aContador = 0;
                           }
                         }
-
-                        
                       });
                     },
                   ),
@@ -314,10 +317,18 @@ class _DeviceScreenState extends State<DeviceScreen> {
                         double valorHorizontal = details.x;
 
                         if (valorHorizontal > 0.000000000000001) {
+                          widget.connection1.writeString("a");
+                          if (kDebugMode) {
+                            print('a');
+                          }
                           aPressionado = false;
                           dPressionado = true;
                           incrementaContador('d');
                         } else if (valorHorizontal < -0.000000000000001) {
+                          widget.connection1.writeString("d");
+                          if (kDebugMode) {
+                            print('d');
+                          }
                           dPressionado = false;
                           aPressionado = true;
                           incrementaContador('a');
@@ -334,8 +345,6 @@ class _DeviceScreenState extends State<DeviceScreen> {
                             dContador = 0;
                           }
                         }
-
-                        
                       });
                     },
                   ),
