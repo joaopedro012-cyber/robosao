@@ -1,8 +1,18 @@
+import 'package:window_manager/window_manager.dart';
 import 'package:flutter/material.dart';
-import 'src/themes/util.dart';
+import 'src/utils/util.dart';
 import 'src/themes/theme.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await windowManager.ensureInitialized();
+  WindowOptions windowOptions = const WindowOptions(title: 'Robo Administrativo');
+
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.focus();
+  });
+  
   runApp(const MyApp());
 }
 

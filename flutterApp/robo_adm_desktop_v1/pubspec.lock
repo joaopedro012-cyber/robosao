@@ -235,6 +235,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  screen_retriever:
+    dependency: transitive
+    description:
+      name: screen_retriever
+      sha256: "6ee02c8a1158e6dae7ca430da79436e3b1c9563c8cf02f524af997c201ac2b90"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.9"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -320,6 +328,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  window_manager:
+    dependency: "direct main"
+    description:
+      name: window_manager
+      sha256: "7dc03b6f940fe9ead05c0dda07e86ab9cd5dcb525a7c9311fb11185ef7baf5d1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.4"
   xdg_directories:
     dependency: transitive
     description:
