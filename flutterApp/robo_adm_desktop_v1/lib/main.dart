@@ -1,18 +1,27 @@
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_acrylic/flutter_acrylic.dart' as flutter_acrylic;
 import 'src/utils/util.dart';
 import 'src/themes/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await windowManager.ensureInitialized();
-  WindowOptions windowOptions = const WindowOptions(title: 'Robo Administrativo');
-
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.show();
-    await windowManager.focus();
-  });
   
+  await flutter_acrylic.Window.initialize();
+  if (defaultTargetPlatform == TargetPlatform.windows) {
+    await flutter_acrylic.Window.hideWindowControls();
+  }
+  await WindowManager.instance.ensureInitialized();
+  windowManager.waitUntilReadyToShow().then((_) async {
+    await windowManager.setTitleBarStyle(TitleBarStyle.hidden, windowButtonVisibility: false,);
+  await windowManager.setMinimumSize(const Size(500, 600));
+  await windowManager.show();
+  await windowManager.setPreventClose(true);
+  
+  },);
   runApp(const MyApp());
 }
 
