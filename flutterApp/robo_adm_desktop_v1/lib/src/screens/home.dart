@@ -60,7 +60,7 @@ class _HomePageState extends State<HomePage> {
           body: const Center(child: Text('Sensores')),
         ),
         PaneItem(
-          icon: const Icon(FluentIcons.check_list),
+          icon: const Icon(FluentIcons.waitlist_confirm),
           title: const Text('Status'),
           body: const Center(child: Text('Status')),
         ),
