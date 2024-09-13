@@ -5,7 +5,7 @@ import 'package:roboadmv1/screens/bluetooth/home/home.dart';
 import 'package:roboadmv1/screens/testes/testes.dart';
 import 'package:roboadmv1/screens/controle/controle.dart';
 
-void main() {
+void main() {  //teste
   runApp(const RoboApp());
 }
 
