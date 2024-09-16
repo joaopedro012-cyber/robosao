@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class Telarotina extends StatelessWidget{
+class Telarotina extends StatelessWidget {
   const Telarotina({super.key});
 
   @override
@@ -10,7 +10,7 @@ class Telarotina extends StatelessWidget{
         title: const Text('Rotinas'),
       ),
       body: const Center(
-        child: Text('bem vindo'),
+        child: Text('Tela de Rotinas'),
       ),
     );
   }

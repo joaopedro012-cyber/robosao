@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-class TelaBluetooth extends StatelessWidget{
-  const TelaBluetooth({super.key});
+class BluetoothPage extends StatelessWidget {
+  const BluetoothPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Conexão Bluetooth'),
+        title: const Text('Bluetooth'),
       ),
       body: const Center(
-        child: Text('bem-vindo'),
+        child: Text('Tela de Bluetooth'),
       ),
     );
   }

@@ -1,25 +1,29 @@
 import 'package:flutter/material.dart';
+import 'src/screens/home.dart';
 import 'src/screens/bluetooth.dart';
 import 'src/screens/controle.dart';
 import 'src/screens/rotinas.dart';
 import 'src/screens/testes.dart';
-import 'src/screens/home.dart';
+
 void main() {
-  runApp(const Teste());
+  runApp(const MyApp());
 }
-class Teste extends StatelessWidget {
-  const Teste({super.key});
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: '/', 
+      title: 'Flutter Demo',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      initialRoute: '/',
       routes: {
-        '/': (context) => const Teste1234(),             
-        '/testes': (context) =>  const Testetela(),     
-        '/rotinas': (context) =>   const Telarotina(),   
-        '/controle': (context) =>  const Teladecontrole(), 
-        '/bluetooth': (context) =>  const TelaBluetooth(), 
+        '/': (context) => const HomeScreen(),
+        '/controle': (context) => const ControlePage(),
+        '/bluetooth': (context) => const BluetoothPage(),
+        '/rotinas': (context) => const Telarotina(),
+        '/testes': (context) => const Testetela(),
       },
     );
   }

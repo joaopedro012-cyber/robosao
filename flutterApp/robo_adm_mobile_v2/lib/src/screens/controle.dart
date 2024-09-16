@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-class Teladecontrole extends StatelessWidget{
-  const Teladecontrole({super.key});
+class ControlePage extends StatelessWidget {
+  const ControlePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('controle para pre produção'),
+        title: const Text('Controle'),
       ),
       body: const Center(
-        child: Text('bem-vindo'),
+        child: Text('Tela de Controle'),
       ),
     );
   }

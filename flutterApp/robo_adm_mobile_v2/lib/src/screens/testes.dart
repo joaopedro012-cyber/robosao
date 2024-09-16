@@ -7,10 +7,10 @@ class Testetela extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ambiente de Testes'),
+        title: const Text('Testes'),
       ),
       body: const Center(
-        child: Text('Bem-vindo'),
+        child: Text('Tela de Testes'),
       ),
     );
   }
