@@ -4,7 +4,7 @@ import 'package:robo_adm_desktop_v1/src/screens/rotinas.dart';
 
 
 
-class HomePage extends StatefulWidget { // Renomeado de NavigationView para HomePage
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
@@ -70,36 +70,20 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: NavigationView( // Use o widget NavigationView do Fluent UI aqui
+      body: NavigationView( 
         appBar: const NavigationAppBar(
+          leading: null,
           title: Text('Robo Administrativo Desktop'),
         ),
         pane: NavigationPane(
           selected: topIndex,
           onChanged: (index) => setState(() => topIndex = index),
-          displayMode: displayMode,
           items: items,
           footerItems: [
             PaneItem(
               icon: const Icon(FluentIcons.settings),
               title: const Text('Settings'),
               body: const Center(child: Text('Settings Page')),
-            ),
-            PaneItemAction(
-              icon: const Icon(FluentIcons.add),
-              title: const Text('Add New Item'),
-              onTap: () {
-                // Lógica para adicionar novo item
-                items.add(
-                  PaneItem(
-                    icon: const Icon(FluentIcons.new_folder),
-                    title: const Text('New Item'),
-                    body:
-                        const Center(child: Text('This is a newly added item')),
-                  ),
-                );
-                setState(() {});
-              },
             ),
           ],
         ),
