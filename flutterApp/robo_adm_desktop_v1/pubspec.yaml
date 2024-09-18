@@ -1,5 +1,5 @@
 name: robo_adm_desktop_v1
-description: "A new Flutter project."
+description: "Versão desktop para administração do robo."
 publish_to: 'none'
 version: 0.2.0
 
@@ -9,18 +9,33 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  google_fonts: ^4.0.4
-  window_manager: 0.2.4
-  system_theme: ^2.3.1
+  file_picker: ^8.1.2
+  fluent_ui: ^4.0.0 
   flutter_acrylic: ^1.0.0+2
   flutter_markdown: ^0.6.13
-  fluent_ui: ^4.0.0 
+  google_fonts: ^4.0.4
+  system_theme: ^2.3.1
+  window_manager: 0.2.4
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  flutter_native_splash: ^2.1.6
+  flutter_launcher_icons: ^0.13.1
+
+flutter_native_splash:
+  color: "#000000"
+  image: lib/src/assets/gorfe.png
+
+flutter_launcher_icons:
+  windows:
+    generate: true
+    image_path: "lib/src/assets/gorfe.png"
+    icon_size: 48 
 
 flutter:
   uses-material-design: true
+  assets:
+    - lib/src/assets/gorfe.png

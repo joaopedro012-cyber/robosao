@@ -1,4 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:file_picker/file_picker.dart';
+
 
 class RotinasPage extends StatefulWidget {
   const RotinasPage({super.key});
@@ -19,9 +21,9 @@ class _RotinasPageState extends State<RotinasPage> {
           width: screenWidth * 0.35,
           child: Wrap(
             children: [
-               Container(
+               SizedBox(
                 width: screenWidth * 0.27,
-                child: TextBox(
+                child: const TextBox(
                 
                 readOnly: true,
                 placeholder: 'Selecione a Rotina.json',
@@ -31,7 +33,7 @@ class _RotinasPageState extends State<RotinasPage> {
                   color: Color(0xFF5178BE),
                 ),
               ),),
-            Container( 
+            SizedBox( 
               width: screenWidth * 0.08,
               child:
               FilledButton(
