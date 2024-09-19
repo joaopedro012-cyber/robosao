@@ -1,37 +1,48 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
+import 'package:file_picker/file_picker.dart';
 
 class RotinasPage extends StatefulWidget {
   const RotinasPage({super.key});
-
   @override
   State<RotinasPage> createState() => _RotinasPageState();
 }
 
-void _selecionaArquivos() async {
-  _resetState();
-}
-
-void _resetState() {
-  if (!mounted) {
-    return;
-  }
-  setState(() {
-    _isLoading = true;
-    _directoryPath = null;
-    _fileName = null;
-    _paths = null;
-    _saveAsFileName = null;
-    _userAborted = false;
-})
-}
+bool _isLoading = false;
+String? _directoryPath;
+String? _fileName;
+List<PlatformFile>? _paths;
+String? _saveAsFileName;
+bool _userAborted = false;
 
 class _RotinasPageState extends State<RotinasPage> {
   bool filledDisabled = false;
   @override
   Widget build(BuildContext context) {
+    void _resetState() {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isLoading = true;
+        _directoryPath = null;
+        _fileName = null;
+        _paths = null;
+        _saveAsFileName = null;
+        _userAborted = false;
+      });
+    }
+
+    void _selecionaArquivos() async {
+      _resetState();
+      try{
+        _directoryPath = null;
+        _paths = (await FilePicker.platform.pickFiles(
+          compressionQuality: 30,
+        );)
+      }
+    }
+
     double screenWidth = MediaQuery.of(context).size.width;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -40,25 +51,25 @@ class _RotinasPageState extends State<RotinasPage> {
           width: screenWidth * 0.35,
           child: Wrap(
             children: [
-               SizedBox(
+              SizedBox(
                 width: screenWidth * 0.27,
                 child: const TextBox(
-                
-                readOnly: true,
-                placeholder: 'Selecione a Rotina.json',
-                style: TextStyle(
-                  fontFamily: 'Segoe UI',
-                  fontSize: 14.0,
-                  color: Color(0xFF5178BE),
+                  readOnly: true,
+                  placeholder: 'Selecione a Rotina.json',
+                  style: TextStyle(
+                    fontFamily: 'Segoe UI',
+                    fontSize: 14.0,
+                    color: Color(0xFF5178BE),
+                  ),
                 ),
-              ),),
-            SizedBox( 
-              width: screenWidth * 0.08,
-              child:
-              FilledButton(
-                onPressed: () => _selecionaArquivos(),
-                child: const Text('Selecionar'),
-              ),),
+              ),
+              SizedBox(
+                width: screenWidth * 0.08,
+                child: FilledButton(
+                  onPressed: () => _selecionaArquivos(),
+                  child: const Text('Selecionar'),
+                ),
+              ),
             ],
           ),
         ),
