@@ -2,19 +2,26 @@
     package="com.example.robo_adm_mobile_v2">
 
     <!-- Permissões para versões anteriores ao Android 12 -->
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="30"/>
 
     <!-- Permissões para Android 12 ou superior (API 31+) -->
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
+    <!-- Necessário para escanear dispositivos Bluetooth -->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
+    <uses-feature android:name="android.hardware.bluetooth" android:required="true" />
+
     <application
         android:label="robo_adm_mobile_v2"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true">
+
+        <!-- Atividade principal -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -28,7 +35,7 @@
             <meta-data
                 android:name="flutterEmbedding"
                 android:value="2" />
-            
+
             <!-- Filtro de intent para a atividade principal -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
