@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 
 class RotinasPage extends StatefulWidget {
@@ -7,6 +8,24 @@ class RotinasPage extends StatefulWidget {
 
   @override
   State<RotinasPage> createState() => _RotinasPageState();
+}
+
+void _selecionaArquivos() async {
+  _resetState();
+}
+
+void _resetState() {
+  if (!mounted) {
+    return;
+  }
+  setState(() {
+    _isLoading = true;
+    _directoryPath = null;
+    _fileName = null;
+    _paths = null;
+    _saveAsFileName = null;
+    _userAborted = false;
+})
 }
 
 class _RotinasPageState extends State<RotinasPage> {
@@ -37,7 +56,7 @@ class _RotinasPageState extends State<RotinasPage> {
               width: screenWidth * 0.08,
               child:
               FilledButton(
-                onPressed: filledDisabled ? null : () => debugPrint('Selecionado'),
+                onPressed: () => _selecionaArquivos(),
                 child: const Text('Selecionar'),
               ),),
             ],
