@@ -77,6 +77,16 @@ class _MainScreenState extends State<MainScreen> {
           _connectedDevices[device.address] = connection!;
           _selectedDevices[device.address] = true;
         });
+
+        // Navegar para a tela de controle após conectar
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ControlePage(
+              connectedDevices: [device.address], // Passa o endereço do dispositivo conectado
+            ),
+          ),
+        );
       }
     } catch (e) {
       if (kDebugMode) {
@@ -104,38 +114,7 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  Future<void> _disconnectAllDevices() async {
-    try {
-      for (var device in _connectedDevices.keys) {
-        final connection = _connectedDevices[device];
-        if (connection != null) {
-          connection.dispose();
-        }
-      }
-      if (mounted) {
-        setState(() {
-          _connectedDevices.clear();
-          _selectedDevices.clear();
-        });
-      }
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Todos os dispositivos foram desconectados.')),
-        );
-      }
-
-      if (_isScanning) {
-        _flutterBlueClassicPlugin.stopScan(); // Removi o await
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Erro ao desconectar todos os dispositivos: $e');
-      }
-    }
-  }
-
-  // Função para conectar aos dispositivos selecionados
-  Future<void> _connectToDevices() async {
+  void _connectToDevices() {
     final selectedDevices = _selectedDevices.entries
         .where((entry) => entry.value)
         .map((entry) => entry.key)
@@ -145,20 +124,8 @@ class _MainScreenState extends State<MainScreen> {
       for (String address in selectedDevices) {
         final device = _scanResults.firstWhere((d) => d.address == address);
         if (!_connectedDevices.containsKey(address)) {
-          await _connectToDevice(device);
+          _connectToDevice(device);
         }
-      }
-
-      // Verifica se o widget ainda está montado antes de navegar
-      if (mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ControlePage(
-              connectedDevices: _connectedDevices.keys.toList(),
-            ),
-          ),
-        );
       }
     } else {
       if (mounted) {
@@ -188,7 +155,11 @@ class _MainScreenState extends State<MainScreen> {
           if (_adapterState == BluetoothAdapterState.on)
             IconButton(
               icon: const Icon(Icons.bluetooth_disabled),
-              onPressed: _disconnectAllDevices,
+              onPressed: () {
+                for (var device in _connectedDevices.keys) {
+                  _disconnectFromDevice(device as BluetoothDevice);
+                }
+              },
               tooltip: 'Desconectar Bluetooth',
             ),
           if (_adapterState != BluetoothAdapterState.on)
@@ -221,7 +192,7 @@ class _MainScreenState extends State<MainScreen> {
                             });
 
                             if (value == true && !isConnected) {
-                              _connectToDevice(device);
+                              _connectToDevice(device); // Conectar e navegar para tela de controle
                             } else if (value == false && isConnected) {
                               _disconnectFromDevice(device);
                             }
@@ -240,7 +211,7 @@ class _MainScreenState extends State<MainScreen> {
             children: [
               ElevatedButton(
                 onPressed: _connectToDevices,
-                child: const Text('Conectar'),
+                child: const Text('Conectar'), // Botão "Conectar" restaurado
               ),
               ElevatedButton(
                 onPressed: _startStopScan,
