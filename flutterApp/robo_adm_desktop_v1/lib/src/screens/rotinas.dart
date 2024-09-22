@@ -1,6 +1,7 @@
-import 'package:fluent_ui/fluent_ui.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fui;
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
 
 class RotinasPage extends StatefulWidget {
   const RotinasPage({super.key});
@@ -33,15 +34,44 @@ class _RotinasPageState extends State<RotinasPage> {
       });
     }
 
-    void _selecionaArquivos() async {
+    void _logException(String message) {
+    print(message);
+    GlobalKey<ScaffoldMessengerState>().currentState?.hideCurrentSnackBar();
+    GlobalKey<ScaffoldMessengerState>().currentState?.showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+    void selecionaArquivos() async {
       _resetState();
-      try{
-        _directoryPath = null;
-        _paths = (await FilePicker.platform.pickFiles(
-          compressionQuality: 30,
-        );)
-      }
+      try {
+      _directoryPath = null;
+      _paths = (await FilePicker.platform.pickFiles(
+        compressionQuality: 30,
+        type: FileType.custom,
+        allowMultiple: true,
+        onFileLoading: (FilePickerStatus status) => print(status),
+        allowedExtensions: ['json'],
+        dialogTitle: "_dialogTitleController",
+        initialDirectory: "C:\\",
+        lockParentWindow: false,
+      ))
+          ?.files;
+    } on PlatformException catch (e) {
+      _logException('Unsupported operation' + e.toString());
+    } catch (e) {
+      _logException(e.toString());
     }
+    }
+
+   
 
     double screenWidth = MediaQuery.of(context).size.width;
     return Row(
@@ -53,7 +83,7 @@ class _RotinasPageState extends State<RotinasPage> {
             children: [
               SizedBox(
                 width: screenWidth * 0.27,
-                child: const TextBox(
+                child: const fui.TextBox(
                   readOnly: true,
                   placeholder: 'Selecione a Rotina.json',
                   style: TextStyle(
@@ -66,7 +96,7 @@ class _RotinasPageState extends State<RotinasPage> {
               SizedBox(
                 width: screenWidth * 0.08,
                 child: FilledButton(
-                  onPressed: () => _selecionaArquivos(),
+                  onPressed: () => selecionaArquivos(),
                   child: const Text('Selecionar'),
                 ),
               ),
@@ -75,7 +105,7 @@ class _RotinasPageState extends State<RotinasPage> {
         ),
         SizedBox(
           width: screenWidth * 0.35,
-          child: const Expander(
+          child: const fui.Expander(
               header: Text('Open to see'),
               content: SizedBox(
                 height: 300,
