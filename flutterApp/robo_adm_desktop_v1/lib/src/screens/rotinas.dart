@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart' as fui;
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 class RotinasPage extends StatefulWidget {
@@ -9,33 +10,17 @@ class RotinasPage extends StatefulWidget {
   State<RotinasPage> createState() => _RotinasPageState();
 }
 
-bool _isLoading = false;
-String? _directoryPath;
-String? _fileName;
-List<PlatformFile>? _paths;
-String? _saveAsFileName;
-bool _userAborted = false;
 
 class _RotinasPageState extends State<RotinasPage> {
   bool filledDisabled = false;
   @override
   Widget build(BuildContext context) {
-    void _resetState() {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _isLoading = true;
-        _directoryPath = null;
-        _fileName = null;
-        _paths = null;
-        _saveAsFileName = null;
-        _userAborted = false;
-      });
-    }
+    
 
-    void _logException(String message) {
-    print(message);
+    void logException(String message) {
+    if (kDebugMode) {
+      print(message);
+    }
     GlobalKey<ScaffoldMessengerState>().currentState?.hideCurrentSnackBar();
     GlobalKey<ScaffoldMessengerState>().currentState?.showSnackBar(
       SnackBar(
@@ -50,24 +35,22 @@ class _RotinasPageState extends State<RotinasPage> {
   }
 
     void selecionaArquivos() async {
-      _resetState();
       try {
-      _directoryPath = null;
-      _paths = (await FilePicker.platform.pickFiles(
+      await FilePicker.platform.pickFiles(
         compressionQuality: 30,
         type: FileType.custom,
         allowMultiple: true,
-        onFileLoading: (FilePickerStatus status) => print(status),
+        //onFileLoading: (FilePickerStatus status) => print(status),
         allowedExtensions: ['json'],
         dialogTitle: "_dialogTitleController",
         initialDirectory: "C:\\",
         lockParentWindow: false,
-      ))
-          ?.files;
+      )
+          ;
     } on PlatformException catch (e) {
-      _logException('Unsupported operation' + e.toString());
+      logException('Unsupported operation$e');
     } catch (e) {
-      _logException(e.toString());
+      logException(e.toString());
     }
     }
 
