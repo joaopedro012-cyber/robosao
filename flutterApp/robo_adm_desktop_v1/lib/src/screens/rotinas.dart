@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart' as fui;
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
 
 class RotinasPage extends StatefulWidget {
@@ -16,11 +18,12 @@ class _RotinasPageState extends State<RotinasPage> {
   @override
   Widget build(BuildContext context) {
     
-
     void logException(String message) {
     if (kDebugMode) {
       print(message);
     }
+
+
     GlobalKey<ScaffoldMessengerState>().currentState?.hideCurrentSnackBar();
     GlobalKey<ScaffoldMessengerState>().currentState?.showSnackBar(
       SnackBar(
@@ -35,6 +38,20 @@ class _RotinasPageState extends State<RotinasPage> {
   }
 
     void selecionaArquivos() async {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true);
+      if (result != null) {
+    Directory documentsDirectory = await getApplicationDocumentsDirectory();
+    String targetDirectoryPath = '${documentsDirectory.path}/Rotinas Robo';
+
+    Directory targetDirectory = Directory(targetDirectoryPath);
+    if (!await targetDirectory.exists()) {
+      await targetDirectory.create(recursive: true);
+
+    for (PlatformFile file in result.files) {
+      File sourceFile = File(file.path!);
+      String targetFilePath = '$targetDirectoryPath/${file.name}';
+      await sourceFile.copy(targetFilePath);
+    }
       try {
       await FilePicker.platform.pickFiles(
         compressionQuality: 30,
@@ -42,16 +59,17 @@ class _RotinasPageState extends State<RotinasPage> {
         allowMultiple: true,
         //onFileLoading: (FilePickerStatus status) => print(status),
         allowedExtensions: ['json'],
-        dialogTitle: "_dialogTitleController",
+        dialogTitle: "Selecione a Rotina .json",
         initialDirectory: "C:\\",
         lockParentWindow: false,
-      )
-          ;
+
+      );
+      
     } on PlatformException catch (e) {
       logException('Unsupported operation$e');
     } catch (e) {
       logException(e.toString());
-    }
+    }}
     }
 
    
@@ -100,4 +118,5 @@ class _RotinasPageState extends State<RotinasPage> {
       ],
     );
   }
+}
 }
