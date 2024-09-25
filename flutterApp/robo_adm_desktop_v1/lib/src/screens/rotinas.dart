@@ -12,68 +12,62 @@ class RotinasPage extends StatefulWidget {
   State<RotinasPage> createState() => _RotinasPageState();
 }
 
-
 class _RotinasPageState extends State<RotinasPage> {
   bool filledDisabled = false;
   @override
   Widget build(BuildContext context) {
-    
     void logException(String message) {
-    if (kDebugMode) {
-      print(message);
+      if (kDebugMode) {
+        print(message);
+      }
+
+      GlobalKey<ScaffoldMessengerState>().currentState?.hideCurrentSnackBar();
+      GlobalKey<ScaffoldMessengerState>().currentState?.showSnackBar(
+            SnackBar(
+              content: Text(
+                message,
+                style: const TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          );
     }
-
-
-    GlobalKey<ScaffoldMessengerState>().currentState?.hideCurrentSnackBar();
-    GlobalKey<ScaffoldMessengerState>().currentState?.showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(
-            color: Colors.white,
-          ),
-        ),
-      ),
-    );
-  }
 
     void selecionaArquivos() async {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true);
-      if (result != null) {
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String targetDirectoryPath = '${documentsDirectory.path}/Rotinas Robo';
-
-    Directory targetDirectory = Directory(targetDirectoryPath);
-    if (!await targetDirectory.exists()) {
-      await targetDirectory.create(recursive: true);
-
-    for (PlatformFile file in result.files) {
-      File sourceFile = File(file.path!);
-      String targetFilePath = '$targetDirectoryPath/${file.name}';
-      await sourceFile.copy(targetFilePath);
-    }
-      try {
-      await FilePicker.platform.pickFiles(
-        compressionQuality: 30,
-        type: FileType.custom,
+      try{
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
-        //onFileLoading: (FilePickerStatus status) => print(status),
+        type: FileType.custom,
         allowedExtensions: ['json'],
-        dialogTitle: "Selecione a Rotina .json",
-        initialDirectory: "C:\\",
-        lockParentWindow: false,
-
       );
-      
+
+      if (result != null) {
+        Directory diretoriosArquivo = await getApplicationDocumentsDirectory();
+        String diretorioFinalCaminho = '${diretoriosArquivo.path}/Rotinas Robo';
+        
+        Directory diretorioFinal = Directory(diretorioFinalCaminho);
+        if(!await diretorioFinal.exists()) {
+          await diretorioFinal.create(recursive: true);
+        }
+
+        for (PlatformFile file in result.files) {
+          if (file.extension == 'json') {
+            File sourceFile = File(file.path!);
+            String diretorioFinalArquivo = '$diretorioFinalCaminho/${file.name}';
+            await sourceFile.copy(diretorioFinalArquivo);
+          } else {
+            logException('Arquivo ${file.name} não é um .json e foi ignorado.');
+          }
+        }
+        logException('Arquivos copiados com sucesso!');
+      }
     } on PlatformException catch (e) {
-      logException('Unsupported operation$e');
-    } catch (e) {
+      logException('Unsupported operation: $e');
+    }catch (e) {
       logException(e.toString());
-    }}
     }
-
-   
-
+    }
     double screenWidth = MediaQuery.of(context).size.width;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -118,5 +112,4 @@ class _RotinasPageState extends State<RotinasPage> {
       ],
     );
   }
-}
 }
