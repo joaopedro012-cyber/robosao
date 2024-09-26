@@ -6,6 +6,7 @@ import 'package:robo_adm_desktop_v1/src/screens/home.dart';
 import 'package:window_manager/window_manager.dart';
 
  Future<void> criarPastaDeRotinas() async {
+  
     final Directory documentsDirectory = await getApplicationDocumentsDirectory();
     final String novoCaminho = '${documentsDirectory.path}/Rotinas Robo';
     final Directory novoDiretorio = Directory(novoCaminho);
