@@ -87,7 +87,163 @@ class _SensoresPageState extends State<SensoresPage> {
                 ),
               ),
               Container(
-                width: screenWidth * 0.20,
+                width: screenWidth * 0.25,
+                child: fui.NumberBox(
+                  value: numberBoxValue,
+                  onChanged: _valueChanged,
+                  mode: fui.SpinButtonPlacementMode.inline,
+                ),
+              ),
+              const Text('cm'),
+
+              //COMPONETIZAR DEPOIS:
+              const Text('Sensor 2'),
+              SizedBox(
+                width: screenWidth * 0.35,
+                child: Wrap(
+                  children: [
+                    SizedBox(
+                      width: screenWidth * 0.27,
+                      child: fui.AutoSuggestBox<String>(
+                        placeholder: 'Exemplo.json',
+                        items: rotinas.map((rotina) {
+                          return fui.AutoSuggestBoxItem<String>(
+                            value: rotina,
+                            label: rotina,
+                            onFocusChange: (focused) {
+                              if (focused) {
+                                debugPrint('Focused $rotina');
+                              }
+                            },
+                          );
+                        }).toList(),
+                        onSelected: (item) {
+                          setState(() => selected = item.value);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                width: screenWidth * 0.25,
+                child: fui.NumberBox(
+                  value: numberBoxValue,
+                  onChanged: _valueChanged,
+                  mode: fui.SpinButtonPlacementMode.inline,
+                ),
+              ),
+              const Text('cm'),
+
+              //SENSOR 3
+              const Text('Sensor 3'),
+              SizedBox(
+                width: screenWidth * 0.35,
+                child: Wrap(
+                  children: [
+                    SizedBox(
+                      width: screenWidth * 0.27,
+                      child: fui.AutoSuggestBox<String>(
+                        placeholder: 'Exemplo.json',
+                        items: rotinas.map((rotina) {
+                          return fui.AutoSuggestBoxItem<String>(
+                            value: rotina,
+                            label: rotina,
+                            onFocusChange: (focused) {
+                              if (focused) {
+                                debugPrint('Focused $rotina');
+                              }
+                            },
+                          );
+                        }).toList(),
+                        onSelected: (item) {
+                          setState(() => selected = item.value);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                width: screenWidth * 0.25,
+                child: fui.NumberBox(
+                  value: numberBoxValue,
+                  onChanged: _valueChanged,
+                  mode: fui.SpinButtonPlacementMode.inline,
+                ),
+              ),
+              const Text('cm'),
+
+              //SENSOR 4
+              const Text('Sensor 4'),
+              SizedBox(
+                width: screenWidth * 0.35,
+                child: Wrap(
+                  children: [
+                    SizedBox(
+                      width: screenWidth * 0.27,
+                      child: fui.AutoSuggestBox<String>(
+                        placeholder: 'Exemplo.json',
+                        items: rotinas.map((rotina) {
+                          return fui.AutoSuggestBoxItem<String>(
+                            value: rotina,
+                            label: rotina,
+                            onFocusChange: (focused) {
+                              if (focused) {
+                                debugPrint('Focused $rotina');
+                              }
+                            },
+                          );
+                        }).toList(),
+                        onSelected: (item) {
+                          setState(() => selected = item.value);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                width: screenWidth * 0.25,
+                child: fui.NumberBox(
+                  value: numberBoxValue,
+                  onChanged: _valueChanged,
+                  mode: fui.SpinButtonPlacementMode.inline,
+                ),
+              ),
+              const Text('cm'),
+
+              //SENSOR 5
+              const Text('Sensor 5'),
+              SizedBox(
+                width: screenWidth * 0.35,
+                child: Wrap(
+                  children: [
+                    SizedBox(
+                      width: screenWidth * 0.27,
+                      child: fui.AutoSuggestBox<String>(
+                        placeholder: 'Exemplo.json',
+                        items: rotinas.map((rotina) {
+                          return fui.AutoSuggestBoxItem<String>(
+                            value: rotina,
+                            label: rotina,
+                            onFocusChange: (focused) {
+                              if (focused) {
+                                debugPrint('Focused $rotina');
+                              }
+                            },
+                          );
+                        }).toList(),
+                        onSelected: (item) {
+                          setState(() => selected = item.value);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                width: screenWidth * 0.25,
                 child: fui.NumberBox(
                   value: numberBoxValue,
                   onChanged: _valueChanged,
