@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fui;
@@ -32,6 +33,31 @@ class _SensoresPageState extends State<SensoresPage> {
         .whereType<File>()
         .map((file) => p.basename(file.path))
         .toList();
+  }
+
+  Future<void> atualizarConfigJson(String sensor, int? novaDistancia) async {
+    final Directory documentsDirectory =
+        await getApplicationDocumentsDirectory();
+    final String caminho =
+        '${documentsDirectory.path}/Rotinas Robo/config.json';
+    final File configFile = File(caminho);
+
+    if (await configFile.exists()) {
+      // Ler o conteúdo do arquivo
+      String conteudo = await configFile.readAsString();
+      Map<String, dynamic> json = jsonDecode(conteudo);
+
+      // Encontrar o sensor e atualizar a distância mínima
+      for (var sensorData in json['sensores']) {
+        if (sensorData['sensor'] == sensor) {
+          sensorData['distancia_minima'] = novaDistancia;
+          break;
+        }
+      }
+
+      // Escrever o conteúdo atualizado de volta no arquivo
+      await configFile.writeAsString(jsonEncode(json));
+    }
   }
 
   @override
@@ -90,163 +116,12 @@ class _SensoresPageState extends State<SensoresPage> {
                 width: screenWidth * 0.25,
                 child: fui.NumberBox(
                   value: numberBoxValue,
-                  onChanged: _valueChanged,
-                  mode: fui.SpinButtonPlacementMode.inline,
-                ),
-              ),
-              const Text('cm'),
-
-              //COMPONETIZAR DEPOIS:
-              const Text('Sensor 2'),
-              SizedBox(
-                width: screenWidth * 0.35,
-                child: Wrap(
-                  children: [
-                    SizedBox(
-                      width: screenWidth * 0.27,
-                      child: fui.AutoSuggestBox<String>(
-                        placeholder: 'Exemplo.json',
-                        items: rotinas.map((rotina) {
-                          return fui.AutoSuggestBoxItem<String>(
-                            value: rotina,
-                            label: rotina,
-                            onFocusChange: (focused) {
-                              if (focused) {
-                                debugPrint('Focused $rotina');
-                              }
-                            },
-                          );
-                        }).toList(),
-                        onSelected: (item) {
-                          setState(() => selected = item.value);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                width: screenWidth * 0.25,
-                child: fui.NumberBox(
-                  value: numberBoxValue,
-                  onChanged: _valueChanged,
-                  mode: fui.SpinButtonPlacementMode.inline,
-                ),
-              ),
-              const Text('cm'),
-
-              //SENSOR 3
-              const Text('Sensor 3'),
-              SizedBox(
-                width: screenWidth * 0.35,
-                child: Wrap(
-                  children: [
-                    SizedBox(
-                      width: screenWidth * 0.27,
-                      child: fui.AutoSuggestBox<String>(
-                        placeholder: 'Exemplo.json',
-                        items: rotinas.map((rotina) {
-                          return fui.AutoSuggestBoxItem<String>(
-                            value: rotina,
-                            label: rotina,
-                            onFocusChange: (focused) {
-                              if (focused) {
-                                debugPrint('Focused $rotina');
-                              }
-                            },
-                          );
-                        }).toList(),
-                        onSelected: (item) {
-                          setState(() => selected = item.value);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                width: screenWidth * 0.25,
-                child: fui.NumberBox(
-                  value: numberBoxValue,
-                  onChanged: _valueChanged,
-                  mode: fui.SpinButtonPlacementMode.inline,
-                ),
-              ),
-              const Text('cm'),
-
-              //SENSOR 4
-              const Text('Sensor 4'),
-              SizedBox(
-                width: screenWidth * 0.35,
-                child: Wrap(
-                  children: [
-                    SizedBox(
-                      width: screenWidth * 0.27,
-                      child: fui.AutoSuggestBox<String>(
-                        placeholder: 'Exemplo.json',
-                        items: rotinas.map((rotina) {
-                          return fui.AutoSuggestBoxItem<String>(
-                            value: rotina,
-                            label: rotina,
-                            onFocusChange: (focused) {
-                              if (focused) {
-                                debugPrint('Focused $rotina');
-                              }
-                            },
-                          );
-                        }).toList(),
-                        onSelected: (item) {
-                          setState(() => selected = item.value);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                width: screenWidth * 0.25,
-                child: fui.NumberBox(
-                  value: numberBoxValue,
-                  onChanged: _valueChanged,
-                  mode: fui.SpinButtonPlacementMode.inline,
-                ),
-              ),
-              const Text('cm'),
-
-              //SENSOR 5
-              const Text('Sensor 5'),
-              SizedBox(
-                width: screenWidth * 0.35,
-                child: Wrap(
-                  children: [
-                    SizedBox(
-                      width: screenWidth * 0.27,
-                      child: fui.AutoSuggestBox<String>(
-                        placeholder: 'Exemplo.json',
-                        items: rotinas.map((rotina) {
-                          return fui.AutoSuggestBoxItem<String>(
-                            value: rotina,
-                            label: rotina,
-                            onFocusChange: (focused) {
-                              if (focused) {
-                                debugPrint('Focused $rotina');
-                              }
-                            },
-                          );
-                        }).toList(),
-                        onSelected: (item) {
-                          setState(() => selected = item.value);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                width: screenWidth * 0.25,
-                child: fui.NumberBox(
-                  value: numberBoxValue,
-                  onChanged: _valueChanged,
+                  onChanged: (novoValor) {
+                    setState(() {
+                      numberBoxValue = novoValor;
+                    });
+                    atualizarConfigJson('sensor1', novoValor);
+                  },
                   mode: fui.SpinButtonPlacementMode.inline,
                 ),
               ),
