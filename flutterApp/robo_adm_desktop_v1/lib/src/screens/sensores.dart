@@ -35,7 +35,8 @@ class _SensoresPageState extends State<SensoresPage> {
         .toList();
   }
 
-  Future<void> atualizarConfigJson(String sensor, int? novaDistancia) async {
+  Future<void> atualizarConfigJson(String sensor,
+      {int? novaDistancia, String? novoDiretorio}) async {
     final Directory documentsDirectory =
         await getApplicationDocumentsDirectory();
     final String caminho =
@@ -47,10 +48,15 @@ class _SensoresPageState extends State<SensoresPage> {
       String conteudo = await configFile.readAsString();
       Map<String, dynamic> json = jsonDecode(conteudo);
 
-      // Encontrar o sensor e atualizar a distância mínima
+      // Encontrar o sensor e atualizar os valores
       for (var sensorData in json['sensores']) {
         if (sensorData['sensor'] == sensor) {
-          sensorData['distancia_minima'] = novaDistancia;
+          if (novaDistancia != null) {
+            sensorData['distancia_minima'] = novaDistancia;
+          }
+          if (novoDiretorio != null) {
+            sensorData['diretorio'] = novoDiretorio;
+          }
           break;
         }
       }
@@ -106,6 +112,8 @@ class _SensoresPageState extends State<SensoresPage> {
                         }).toList(),
                         onSelected: (item) {
                           setState(() => selected = item.value);
+                          atualizarConfigJson('sensor1',
+                              novoDiretorio: item.value);
                         },
                       ),
                     ),
@@ -120,7 +128,7 @@ class _SensoresPageState extends State<SensoresPage> {
                     setState(() {
                       numberBoxValue = novoValor;
                     });
-                    atualizarConfigJson('sensor1', novoValor);
+                    atualizarConfigJson('sensor1', novaDistancia: novoValor);
                   },
                   mode: fui.SpinButtonPlacementMode.inline,
                 ),
