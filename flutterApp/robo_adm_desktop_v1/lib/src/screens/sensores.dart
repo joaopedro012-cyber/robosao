@@ -14,12 +14,15 @@ class SensoresPage extends StatefulWidget {
 
 class _SensoresPageState extends State<SensoresPage> {
   String? selected;
+  String placeholder = 'exemplo.json';
   late Future<List<String>> rotinasNoDiretorio;
+  int? distanciaMinima;
 
   @override
   void initState() {
     super.initState();
     rotinasNoDiretorio = listarArquivosJson();
+    carregarConfigSensor('sensor1');
   }
 
   Future<List<String>> listarArquivosJson() async {
@@ -27,12 +30,34 @@ class _SensoresPageState extends State<SensoresPage> {
     final String diretorioFinalCaminho = '${diretorio.path}/Rotinas Robo';
     final Directory diretorioFinal = Directory(diretorioFinalCaminho);
     final List<FileSystemEntity> arquivos = diretorioFinal.listSync();
-    double screenWidth = MediaQuery.of(context).size.width;
 
     return arquivos
         .whereType<File>()
         .map((file) => p.basename(file.path))
         .toList();
+  }
+
+  Future<void> carregarConfigSensor(String sensor) async {
+    final Directory documentsDirectory =
+        await getApplicationDocumentsDirectory();
+    final String caminho =
+        '${documentsDirectory.path}/Rotinas Robo/config.json';
+    final File configFile = File(caminho);
+
+    if (await configFile.exists()) {
+      String conteudo = await configFile.readAsString();
+      Map<String, dynamic> json = jsonDecode(conteudo);
+
+      for (var sensorData in json['sensores']) {
+        if (sensorData['sensor'] == sensor) {
+          setState(() {
+            placeholder = sensorData['diretorio'] ?? 'Exemplo.json';
+            distanciaMinima = sensorData['distancia_minima'] ?? 100;
+          });
+          break;
+        }
+      }
+    }
   }
 
   Future<void> atualizarConfigJson(String sensor,
@@ -69,7 +94,7 @@ class _SensoresPageState extends State<SensoresPage> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    int? numberBoxValue = 100;
+    int? numberBoxValue = distanciaMinima;
     void _valueChanged(int? newValue) {
       setState(() {
         numberBoxValue = newValue;
@@ -98,7 +123,7 @@ class _SensoresPageState extends State<SensoresPage> {
                     SizedBox(
                       width: screenWidth * 0.27,
                       child: fui.AutoSuggestBox<String>(
-                        placeholder: 'Exemplo.json',
+                        placeholder: placeholder,
                         items: rotinas.map((rotina) {
                           return fui.AutoSuggestBoxItem<String>(
                             value: rotina,
