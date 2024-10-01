@@ -1,11 +1,13 @@
-import 'dart:async';
+import 'dart:async'; 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:flutter/foundation.dart';
 import 'controle.dart'; // Importa a tela de controle
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  const MainScreen({super.key, required this.connectedDevices});
+
+  final List<BluetoothDevice> connectedDevices;
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -83,7 +85,7 @@ class _MainScreenState extends State<MainScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => ControlePage(
-              connectedDevices: [device.address], // Passa o endereço do dispositivo conectado
+              connectedDevices: _scanResults.where((d) => _connectedDevices.containsKey(d.address)).toList(), // Passa a lista de dispositivos conectados
             ),
           ),
         );
@@ -137,10 +139,10 @@ class _MainScreenState extends State<MainScreen> {
 
   void _startStopScan() {
     if (_isScanning) {
-      _flutterBlueClassicPlugin.stopScan(); // Removi o await
+      _flutterBlueClassicPlugin.stopScan();
     } else {
       _scanResults.clear();
-      _flutterBlueClassicPlugin.startScan(); // Removi o await
+      _flutterBlueClassicPlugin.startScan();
     }
   }
 
@@ -157,7 +159,7 @@ class _MainScreenState extends State<MainScreen> {
               icon: const Icon(Icons.bluetooth_disabled),
               onPressed: () {
                 for (var device in _connectedDevices.keys) {
-                  _disconnectFromDevice(device as BluetoothDevice);
+                  _disconnectFromDevice(scanResults.firstWhere((d) => d.address == device));
                 }
               },
               tooltip: 'Desconectar Bluetooth',
@@ -192,7 +194,7 @@ class _MainScreenState extends State<MainScreen> {
                             });
 
                             if (value == true && !isConnected) {
-                              _connectToDevice(device); // Conectar e navegar para tela de controle
+                              _connectToDevice(device);
                             } else if (value == false && isConnected) {
                               _disconnectFromDevice(device);
                             }
@@ -211,7 +213,7 @@ class _MainScreenState extends State<MainScreen> {
             children: [
               ElevatedButton(
                 onPressed: _connectToDevices,
-                child: const Text('Conectar'), // Botão "Conectar" restaurado
+                child: const Text('Conectar'),
               ),
               ElevatedButton(
                 onPressed: _startStopScan,

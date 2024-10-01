@@ -7,12 +7,11 @@ class BotaoComIcone extends StatefulWidget {
   final Color corDeFundo;
   final VoidCallback onPressed;
   const BotaoComIcone(
-      {Key? key,
+      {super.key,
       required this.icone,
       required this.textoIcone,
       required this.corDeFundo,
-      required this.onPressed})
-      : super(key: key);
+      required this.onPressed});
 
   @override
   State<BotaoComIcone> createState() => _BotaoComIconeState();
@@ -22,7 +21,7 @@ class _BotaoComIconeState extends State<BotaoComIcone> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 14),
+      margin: const EdgeInsets.only(top: 14),
       width: 150,
       height: 150,
       child: TextButton.icon(
@@ -43,12 +42,12 @@ class _BotaoComIconeState extends State<BotaoComIcone> {
             ),
             Text(
               widget.textoIcone.toUpperCase(),
-              style: TextStyle(
+              style: const TextStyle(
                   fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
             ),
           ],
         ),
-        label: Text(''),
+        label: const Text(''),
       ),
     );
   }

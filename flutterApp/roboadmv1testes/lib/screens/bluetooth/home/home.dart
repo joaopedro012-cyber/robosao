@@ -13,7 +13,7 @@ import 'package:roboadmv1/screens/bluetooth/widgets/platform_button.dart';
 import 'package:roboadmv1/screens/bluetooth/widgets/responsive_buttons_grid.dart';
 
 class BluetoothPage extends StatefulWidget {
-  const BluetoothPage({Key? key}) : super(key: key);
+  const BluetoothPage({super.key});
 
   @override
   State createState() => _BluetoothPageState();
@@ -94,7 +94,7 @@ class _BluetoothPageState extends State<BluetoothPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF7171d5),
+        backgroundColor: const Color(0xFF7171d5),
         title: const Text('BLUETOOTH',
             style: TextStyle(
                 color: Colors.white,
@@ -113,7 +113,7 @@ class _BluetoothPageState extends State<BluetoothPage> {
             ),
         ],
         leading: IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back,
               color: Colors.white,
               size: 32,
