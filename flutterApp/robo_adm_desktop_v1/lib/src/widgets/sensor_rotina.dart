@@ -10,56 +10,62 @@ class SensorRotina extends StatelessWidget {
   final Function(String) onDiretorioChanged;
 
   const SensorRotina({
-    Key? key,
+    super.key,
     required this.sensor,
     required this.placeholder,
     required this.rotinas,
     this.distanciaMinima,
     required this.onDistanciaChanged,
     required this.onDiretorioChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     int? numberBoxValue = distanciaMinima;
 
-    return Container(
-      width: screenWidth * 1,
-      child: Wrap(
-        children: [
-          Text(sensor),
-          SizedBox(
-            width: screenWidth * 0.33,
-            child: fui.AutoSuggestBox<String>(
-              placeholder: placeholder,
-              items: rotinas.map((rotina) {
-                return fui.AutoSuggestBoxItem<String>(
-                  value: rotina,
-                  label: rotina,
-                  onFocusChange: (focused) {
-                    if (focused) {
-                      debugPrint('Focused $rotinas');
-                    }
+    return Wrap(
+      children: [
+        Text(sensor),
+        SizedBox(
+          width: screenWidth * 0.35,
+          child: Wrap(
+            children: [
+              SizedBox(
+                width: screenWidth * 0.27,
+                child: fui.AutoSuggestBox<String>(
+                  placeholder: placeholder,
+                  items: rotinas.map((rotina) {
+                    return fui.AutoSuggestBoxItem<String>(
+                      value: rotina,
+                      label: rotina,
+                      onFocusChange: (focused) {
+                        if (focused) {
+                          debugPrint('Focused $rotina');
+                        }
+                      },
+                    );
+                  }).toList(),
+                  onSelected: (item) {
+                    onDiretorioChanged(item.value!);
                   },
-                );
-              }).toList(),
-              onSelected: (item) {
-                onDiretorioChanged(item.value!);
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-          SizedBox(width: screenWidth * 0.25,
-          child: fui.NumberBox(value: numberBoxValue, onChanged: (novoValor) {
-            onDistanciaChanged: (novoValor) {
+        ),
+        SizedBox(
+          width: screenWidth * 0.25,
+          child: fui.NumberBox(
+            value: numberBoxValue,
+            onChanged: (novoValor) {
               onDistanciaChanged(novoValor);
-            };
+            },
             mode: fui.SpinButtonPlacementMode.inline,
-
-          })),);
-        ],
-      ),
+          ),
+        ),
+        const Text('cm'),
+      ],
     );
-    
   }
 }

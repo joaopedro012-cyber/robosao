@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:fluent_ui/fluent_ui.dart' as fui;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:robo_adm_desktop_v1/src/widgets/sensor_rotina.dart';
 
 class SensoresPage extends StatefulWidget {
   const SensoresPage({super.key});
@@ -13,10 +13,9 @@ class SensoresPage extends StatefulWidget {
 }
 
 class _SensoresPageState extends State<SensoresPage> {
-  String? selected;
-  String placeholder = 'exemplo.json';
   late Future<List<String>> rotinasNoDiretorio;
-  int? distanciaMinima;
+  String? sensor1Diretorio;
+  int? sensor1DistanciaMinima;
 
   @override
   void initState() {
@@ -51,8 +50,8 @@ class _SensoresPageState extends State<SensoresPage> {
       for (var sensorData in json['sensores']) {
         if (sensorData['sensor'] == sensor) {
           setState(() {
-            placeholder = sensorData['diretorio'] ?? 'Exemplo.json';
-            distanciaMinima = sensorData['distancia_minima'] ?? 100;
+            sensor1Diretorio = sensorData['diretorio'] ?? 'Exemplo.json';
+            sensor1DistanciaMinima = sensorData['distancia_minima'] ?? 100;
           });
           break;
         }
@@ -61,7 +60,7 @@ class _SensoresPageState extends State<SensoresPage> {
   }
 
   Future<void> atualizarConfigJson(String sensor,
-      {int? novaDistancia, String? novoDiretorio}) async {
+      {int? novaDistancia = 100, String? novoDiretorio}) async {
     final Directory documentsDirectory =
         await getApplicationDocumentsDirectory();
     final String caminho =
@@ -69,11 +68,9 @@ class _SensoresPageState extends State<SensoresPage> {
     final File configFile = File(caminho);
 
     if (await configFile.exists()) {
-      // Ler o conteúdo do arquivo
       String conteudo = await configFile.readAsString();
       Map<String, dynamic> json = jsonDecode(conteudo);
 
-      // Encontrar o sensor e atualizar os valores
       for (var sensorData in json['sensores']) {
         if (sensorData['sensor'] == sensor) {
           if (novaDistancia != null) {
@@ -86,21 +83,12 @@ class _SensoresPageState extends State<SensoresPage> {
         }
       }
 
-      // Escrever o conteúdo atualizado de volta no arquivo
       await configFile.writeAsString(jsonEncode(json));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    int? numberBoxValue = distanciaMinima;
-    void valueChanged(int? newValue) {
-      setState(() {
-        numberBoxValue = newValue;
-      });
-    }
-
     return FutureBuilder<List<String>>(
       future: rotinasNoDiretorio,
       builder: (context, snapshot) {
@@ -112,53 +100,20 @@ class _SensoresPageState extends State<SensoresPage> {
           return const Text('Nenhum arquivo encontrado');
         } else {
           List<String> rotinas = snapshot.data!;
-          return Wrap(
-            //mainAxisAlignment: MainAxisAlignment.spaceAround,
+          return Column(
             children: [
-              const Text('Sensor 1'),
-              SizedBox(
-                width: screenWidth * 0.35,
-                child: Wrap(
-                  children: [
-                    SizedBox(
-                      width: screenWidth * 0.27,
-                      child: fui.AutoSuggestBox<String>(
-                        placeholder: placeholder,
-                        items: rotinas.map((rotina) {
-                          return fui.AutoSuggestBoxItem<String>(
-                            value: rotina,
-                            label: rotina,
-                            onFocusChange: (focused) {
-                              if (focused) {
-                                debugPrint('Focused $rotina');
-                              }
-                            },
-                          );
-                        }).toList(),
-                        onSelected: (item) {
-                          setState(() => selected = item.value);
-                          atualizarConfigJson('sensor1',
-                              novoDiretorio: item.value);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+              SensorRotina(
+                sensor: 'Sensor 1',
+                placeholder: sensor1Diretorio ?? 'Exemplo.json',
+                rotinas: rotinas,
+                distanciaMinima: sensor1DistanciaMinima,
+                onDistanciaChanged: (novoValor) {
+                  atualizarConfigJson('sensor1', novaDistancia: novoValor);
+                },
+                onDiretorioChanged: (novoDiretorio) {
+                  atualizarConfigJson('sensor1', novoDiretorio: novoDiretorio);
+                },
               ),
-              SizedBox(
-                width: screenWidth * 0.25,
-                child: fui.NumberBox(
-                  value: numberBoxValue,
-                  onChanged: (novoValor) {
-                    setState(() {
-                      numberBoxValue = novoValor;
-                    });
-                    atualizarConfigJson('sensor1', novaDistancia: novoValor);
-                  },
-                  mode: fui.SpinButtonPlacementMode.inline,
-                ),
-              ),
-              const Text('cm'),
             ],
           );
         }
