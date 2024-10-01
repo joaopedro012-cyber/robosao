@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; 
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
 
 class RotinasPage extends StatefulWidget {
@@ -15,56 +15,82 @@ class _RotinasPageState extends State<RotinasPage> {
   final TextEditingController _acaoController = TextEditingController();
   final TextEditingController _quantidadeSinaisController = TextEditingController();
 
-  // Função para carregar rotinas e suas ações do banco de dados
-  void _loadRotinas() async {
+  Future<void> _loadRotinas() async {
     final db = await DB.instance.database;
     final List<Map<String, dynamic>> rotinas = await db.query('rotinas');
     final Map<int, List<Map<String, dynamic>>> acoesPorRotina = {};
 
     for (var rotina in rotinas) {
-      final int idRotina = rotina['ID_ROTINA'];
-      final List<Map<String, dynamic>> acoes =
-          await DB.instance.getExecucoesRotina(idRotina);
+      final int idRotina = rotina['ID_ROTINA'] as int? ?? 0;
+      final List<Map<String, dynamic>> acoes = await DB.instance.getExecucoesRotina(idRotina);
       acoesPorRotina[idRotina] = acoes;
     }
 
-    setState(() {
-      _rotinas = rotinas;
-      _acoesPorRotina = acoesPorRotina;
-    });
+    if (mounted) {
+      setState(() {
+        _rotinas = rotinas;
+        _acoesPorRotina = acoesPorRotina;
+      });
+    }
   }
 
-  // Função para inserir uma nova rotina
   Future<void> _insertRotina(String nome) async {
     if (nome.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nome é obrigatório')),
-      );
+      _showSnackBar('Nome é obrigatório');
       return;
     }
 
     final db = await DB.instance.database;
     await db.insert('rotinas', {'NOME': nome});
-    _loadRotinas(); // Atualiza a lista após inserir
+    await _loadRotinas();
   }
 
-  // Função para inserir uma nova ação dentro de uma rotina
   Future<void> _insertAcao(int idRotina, String acao, int qtdSinais) async {
     if (acao.isEmpty || qtdSinais <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ação e quantidade são obrigatórios')),
-      );
+      _showSnackBar('Ação e quantidade são obrigatórios');
       return;
     }
 
-    await DB.instance.insertAcao(idRotina, acao, qtdSinais);
-    _loadRotinas(); // Atualiza a lista após inserir a ação
+    // Obter a data e hora atuais em microsegundos
+    final dtExecucao = DateTime.now().millisecondsSinceEpoch;
+
+    // Chame a função insertAcao da classe DB com os parâmetros corretos
+    await DB.instance.insertAcao(
+      idRotina: idRotina,
+      acaoHorizontal: acao,
+      qtdHorizontal: qtdSinais,
+      acaoVertical: '',
+      qtdVertical: 0,
+      acaoPlataforma: '',
+      qtdPlataforma: 0,
+      acaoBotao1: '',
+      qtdBotao1: 0,
+      acaoBotao2: '',
+      qtdBotao2: 0,
+      acaoBotao3: '',
+      qtdBotao3: 0,
+      dtExecucao: dtExecucao,
+    );
+
+    await _loadRotinas();
   }
 
-  // Função para excluir uma rotina
   Future<void> _deleteRotina(int idRotina) async {
     await DB.instance.deleteRotina(idRotina);
-    _loadRotinas(); // Atualiza a lista após excluir
+    await _loadRotinas(); // Atualiza a lista de rotinas após a exclusão
+  }
+
+  Future<void> _deleteAcao(int idAcao) async {
+    await DB.instance.deleteAcao(idAcao);
+    await _loadRotinas(); // Atualiza a lista de rotinas após a exclusão
+  }
+
+  void _showSnackBar(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    }
   }
 
   @override
@@ -79,139 +105,101 @@ class _RotinasPageState extends State<RotinasPage> {
       appBar: AppBar(
         title: const Text('Rotinas'),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                TextField(
-                  controller: _nomeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nome da nova rotina...',
-                  ),
-                ),
-                const SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () async {
-                    await _insertRotina(_nomeController.text);
-                    _nomeController.clear();
-                  },
-                  child: const Icon(Icons.add),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _rotinas.length,
-              itemBuilder: (context, index) {
-                final rotina = _rotinas[index];
-                final int idRotina = rotina['ID_ROTINA'];
-                final List<Map<String, dynamic>> acoes =
-                    _acoesPorRotina[idRotina] ?? [];
+      body: Container(
+        color: const Color(0xFFECE6F0), // Cor de fundo
+        child: ListView.builder(
+          itemCount: _rotinas.length,
+          itemBuilder: (context, index) {
+            final rotina = _rotinas[index];
+            final acoes = _acoesPorRotina[rotina['ID_ROTINA']] ?? [];
 
-                return Card(
-                  margin: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      ListTile(
-                        title: Text(rotina['NOME']),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit, color: Colors.blue),
-                              onPressed: () {
-                                // Função de editar rotina (a ser implementada)
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                _deleteRotina(idRotina);
-                              },
-                            ),
-                          ],
-                        ),
+            return Card(
+              margin: const EdgeInsets.all(8.0), // Margem entre os cards
+              child: ExpansionTile(
+                title: Text(rotina['NOME']),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete), // Ícone de excluir rotina
+                  onPressed: () {
+                    _deleteRotina(rotina['ID_ROTINA']);
+                  },
+                ),
+                children: [
+                  ...acoes.map((acao) {
+                    return ListTile(
+                      title: Text(acao['ACAO'] ?? 'Ação não definida'), // Verificação de nulidade
+                      subtitle: Text('Qtd. de sinais: ${acao['QTD_SINAIS'] ?? 0}'), // Também verifique se QTD_SINAIS é null
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () {
+                          _deleteAcao(acao['ID_EXECUCAO']);
+                        },
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    controller: _acaoController,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Ação',
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: TextField(
-                                    controller: _quantidadeSinaisController,
-                                    keyboardType: TextInputType.number,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Qtd Sinais',
-                                    ),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.add, color: Colors.green),
-                                  onPressed: () async {
-                                    final String acao = _acaoController.text;
-                                    final int qtdSinais = int.tryParse(
-                                            _quantidadeSinaisController.text) ??
-                                        0;
-                                    await _insertAcao(
-                                        idRotina, acao, qtdSinais);
-                                    _acaoController.clear();
-                                    _quantidadeSinaisController.clear();
-                                  },
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: acoes.length,
-                              itemBuilder: (context, acaoIndex) {
-                                final acao = acoes[acaoIndex];
-                                return Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text('${acao['ACAO']}'),
-                                    Text('${acao['QTD_SINAIS']}'),
-                                    IconButton(
-                                      icon: const Icon(Icons.edit, color: Colors.blue),
-                                      onPressed: () {
-                                        // Função de editar ação (a ser implementada)
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete, color: Colors.red),
-                                      onPressed: () {
-                                        // Função de deletar ação (a ser implementada)
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                    );
+                  }).toList(),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      controller: _acaoController,
+                      decoration: const InputDecoration(labelText: 'Ação'),
+                    ),
                   ),
-                );
-              },
-            ),
-          ),
-        ],
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      controller: _quantidadeSinaisController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'Qtd. Sinais'),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        final acao = _acaoController.text;
+                        final qtdSinais = int.tryParse(_quantidadeSinaisController.text) ?? 0;
+                        _insertAcao(rotina['ID_ROTINA'], acao, qtdSinais);
+                      },
+                      child: const Text('Adicionar Ação'),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('Nova Rotina'),
+                content: TextField(
+                  controller: _nomeController,
+                  decoration: const InputDecoration(labelText: 'Nome da Rotina'),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Cancelar'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      final nome = _nomeController.text;
+                      _insertRotina(nome);
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Salvar'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }

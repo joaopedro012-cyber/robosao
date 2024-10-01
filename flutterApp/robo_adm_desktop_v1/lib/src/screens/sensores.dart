@@ -95,7 +95,7 @@ class _SensoresPageState extends State<SensoresPage> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     int? numberBoxValue = distanciaMinima;
-    void _valueChanged(int? newValue) {
+    void valueChanged(int? newValue) {
       setState(() {
         numberBoxValue = newValue;
       });
@@ -145,7 +145,7 @@ class _SensoresPageState extends State<SensoresPage> {
                   ],
                 ),
               ),
-              Container(
+              SizedBox(
                 width: screenWidth * 0.25,
                 child: fui.NumberBox(
                   value: numberBoxValue,
