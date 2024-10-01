@@ -10,9 +10,10 @@ dependencies:
   flutter:
     sdk: flutter
   file_picker: ^8.1.2
-  fluent_ui: ^4.0.0 
   flutter_acrylic: ^1.0.0+2
+  flutter_libserialport: ^0.4.0
   flutter_markdown: ^0.6.13
+  fluent_ui: ^4.0.0 
   google_fonts: ^4.0.4
   path_provider: ^2.0.11
   system_theme: ^2.3.1

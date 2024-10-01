@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   flutter_acrylic
+  flutter_libserialport
   screen_retriever
   system_theme
   window_manager
