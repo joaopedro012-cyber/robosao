@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';  
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
 
 class RotinasPage extends StatefulWidget {
@@ -12,7 +12,7 @@ class _RotinasPageState extends State<RotinasPage> {
   List<Map<String, dynamic>> _rotinas = [];
   Map<int, List<Map<String, dynamic>>> _acoesPorRotina = {};
   final TextEditingController nomeController = TextEditingController();
-  final TextEditingController editNomeController = TextEditingController(); // Renomeado
+  final TextEditingController editNomeController = TextEditingController();
   final TextEditingController vertController = TextEditingController();
   final TextEditingController horizController = TextEditingController();
   final TextEditingController platController = TextEditingController();
@@ -185,7 +185,7 @@ class _RotinasPageState extends State<RotinasPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  color: Colors.white, // Fundo branco para o card
+                  color: Colors.white,
                   child: Column(
                     children: [
                       ListTile(
@@ -197,17 +197,26 @@ class _RotinasPageState extends State<RotinasPage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.edit, color: Colors.purple), // Cor do botão de editar roxo
+                              icon: const Icon(Icons.edit, color: Color.fromARGB(255, 109, 6, 128)),
                               onPressed: () {
                                 editNomeController.text = rotina['NOME'];
                                 _showEditDialog(rotina['ID_ROTINA']);
                               },
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.purple), // Cor do botão de excluir roxo
-                              onPressed: () {
-                                _deleteRotina(rotina['ID_ROTINA']);
-                              },
+                            Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.delete, color: Color.fromARGB(255, 96, 3, 112)),
+                                  onPressed: () {
+                                    _deleteRotina(rotina['ID_ROTINA']);
+                                  },
+                                ),
+                                const Icon(
+                                  Icons.clear,
+                                  color: Colors.white,
+                                ),
+                              ],
                             ),
                             IconButton(
                               icon: Icon(
@@ -255,7 +264,7 @@ class _RotinasPageState extends State<RotinasPage> {
                                       Expanded(child: Text(acao['acaoBotao2'].toString())),
                                       Expanded(child: Text(acao['acaoBotao3'].toString())),
                                       IconButton(
-                                        icon: const Icon(Icons.delete, color: Colors.purple), // Cor do botão de excluir roxo
+                                        icon: const Icon(Icons.delete, color: Colors.purple),
                                         onPressed: () {
                                           _deleteAcao(acao['ID_ACAO']);
                                         },
@@ -267,7 +276,6 @@ class _RotinasPageState extends State<RotinasPage> {
                             ),
                           ],
                         ),
-                      // Formulário para adicionar novas ações
                       if (_isExpanded[rotina['ID_ROTINA']] == true)
                         Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -312,7 +320,7 @@ class _RotinasPageState extends State<RotinasPage> {
                                     ),
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.add, color: Colors.purple), // Cor do botão de adicionar roxo
+                                    icon: const Icon(Icons.add, color: Colors.purple),
                                     onPressed: () {
                                       _insertAcao(rotina['ID_ROTINA']);
                                     },

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';  
 import 'package:logging/logging.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
@@ -107,6 +107,30 @@ class ControlePageState extends State<ControlePage> {
     }
   }
 
+  void moveRobot(double vertical, double horizontal) async {
+    if (_selectedRoutine != null) {
+      log.info('Movendo o robô - Vertical: $vertical, Horizontal: $horizontal');
+      await _db.insertAcao(
+        idRotina: int.parse(_selectedRoutine!),
+        acaoHorizontal: 'Movendo Robô - Horizontal: ${horizontal * 100}%',
+        acaoVertical: 'Movendo Robô - Vertical: ${vertical * 100}%',
+        acaoPlataforma: '',
+        acaoBotao1: '',
+        acaoBotao2: '',
+        acaoBotao3: '',
+        qtdHorizontal: (horizontal * 100).toInt(),
+        qtdVertical: (vertical * 100).toInt(),
+        qtdPlataforma: 0,
+        qtdBotao1: 0,
+        qtdBotao2: 0,
+        qtdBotao3: 0,
+        dtExecucao: DateTime.now().millisecondsSinceEpoch,
+      );
+    } else {
+      log.warning('Nenhuma rotina selecionada.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -155,7 +179,11 @@ class ControlePageState extends State<ControlePage> {
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        JoystickVertical(movePlatform: movePlatform),
+                        JoystickVertical(
+                          moveRobot: (double vertical) {
+                            moveRobot(vertical, 0);
+                          },
+                        ),
                       ],
                     ),
                     const SizedBox(width: 20),
@@ -193,7 +221,11 @@ class ControlePageState extends State<ControlePage> {
                     ),
                     const SizedBox(width: 20),
                     // Joystick Horizontal
-                    const JoystickHorizontal(),
+                    JoystickHorizontal(
+                      moveRobot: (double horizontal) {
+                        moveRobot(0, horizontal);
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -238,9 +270,9 @@ class ControlePageState extends State<ControlePage> {
 
 // Widget para o joystick vertical (cima e baixo)
 class JoystickVertical extends StatefulWidget {
-  final Function(double) movePlatform;
+  final Function(double) moveRobot;
 
-  const JoystickVertical({super.key, required this.movePlatform});
+  const JoystickVertical({super.key, required this.moveRobot});
 
   @override
   JoystickVerticalState createState() => JoystickVerticalState();
@@ -259,14 +291,14 @@ class JoystickVerticalState extends State<JoystickVertical> {
           if (_yOffset > 40) _yOffset = 40;
           if (_yOffset < -40) _yOffset = -40;
 
-          widget.movePlatform(_yOffset / 40);
+          widget.moveRobot(_yOffset / 40);
         });
       },
       onPanEnd: (details) {
         setState(() {
           _yOffset = 0;
         });
-        widget.movePlatform(0);
+        widget.moveRobot(0);
       },
       child: Container(
         width: 75,
@@ -288,7 +320,9 @@ class JoystickVerticalState extends State<JoystickVertical> {
 
 // Widget para o joystick horizontal (esquerda e direita)
 class JoystickHorizontal extends StatefulWidget {
-  const JoystickHorizontal({super.key});
+  final Function(double) moveRobot;
+
+  const JoystickHorizontal({super.key, required this.moveRobot});
 
   @override
   JoystickHorizontalState createState() => JoystickHorizontalState();
@@ -306,12 +340,15 @@ class JoystickHorizontalState extends State<JoystickHorizontal> {
 
           if (_xOffset > 40) _xOffset = 40;
           if (_xOffset < -40) _xOffset = -40;
+
+          widget.moveRobot(_xOffset / 40);
         });
       },
       onPanEnd: (details) {
         setState(() {
           _xOffset = 0;
         });
+        widget.moveRobot(0);
       },
       child: Container(
         width: 75,
