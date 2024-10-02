@@ -1,4 +1,4 @@
-import 'package:sqflite/sqflite.dart'; 
+import 'package:sqflite/sqflite.dart';  
 import 'package:path/path.dart';
 
 class DB {
@@ -138,7 +138,7 @@ class DB {
       'ACAO_BOTAO1': acaoBotao1,
       'QTD_BOTAO1': qtdBotao1,
       'ACAO_BOTAO2': acaoBotao2,
-      'QTD_BOTOA2': qtdBotao2,
+      'QTD_BOTAO2': qtdBotao2,
       'ACAO_BOTAO3': acaoBotao3,
       'QTD_BOTAO3': qtdBotao3,
       'DT_EXECUCAO_UNIX_MICROSSEGUNDOS': dtExecucao,

@@ -24,75 +24,87 @@ class ControlePageState extends State<ControlePage> {
   @override
   void initState() {
     super.initState();
-    _loadRotinas();
+    _loadRotinas(); // Carrega as rotinas ao iniciar
   }
 
   Future<void> _loadRotinas() async {
     final db = await DB.instance.database;
     final List<Map<String, dynamic>> rotinas = await db.query('rotinas');
     setState(() {
-      _rotinas = rotinas;
+      _rotinas = rotinas; // Atualiza a lista de rotinas
     });
   }
 
   void turnOnDevice(int deviceNumber) async {
-    log.info('Ligando a tomada $deviceNumber');
-    await _db.insertAcao(
-      idRotina: 1,
-      acaoHorizontal: 'Ligar Tomada $deviceNumber',
-      acaoVertical: '',
-      acaoPlataforma: '',
-      acaoBotao1: '',
-      acaoBotao2: '',
-      acaoBotao3: '',
-      qtdHorizontal: 0,
-      qtdVertical: 0,
-      qtdPlataforma: 0,
-      qtdBotao1: 0,
-      qtdBotao2: 0,
-      qtdBotao3: 0,
-      dtExecucao: DateTime.now().millisecondsSinceEpoch,
-    );
+    if (_selectedRoutine != null) {
+      log.info('Ligando a tomada $deviceNumber');
+      await _db.insertAcao(
+        idRotina: int.parse(_selectedRoutine!),
+        acaoHorizontal: 'Ligar Tomada $deviceNumber',
+        acaoVertical: '',
+        acaoPlataforma: '',
+        acaoBotao1: '',
+        acaoBotao2: '',
+        acaoBotao3: '',
+        qtdHorizontal: 0,
+        qtdVertical: 0,
+        qtdPlataforma: 0,
+        qtdBotao1: 0,
+        qtdBotao2: 0,
+        qtdBotao3: 0,
+        dtExecucao: DateTime.now().millisecondsSinceEpoch,
+      );
+    } else {
+      log.warning('Nenhuma rotina selecionada.');
+    }
   }
 
   void turnOffDevice(int deviceNumber) async {
-    log.info('Desligando a tomada $deviceNumber');
-    await _db.insertAcao(
-      idRotina: 1,
-      acaoHorizontal: 'Desligar Tomada $deviceNumber',
-      acaoVertical: '',
-      acaoPlataforma: '',
-      acaoBotao1: '',
-      acaoBotao2: '',
-      acaoBotao3: '',
-      qtdHorizontal: 0,
-      qtdVertical: 0,
-      qtdPlataforma: 0,
-      qtdBotao1: 0,
-      qtdBotao2: 0,
-      qtdBotao3: 0,
-      dtExecucao: DateTime.now().millisecondsSinceEpoch,
-    );
+    if (_selectedRoutine != null) {
+      log.info('Desligando a tomada $deviceNumber');
+      await _db.insertAcao(
+        idRotina: int.parse(_selectedRoutine!),
+        acaoHorizontal: 'Desligar Tomada $deviceNumber',
+        acaoVertical: '',
+        acaoPlataforma: '',
+        acaoBotao1: '',
+        acaoBotao2: '',
+        acaoBotao3: '',
+        qtdHorizontal: 0,
+        qtdVertical: 0,
+        qtdPlataforma: 0,
+        qtdBotao1: 0,
+        qtdBotao2: 0,
+        qtdBotao3: 0,
+        dtExecucao: DateTime.now().millisecondsSinceEpoch,
+      );
+    } else {
+      log.warning('Nenhuma rotina selecionada.');
+    }
   }
 
   void movePlatform(double position) async {
-    log.info('Movendo a plataforma para: $position');
-    await _db.insertAcao(
-      idRotina: 1,
-      acaoHorizontal: '',
-      acaoVertical: '',
-      acaoPlataforma: 'Movendo Plataforma para ${position * 100}%',
-      acaoBotao1: '',
-      acaoBotao2: '',
-      acaoBotao3: '',
-      qtdHorizontal: 0,
-      qtdVertical: 0,
-      qtdPlataforma: (position * 100).toInt(),
-      qtdBotao1: 0,
-      qtdBotao2: 0,
-      qtdBotao3: 0,
-      dtExecucao: DateTime.now().millisecondsSinceEpoch,
-    );
+    if (_selectedRoutine != null) {
+      log.info('Movendo a plataforma para: $position');
+      await _db.insertAcao(
+        idRotina: int.parse(_selectedRoutine!),
+        acaoHorizontal: '',
+        acaoVertical: '',
+        acaoPlataforma: 'Movendo Plataforma para ${position * 100}%',
+        acaoBotao1: '',
+        acaoBotao2: '',
+        acaoBotao3: '',
+        qtdHorizontal: 0,
+        qtdVertical: 0,
+        qtdPlataforma: (position * 100).toInt(),
+        qtdBotao1: 0,
+        qtdBotao2: 0,
+        qtdBotao3: 0,
+        dtExecucao: DateTime.now().millisecondsSinceEpoch,
+      );
+    } else {
+      log.warning('Nenhuma rotina selecionada.');
+    }
   }
 
   @override
@@ -137,7 +149,7 @@ class ControlePageState extends State<ControlePage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center, // Centraliza os elementos
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // Joystick Vertical
                     Column(
@@ -146,12 +158,12 @@ class ControlePageState extends State<ControlePage> {
                         JoystickVertical(movePlatform: movePlatform),
                       ],
                     ),
-                    const SizedBox(width: 20), // Espaçamento entre joystick e slider
+                    const SizedBox(width: 20),
                     // Slider Vertical para mover a plataforma
                     RotatedBox(
                       quarterTurns: 3,
                       child: SizedBox(
-                        width: 180, // Aumenta a largura do Slider
+                        width: 180,
                         child: Slider(
                           value: _currentSliderValue,
                           min: 0,
@@ -167,7 +179,7 @@ class ControlePageState extends State<ControlePage> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 20), // Espaçamento entre slider e botões
+                    const SizedBox(width: 20),
                     // Coluna para os botões de controle
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -179,7 +191,7 @@ class ControlePageState extends State<ControlePage> {
                         _buildTomadaButton(3),
                       ],
                     ),
-                    const SizedBox(width: 20), // Espaçamento entre os botões e joystick horizontal
+                    const SizedBox(width: 20),
                     // Joystick Horizontal
                     const JoystickHorizontal(),
                   ],
@@ -195,8 +207,8 @@ class ControlePageState extends State<ControlePage> {
   // Função para criar os botões de controle das tomadas
   Widget _buildTomadaButton(int deviceNumber) {
     return SizedBox(
-      width: 120, // Reduz o comprimento do botão
-      height: 40,  // Altura média do botão
+      width: 120,
+      height: 40,
       child: ElevatedButton(
         onPressed: () {
           setState(() {
@@ -210,9 +222,9 @@ class ControlePageState extends State<ControlePage> {
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: _tomadaSelecionada[deviceNumber - 1]
-              ? const Color.fromARGB(255, 223, 165, 252) // Cor quando selecionado
-              : const Color.fromARGB(255, 56, 33, 114),  // Cor quando não selecionado
-          foregroundColor: Colors.white, // Cor do texto branca
+              ? const Color.fromARGB(255, 223, 165, 252)
+              : const Color.fromARGB(255, 56, 33, 114),
+          foregroundColor: Colors.white,
         ),
         child: Text(
           _tomadaSelecionada[deviceNumber - 1]

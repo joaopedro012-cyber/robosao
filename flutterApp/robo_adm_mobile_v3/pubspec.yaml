@@ -24,6 +24,9 @@ dependencies:
   # Dependência para comunicação BLE (Bluetooth Low Energy)
   flutter_blue_classic: ^0.0.3
 
+  # Adicione a dependência aqui
+  shared_preferences: ^2.3.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
