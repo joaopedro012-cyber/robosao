@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:robo_adm_desktop_v1/src/screens/automacao.dart';
 import 'package:robo_adm_desktop_v1/src/screens/rotinas.dart';
 import 'package:robo_adm_desktop_v1/src/screens/sensores.dart';
 
@@ -25,7 +26,7 @@ class _HomePageState extends State<HomePage> {
       icon: const Icon(FluentIcons.robot),
       title: const Text('Automação'),
       body: const Center(
-        child: Text('Automação'),
+        child: AutomacaoPage(),
       ),
     ),
     PaneItem(
