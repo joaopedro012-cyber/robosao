@@ -10,22 +10,17 @@ import 'src/screens/testes.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); 
 
-
   Logger.root.level = Level.INFO; 
-
 
   final logFile = File('${Directory.systemTemp.path}/log.txt'); 
   final logSink = logFile.openWrite(mode: FileMode.append);
 
   Logger.root.onRecord.listen((record) {
     final message = '${record.level.name}: ${record.time}: ${record.message}\n';
-    
- 
+
     if (const bool.fromEnvironment('dart.vm.product') == false) {
-     
       logSink.write(message);
     } else if (record.level >= Level.WARNING) {
-      
       logSink.write(message);
     }
   });
@@ -44,8 +39,8 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const HomeScreen(),
-        '/controle': (context) => const ControlePage(connectedDevices: [],),
-        '/bluetooth': (context) => const MainScreen(connectedDevices: [],),
+        '/controle': (context) => const ControlePage(connectedDevices: [], connections: []), // Passa uma lista vazia para connections
+        '/bluetooth': (context) => const MainScreen(connectedDevices: []),
         '/rotinas': (context) => const RotinasPage(),
         '/testes': (context) => const Testetela(),
       },

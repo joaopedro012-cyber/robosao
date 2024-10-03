@@ -1,14 +1,17 @@
-import 'package:flutter/material.dart';  
+import 'package:flutter/material.dart';   
 import 'package:logging/logging.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
+import 'dart:typed_data';
+import 'dart:convert';
 
 final log = Logger('JoystickLogger');
 
 class ControlePage extends StatefulWidget {
   final List<BluetoothDevice> connectedDevices;
+  final List<BluetoothConnection> connections;
 
-  const ControlePage({super.key, required this.connectedDevices});
+  const ControlePage({super.key, required this.connectedDevices, required this.connections});
 
   @override
   ControlePageState createState() => ControlePageState();
@@ -35,6 +38,14 @@ class ControlePageState extends State<ControlePage> {
     });
   }
 
+  void sendBluetoothCommand(String command) {
+    for (var connection in widget.connections) {
+      List<int> bytes = utf8.encode(command); // Converte o comando em bytes
+      connection.output.add(Uint8List.fromList(bytes)); // Envia o comando
+      log.info('Comando enviado: $command');
+    }
+  }
+
   void turnOnDevice(int deviceNumber) async {
     if (_selectedRoutine != null) {
       log.info('Ligando a tomada $deviceNumber');
@@ -54,6 +65,7 @@ class ControlePageState extends State<ControlePage> {
         qtdBotao3: 0,
         dtExecucao: DateTime.now().millisecondsSinceEpoch,
       );
+      sendBluetoothCommand('Ligar Tomada $deviceNumber'); // Envia comando Bluetooth
     } else {
       log.warning('Nenhuma rotina selecionada.');
     }
@@ -78,6 +90,7 @@ class ControlePageState extends State<ControlePage> {
         qtdBotao3: 0,
         dtExecucao: DateTime.now().millisecondsSinceEpoch,
       );
+      sendBluetoothCommand('Desligar Tomada $deviceNumber'); // Envia comando Bluetooth
     } else {
       log.warning('Nenhuma rotina selecionada.');
     }
@@ -102,6 +115,7 @@ class ControlePageState extends State<ControlePage> {
         qtdBotao3: 0,
         dtExecucao: DateTime.now().millisecondsSinceEpoch,
       );
+      sendBluetoothCommand('Movendo Plataforma para ${position * 100}%'); // Envia comando Bluetooth
     } else {
       log.warning('Nenhuma rotina selecionada.');
     }
@@ -126,6 +140,7 @@ class ControlePageState extends State<ControlePage> {
         qtdBotao3: 0,
         dtExecucao: DateTime.now().millisecondsSinceEpoch,
       );
+      sendBluetoothCommand('Movendo Robô - Horizontal: ${horizontal * 100}%, Vertical: ${vertical * 100}%'); // Envia comando Bluetooth
     } else {
       log.warning('Nenhuma rotina selecionada.');
     }
@@ -202,7 +217,7 @@ class ControlePageState extends State<ControlePage> {
                             setState(() {
                               _currentSliderValue = value;
                             });
-                            movePlatform(value / 100);
+                            movePlatform(value / 100); // Mova a plataforma conforme o slider
                           },
                         ),
                       ),
@@ -238,32 +253,18 @@ class ControlePageState extends State<ControlePage> {
 
   // Função para criar os botões de controle das tomadas
   Widget _buildTomadaButton(int deviceNumber) {
-    return SizedBox(
-      width: 120,
-      height: 40,
-      child: ElevatedButton(
-        onPressed: () {
-          setState(() {
-            _tomadaSelecionada[deviceNumber - 1] = !_tomadaSelecionada[deviceNumber - 1];
-          });
-          if (_tomadaSelecionada[deviceNumber - 1]) {
-            turnOnDevice(deviceNumber);
-          } else {
-            turnOffDevice(deviceNumber);
-          }
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _tomadaSelecionada[deviceNumber - 1]
-              ? const Color.fromARGB(255, 223, 165, 252)
-              : const Color.fromARGB(255, 56, 33, 114),
-          foregroundColor: Colors.white,
-        ),
-        child: Text(
-          _tomadaSelecionada[deviceNumber - 1]
-              ? 'Desligar Tomada $deviceNumber'
-              : 'Ligar Tomada $deviceNumber',
-        ),
-      ),
+    return ElevatedButton(
+      onPressed: () {
+        if (_tomadaSelecionada[deviceNumber - 1]) {
+          turnOffDevice(deviceNumber); // Desliga a tomada se já estiver ligada
+        } else {
+          turnOnDevice(deviceNumber); // Liga a tomada se estiver desligada
+        }
+        setState(() {
+          _tomadaSelecionada[deviceNumber - 1] = !_tomadaSelecionada[deviceNumber - 1]; // Atualiza o estado do botão
+        });
+      },
+      child: Text(_tomadaSelecionada[deviceNumber - 1] ? 'Desligar Tomada $deviceNumber' : 'Ligar Tomada $deviceNumber'),
     );
   }
 }
@@ -301,8 +302,8 @@ class JoystickVerticalState extends State<JoystickVertical> {
         widget.moveRobot(0);
       },
       child: Container(
-        width: 75,
-        height: 75,
+        width: 50,
+        height: 50,
         decoration: const BoxDecoration(
           color: Color(0xFF65558F),
           shape: BoxShape.circle,
@@ -350,20 +351,24 @@ class JoystickHorizontalState extends State<JoystickHorizontal> {
         });
         widget.moveRobot(0);
       },
-      child: Container(
-        width: 75,
-        height: 75,
-        decoration: const BoxDecoration(
-          color: Color(0xFF65558F),
-          shape: BoxShape.circle,
-        ),
-        child: Center(
-          child: Transform.translate(
-            offset: Offset(_xOffset, 0),
-            child: const Icon(Icons.circle, size: 24, color: Colors.white),
+      child: SizedBox(
+        width: 50, // Defina a largura desejada
+        height: 50, // Defina a altura desejada
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFF65558F),
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Transform.translate(
+              offset: Offset(_xOffset, 0),
+              child: const Icon(Icons.circle, size: 24, color: Colors.white),
+            ),
           ),
         ),
       ),
     );
   }
 }
+
+

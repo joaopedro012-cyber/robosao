@@ -1,8 +1,8 @@
-import 'dart:async'; 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:flutter/foundation.dart';
-import 'controle.dart'; // Importa a tela de controle
+import 'controle.dart'; // Importa o controle
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key, required this.connectedDevices});
@@ -79,16 +79,6 @@ class _MainScreenState extends State<MainScreen> {
           _connectedDevices[device.address] = connection!;
           _selectedDevices[device.address] = true;
         });
-
-        // Navegar para a tela de controle após conectar
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ControlePage(
-              connectedDevices: _scanResults.where((d) => _connectedDevices.containsKey(d.address)).toList(), // Passa a lista de dispositivos conectados
-            ),
-          ),
-        );
       }
     } catch (e) {
       if (kDebugMode) {
@@ -97,26 +87,7 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  Future<void> _disconnectFromDevice(BluetoothDevice device) async {
-    try {
-      final connection = _connectedDevices[device.address];
-      if (connection != null) {
-        connection.dispose();
-        if (mounted) {
-          setState(() {
-            _connectedDevices.remove(device.address);
-            _selectedDevices[device.address] = false;
-          });
-        }
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Erro ao desconectar: $e');
-      }
-    }
-  }
-
-  void _connectToDevices() {
+  Future<void> _connectToDevices() async {
     final selectedDevices = _selectedDevices.entries
         .where((entry) => entry.value)
         .map((entry) => entry.key)
@@ -126,8 +97,23 @@ class _MainScreenState extends State<MainScreen> {
       for (String address in selectedDevices) {
         final device = _scanResults.firstWhere((d) => d.address == address);
         if (!_connectedDevices.containsKey(address)) {
-          _connectToDevice(device);
+          await _connectToDevice(device);
         }
+      }
+
+      if (mounted) {
+        // Passa as conexões para o ControlePage
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ControlePage(
+              connectedDevices: _scanResults
+                  .where((d) => _connectedDevices.containsKey(d.address))
+                  .toList(),
+              connections: _connectedDevices.values.toList(), // Passa as conexões
+            ),
+          ),
+        );
       }
     } else {
       if (mounted) {
@@ -232,5 +218,24 @@ class _MainScreenState extends State<MainScreen> {
             )
           : null,
     );
+  }
+
+  Future<void> _disconnectFromDevice(BluetoothDevice device) async {
+    try {
+      final connection = _connectedDevices[device.address];
+      if (connection != null) {
+        connection.dispose();
+        if (mounted) {
+          setState(() {
+            _connectedDevices.remove(device.address);
+            _selectedDevices[device.address] = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Erro ao desconectar: $e');
+      }
+    }
   }
 }
