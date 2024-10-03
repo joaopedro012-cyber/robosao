@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';   
+import 'package:flutter/material.dart';    
 import 'package:logging/logging.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
@@ -121,9 +121,9 @@ class ControlePageState extends State<ControlePage> {
     }
   }
 
-  void moveRobot(double vertical, double horizontal) async {
+  void moveRobot(double horizontal, double vertical) async {
     if (_selectedRoutine != null) {
-      log.info('Movendo o robô - Vertical: $vertical, Horizontal: $horizontal');
+      log.info('Movendo o robô - Horizontal: $horizontal, Vertical: $vertical');
       await _db.insertAcao(
         idRotina: int.parse(_selectedRoutine!),
         acaoHorizontal: 'Movendo Robô - Horizontal: ${horizontal * 100}%',
@@ -140,7 +140,7 @@ class ControlePageState extends State<ControlePage> {
         qtdBotao3: 0,
         dtExecucao: DateTime.now().millisecondsSinceEpoch,
       );
-      sendBluetoothCommand('Movendo Robô - Horizontal: ${horizontal * 100}%, Vertical: ${vertical * 100}%'); // Envia comando Bluetooth
+      sendBluetoothCommand('Movendo Robô - Horizontal: ${horizontal * 100}%, Vertical: ${vertical * 100}%');
     } else {
       log.warning('Nenhuma rotina selecionada.');
     }
@@ -190,16 +190,11 @@ class ControlePageState extends State<ControlePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Joystick Vertical
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        JoystickVertical(
-                          moveRobot: (double vertical) {
-                            moveRobot(vertical, 0);
-                          },
-                        ),
-                      ],
+                    // Joystick Horizontal (esquerda para direita)
+                    JoystickHorizontal(
+                      moveRobot: (double horizontal) {
+                        moveRobot(horizontal, 0); // Motor horizontal
+                      },
                     ),
                     const SizedBox(width: 20),
                     // Slider Vertical para mover a plataforma
@@ -235,10 +230,10 @@ class ControlePageState extends State<ControlePage> {
                       ],
                     ),
                     const SizedBox(width: 20),
-                    // Joystick Horizontal
-                    JoystickHorizontal(
-                      moveRobot: (double horizontal) {
-                        moveRobot(0, horizontal);
+                    // Joystick Vertical (cima e baixo)
+                    JoystickVertical(
+                      moveRobot: (double vertical) {
+                        moveRobot(0, vertical); // Motor vertical
                       },
                     ),
                   ],
@@ -258,12 +253,15 @@ class ControlePageState extends State<ControlePage> {
         if (_tomadaSelecionada[deviceNumber - 1]) {
           turnOffDevice(deviceNumber); // Desliga a tomada se já estiver ligada
         } else {
-          turnOnDevice(deviceNumber); // Liga a tomada se estiver desligada
+          turnOnDevice(deviceNumber); // Liga a tomada
         }
         setState(() {
-          _tomadaSelecionada[deviceNumber - 1] = !_tomadaSelecionada[deviceNumber - 1]; // Atualiza o estado do botão
+          _tomadaSelecionada[deviceNumber - 1] = !_tomadaSelecionada[deviceNumber - 1];
         });
       },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: _tomadaSelecionada[deviceNumber - 1] ? const Color.fromARGB(255, 202, 147, 224) : const Color.fromARGB(255, 96, 5, 124),
+      ),
       child: Text(_tomadaSelecionada[deviceNumber - 1] ? 'Desligar Tomada $deviceNumber' : 'Ligar Tomada $deviceNumber'),
     );
   }
@@ -303,7 +301,7 @@ class JoystickVerticalState extends State<JoystickVertical> {
       },
       child: Container(
         width: 50,
-        height: 50,
+        height: 75,
         decoration: const BoxDecoration(
           color: Color(0xFF65558F),
           shape: BoxShape.circle,
@@ -370,5 +368,3 @@ class JoystickHorizontalState extends State<JoystickHorizontal> {
     );
   }
 }
-
-
