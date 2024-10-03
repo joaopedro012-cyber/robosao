@@ -1,6 +1,8 @@
+import 'package:robo_adm_desktop_v1/src/widgets/automacao_campo.dart';
 import 'package:flutter/foundation.dart';
-import 'package:fluent_ui/fluent_ui.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fui;
 import 'package:libserialport/libserialport.dart';
+import 'package:flutter/material.dart';
 
 class AutomacaoPage extends StatefulWidget {
   const AutomacaoPage({super.key});
@@ -12,11 +14,36 @@ class AutomacaoPage extends StatefulWidget {
 class _AutomacaoPageState extends State<AutomacaoPage> {
   @override
   Widget build(BuildContext context) {
-    List<String> portasConectadas = SerialPort.availablePorts;
+    // double screenWidth = MediaQuery.of(context).size.width;
+    List<String> portasDisponiveis = SerialPort.availablePorts;
+    String? conexao1Porta;
 
     if (kDebugMode) {
-      print('Portas sendo utilizadas: $portasConectadas');
+      print('Portas sendo utilizadas: $portasDisponiveis');
     }
-    return const Text('Puxou Automação');
+
+    List<fui.AutoSuggestBoxItem<String>> portasItens = portasDisponiveis
+        .map((porta) => fui.AutoSuggestBoxItem<String>(
+              value: porta,
+              label: porta,
+            ))
+        .toList();
+
+    return Column(
+      children: [
+        fui.AutoSuggestBox<String>(
+          placeholder: 'Selecione uma porta.',
+          items: portasItens,
+          onSelected: (item) {
+            setState(() {
+              conexao1Porta = item.value;
+              if (kDebugMode) {
+                print('porta selecionada: $conexao1Porta');
+              }
+            });
+          },
+        ),
+      ],
+    );
   }
 }
