@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; 
 import 'package:logging/logging.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
@@ -260,9 +260,16 @@ class ControlePageState extends State<ControlePage> {
         });
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: _tomadaSelecionada[deviceNumber - 1] ? const Color.fromARGB(255, 202, 147, 224) : const Color.fromARGB(255, 96, 5, 124),
+        backgroundColor: _tomadaSelecionada[deviceNumber - 1]
+            ? const Color.fromARGB(255, 243, 150, 207)
+            : const Color.fromARGB(255, 62, 2, 80),
+        foregroundColor: Colors.white, 
       ),
-      child: Text(_tomadaSelecionada[deviceNumber - 1] ? 'Desligar Tomada $deviceNumber' : 'Ligar Tomada $deviceNumber'),
+      child: Text(
+        _tomadaSelecionada[deviceNumber - 1]
+            ? 'Desligar Tomada $deviceNumber'
+            : 'Ligar Tomada $deviceNumber',
+      ),
     );
   }
 }
