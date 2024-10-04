@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';   
 import 'package:logging/logging.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
@@ -70,7 +70,7 @@ class ControlePageState extends State<ControlePage> {
       log.warning('Nenhuma rotina selecionada.');
     }
   }
-
+ 
   void turnOffDevice(int deviceNumber) async {
     if (_selectedRoutine != null) {
       log.info('Desligando a tomada $deviceNumber');
@@ -123,24 +123,32 @@ class ControlePageState extends State<ControlePage> {
 
   void moveRobot(double horizontal, double vertical) async {
     if (_selectedRoutine != null) {
-      log.info('Movendo o robô - Horizontal: $horizontal, Vertical: $vertical');
+      String command = '';
+
+      if (vertical > 0) {
+        command = 'FORWARD'; // Comando para frente
+      } else if (vertical < 0) {
+        command = 'BACKWARD'; // Comando para trás
+      }
+
+      log.info('Movendo o robô - Comando: $command');
       await _db.insertAcao(
         idRotina: int.parse(_selectedRoutine!),
-        acaoHorizontal: 'Movendo Robô - Horizontal: ${horizontal * 100}%',
-        acaoVertical: 'Movendo Robô - Vertical: ${vertical * 100}%',
+        acaoHorizontal: command,
+        acaoVertical: '',
         acaoPlataforma: '',
         acaoBotao1: '',
         acaoBotao2: '',
         acaoBotao3: '',
-        qtdHorizontal: (horizontal * 100).toInt(),
-        qtdVertical: (vertical * 100).toInt(),
+        qtdHorizontal: 0,
+        qtdVertical: 0,
         qtdPlataforma: 0,
         qtdBotao1: 0,
         qtdBotao2: 0,
         qtdBotao3: 0,
         dtExecucao: DateTime.now().millisecondsSinceEpoch,
       );
-      sendBluetoothCommand('Movendo Robô - Horizontal: ${horizontal * 100}%, Vertical: ${vertical * 100}%');
+      sendBluetoothCommand(command); // Envia comando Bluetooth
     } else {
       log.warning('Nenhuma rotina selecionada.');
     }

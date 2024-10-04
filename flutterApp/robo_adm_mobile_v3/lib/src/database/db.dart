@@ -1,4 +1,4 @@
-import 'package:sqflite/sqflite.dart';  
+import 'package:sqflite/sqflite.dart';   
 import 'package:path/path.dart';
 
 class DB {
@@ -10,12 +10,12 @@ class DB {
 
   // Acesso ao banco de dados
   Future<Database> get database async {
-    if (_database != null) return _database!;
-    return await _initDatabase();
+    _database ??= await _initDatabase();
+    return _database!;
   }
 
   Future<Database> _initDatabase() async {
-    String path = join(await getDatabasesPath(), 'AplicativoRobo.db');
+    final path = join(await getDatabasesPath(), 'AplicativoRobo.db');
     return await openDatabase(
       path,
       version: 2, // Atualiza a versão para 2
@@ -24,7 +24,6 @@ class DB {
     );
   }
 
-  // Função para criar o banco de dados na primeira vez
   Future<void> _onCreate(Database db, int version) async {
     await db.execute(''' 
       CREATE TABLE rotinas (
@@ -57,15 +56,12 @@ class DB {
     ''');
   }
 
-  // Função para atualizar o banco de dados ao mudar a versão
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
-      // Adiciona a coluna ACAO_HORIZONTAL se não existir
       await db.execute('ALTER TABLE ADM_EXECUCAO_ROTINAS ADD COLUMN ACAO_HORIZONTAL TEXT');
     }
   }
 
-  // Função para inserir uma nova rotina
   Future<void> insertRotina(String nome, String descricao) async {
     final db = await instance.database;
     await db.insert('rotinas', {
@@ -74,7 +70,6 @@ class DB {
     });
   }
 
-  // Função para atualizar uma rotina existente
   Future<void> updateRotina(int idRotina, String nome, String descricao) async {
     final db = await instance.database;
     await db.update(
@@ -85,30 +80,16 @@ class DB {
     );
   }
 
-  // Função para excluir uma rotina e suas execuções associadas
   Future<void> deleteRotina(int idRotina) async {
-    if (idRotina <= 0) {
-      throw Exception("ID da rotina deve ser maior que zero.");
-    }
+    if (idRotina <= 0) throw Exception("ID da rotina deve ser maior que zero.");
 
     final db = await instance.database;
     await db.transaction((txn) async {
-      // Primeiro, exclua todas as execuções associadas à rotina
-      await txn.delete(
-        'ADM_EXECUCAO_ROTINAS',
-        where: 'ID_ROTINA = ?',
-        whereArgs: [idRotina],
-      );
-      // Agora, exclua a rotina em si
-      await txn.delete(
-        'rotinas',
-        where: 'ID_ROTINA = ?',
-        whereArgs: [idRotina],
-      );
+      await txn.delete('ADM_EXECUCAO_ROTINAS', where: 'ID_ROTINA = ?', whereArgs: [idRotina]);
+      await txn.delete('rotinas', where: 'ID_ROTINA = ?', whereArgs: [idRotina]);
     });
   }
 
-  // Função para inserir uma nova execução de rotina
   Future<void> insertExecucaoRotina({
     required int idRotina,
     required String acaoHorizontal,
@@ -146,7 +127,6 @@ class DB {
     });
   }
 
-  // Função para atualizar uma execução de rotina
   Future<void> updateExecucaoRotina(int idExecucao, {
     required String acaoHorizontal,
     required int qtdHorizontal,
@@ -183,43 +163,25 @@ class DB {
     );
   }
 
-  // Função para excluir uma execução de rotina
   Future<void> deleteExecucao(int idExecucao) async {
     final db = await instance.database;
-    await db.delete(
-      'ADM_EXECUCAO_ROTINAS',
-      where: 'ID_EXECUCAO = ?',
-      whereArgs: [idExecucao],
-    );
+    await db.delete('ADM_EXECUCAO_ROTINAS', where: 'ID_EXECUCAO = ?', whereArgs: [idExecucao]);
   }
 
-  // Função para excluir uma ação de rotina
   Future<void> deleteAcao(int idAcao) async {
-    final db = await instance.database;
-    await db.delete(
-      'ADM_EXECUCAO_ROTINAS',
-      where: 'ID_EXECUCAO = ?',
-      whereArgs: [idAcao],
-    );
+    await deleteExecucao(idAcao); // Usar a mesma função
   }
 
-  // Função para buscar todas as rotinas
   Future<List<Map<String, dynamic>>> getRotinas() async {
     final db = await instance.database;
     return await db.query('rotinas');
   }
 
-  // Função para buscar as execuções de uma rotina específica
   Future<List<Map<String, dynamic>>> getExecucoesRotina(int idRotina) async {
     final db = await instance.database;
-    return await db.query(
-      'ADM_EXECUCAO_ROTINAS',
-      where: 'ID_ROTINA = ?',
-      whereArgs: [idRotina],
-    );
+    return await db.query('ADM_EXECUCAO_ROTINAS', where: 'ID_ROTINA = ?', whereArgs: [idRotina]);
   }
 
-  // Função para inserir uma nova ação
   Future<void> insertAcao({
     required int idRotina,
     required String acaoHorizontal,
@@ -236,25 +198,21 @@ class DB {
     required int qtdBotao3,
     required int dtExecucao,
   }) async {
-    final db = await instance.database;
-    await db.insert(
-      'ADM_EXECUCAO_ROTINAS', // Tabela onde as ações são armazenadas
-      {
-        'ID_ROTINA': idRotina,
-        'ACAO_HORIZONTAL': acaoHorizontal,
-        'QTD_HORIZONTAL': qtdHorizontal,
-        'ACAO_VERTICAL': acaoVertical,
-        'QTD_VERTICAL': qtdVertical,
-        'ACAO_PLATAFORMA': acaoPlataforma,
-        'QTD_PLATAFORMA': qtdPlataforma,
-        'ACAO_BOTAO1': acaoBotao1,
-        'QTD_BOTAO1': qtdBotao1,
-        'ACAO_BOTAO2': acaoBotao2,
-        'QTD_BOTAO2': qtdBotao2,
-        'ACAO_BOTAO3': acaoBotao3,
-        'QTD_BOTAO3': qtdBotao3,
-        'DT_EXECUCAO_UNIX_MICROSSEGUNDOS': dtExecucao,
-      },
+    await insertExecucaoRotina(
+      idRotina: idRotina,
+      acaoHorizontal: acaoHorizontal,
+      qtdHorizontal: qtdHorizontal,
+      acaoVertical: acaoVertical,
+      qtdVertical: qtdVertical,
+      acaoPlataforma: acaoPlataforma,
+      qtdPlataforma: qtdPlataforma,
+      acaoBotao1: acaoBotao1,
+      qtdBotao1: qtdBotao1,
+      acaoBotao2: acaoBotao2,
+      qtdBotao2: qtdBotao2,
+      acaoBotao3: acaoBotao3,
+      qtdBotao3: qtdBotao3,
+      dtExecucao: dtExecucao,
     );
   }
 }

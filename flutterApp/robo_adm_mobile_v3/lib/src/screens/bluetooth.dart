@@ -15,15 +15,12 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   final _flutterBlueClassicPlugin = FlutterBlueClassic();
-
   BluetoothAdapterState _adapterState = BluetoothAdapterState.unknown;
   StreamSubscription? _adapterStateSubscription;
-
   final Set<BluetoothDevice> _scanResults = {};
   final Map<String, bool> _selectedDevices = {};
   final Map<String, BluetoothConnection> _connectedDevices = {};
   StreamSubscription? _scanSubscription;
-
   bool _isScanning = false;
   StreamSubscription? _scanningStateSubscription;
 
@@ -37,13 +34,11 @@ class _MainScreenState extends State<MainScreen> {
     try {
       _adapterState = await _flutterBlueClassicPlugin.adapterStateNow;
 
-      _adapterStateSubscription =
-          _flutterBlueClassicPlugin.adapterState.listen((current) {
+      _adapterStateSubscription = _flutterBlueClassicPlugin.adapterState.listen((current) {
         if (mounted) setState(() => _adapterState = current);
       });
 
-      _scanSubscription =
-          _flutterBlueClassicPlugin.scanResults.listen((device) {
+      _scanSubscription = _flutterBlueClassicPlugin.scanResults.listen((device) {
         if (mounted) {
           setState(() {
             _scanResults.add(device);
@@ -52,14 +47,11 @@ class _MainScreenState extends State<MainScreen> {
         }
       });
 
-      _scanningStateSubscription =
-          _flutterBlueClassicPlugin.isScanning.listen((isScanning) {
+      _scanningStateSubscription = _flutterBlueClassicPlugin.isScanning.listen((isScanning) {
         if (mounted) setState(() => _isScanning = isScanning);
       });
     } catch (e) {
-      if (kDebugMode) {
-        print('Erro: $e');
-      }
+      if (kDebugMode) print('Erro: $e');
     }
   }
 
@@ -81,44 +73,41 @@ class _MainScreenState extends State<MainScreen> {
         });
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('Erro ao conectar: $e');
-      }
+      if (kDebugMode) print('Erro ao conectar: $e');
     }
   }
 
   Future<void> _connectToDevices() async {
-    final selectedDevices = _selectedDevices.entries
-        .where((entry) => entry.value)
-        .map((entry) => entry.key)
-        .toList();
+    final selectedDevices = _selectedDevices.entries.where((entry) => entry.value).map((entry) => entry.key).toList();
 
     if (selectedDevices.isNotEmpty) {
+      List<Future<void>> connectionFutures = [];
+
       for (String address in selectedDevices) {
         final device = _scanResults.firstWhere((d) => d.address == address);
         if (!_connectedDevices.containsKey(address)) {
-          await _connectToDevice(device);
+          connectionFutures.add(_connectToDevice(device));
         }
       }
 
+      await Future.wait(connectionFutures);
+
       if (mounted) {
-        // Passa as conexões para o ControlePage
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => ControlePage(
-              connectedDevices: _scanResults
-                  .where((d) => _connectedDevices.containsKey(d.address))
-                  .toList(),
-              connections: _connectedDevices.values.toList(), // Passa as conexões
+              connectedDevices: _scanResults.where((d) => _connectedDevices.containsKey(d.address)).toList(),
+              connections: _connectedDevices.values.toList(),
             ),
           ),
         );
+
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Conexão bem-sucedida!')));
       }
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Nenhum dispositivo selecionado.')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nenhum dispositivo selecionado.')));
       }
     }
   }
@@ -153,9 +142,7 @@ class _MainScreenState extends State<MainScreen> {
           if (_adapterState != BluetoothAdapterState.on)
             IconButton(
               icon: const Icon(Icons.bluetooth),
-              onPressed: () {
-                _flutterBlueClassicPlugin.turnOn();
-              },
+              onPressed: () => _flutterBlueClassicPlugin.turnOn(),
               tooltip: 'Ligar Bluetooth',
             ),
         ],
@@ -168,8 +155,7 @@ class _MainScreenState extends State<MainScreen> {
                 children: scanResults.isEmpty
                     ? [const Center(child: Text("Nenhum dispositivo encontrado"))]
                     : scanResults.map((device) {
-                        final isConnected =
-                            _connectedDevices.containsKey(device.address);
+                        final isConnected = _connectedDevices.containsKey(device.address);
                         return CheckboxListTile(
                           title: Text(device.name ?? "Dispositivo desconhecido"),
                           subtitle: Text(device.address),
@@ -185,11 +171,7 @@ class _MainScreenState extends State<MainScreen> {
                               _disconnectFromDevice(device);
                             }
                           },
-                          secondary: Icon(
-                            isConnected
-                                ? Icons.check_box
-                                : Icons.check_box_outline_blank,
-                          ),
+                          secondary: Icon(isConnected ? Icons.check_box : Icons.check_box_outline_blank),
                         );
                       }).toList(),
               ),
@@ -212,9 +194,7 @@ class _MainScreenState extends State<MainScreen> {
       floatingActionButton: _adapterState == BluetoothAdapterState.on
           ? FloatingActionButton(
               onPressed: _startStopScan,
-              child: Icon(_isScanning
-                  ? Icons.bluetooth_searching
-                  : Icons.search),
+              child: Icon(_isScanning ? Icons.bluetooth_searching : Icons.search),
             )
           : null,
     );
@@ -233,9 +213,7 @@ class _MainScreenState extends State<MainScreen> {
         }
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('Erro ao desconectar: $e');
-      }
+      if (kDebugMode) print('Erro ao desconectar: $e');
     }
   }
 }
