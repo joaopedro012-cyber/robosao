@@ -16,8 +16,8 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
   @override
   Widget build(BuildContext context) {
     //double screenWidth = MediaQuery.of(context).size.width;
-    List<String> portasDisponiveis = SerialPort.availablePorts;
-    String? conexao1Porta;
+    late List<String> portasDisponiveis = SerialPort.availablePorts;
+    String conexao1Porta = 'teste';
 
     if (kDebugMode) {
       print('Portas sendo utilizadas: $portasDisponiveis');
@@ -31,12 +31,12 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
         .toList();
 
     return AutomacaoCampo(
-      campo: 'sensores',
-      placeholder: conexao1Porta ?? 'Exemplo.json',
-      portasArduino: portasDisponiveis,
-      onPortasChanged:
-          atualizarConfigJsonAutomacao('sensores', conexao1Porta ?? 'COM999'),
-    );
+        campo: 'sensores',
+        placeholder: conexao1Porta,
+        portasArduino: portasItens,
+        onPortasChanged: (String novaPorta) {
+          atualizarConfigJsonAutomacao('sensores', conexao1Porta);
+        });
 
     // return Wrap(
     //   children: [

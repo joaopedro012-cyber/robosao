@@ -96,4 +96,4 @@ Future<List<String>> listaObjJson(String objetoJson, String? chave) async {
 }
 
 Future<void> atualizarConfigJsonAutomacao(
-    String campo, String? novaPorta) async {}
+    String campo, String novaPorta) async {}

@@ -4,7 +4,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fui;
 class AutomacaoCampo extends StatelessWidget {
   final String campo;
   final String placeholder;
-  final List<String> portasArduino;
+  final List<fui.AutoSuggestBoxItem<String>> portasArduino;
   final Function(String) onPortasChanged;
 
   const AutomacaoCampo({
@@ -30,13 +30,13 @@ class AutomacaoCampo extends StatelessWidget {
                 width: screenWidth * 0.27,
                 child: fui.AutoSuggestBox<String>(
                   placeholder: placeholder,
-                  items: portasArduino.map((rotina) {
+                  items: portasArduino.map((arduino) {
                     return fui.AutoSuggestBoxItem<String>(
-                      value: rotina,
-                      label: rotina,
+                      value: arduino,
+                      label: arduino,
                       onFocusChange: (focused) {
                         if (focused) {
-                          debugPrint('Focused $rotina');
+                          debugPrint('Focused $arduino');
                         }
                       },
                     );
