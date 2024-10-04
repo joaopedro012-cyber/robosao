@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';    
+import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
@@ -350,8 +350,8 @@ class JoystickHorizontalState extends State<JoystickHorizontal> {
         widget.moveRobot(0);
       },
       child: SizedBox(
-        width: 50, // Defina a largura desejada
-        height: 50, // Defina a altura desejada
+        width: 50,
+        height: 50,
         child: Container(
           decoration: const BoxDecoration(
             color: Color(0xFF65558F),
