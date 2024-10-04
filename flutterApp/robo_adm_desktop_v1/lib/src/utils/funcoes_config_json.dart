@@ -94,3 +94,6 @@ Future<List<String>> listaObjJson(String objetoJson, String? chave) async {
     return jsonData.keys.map((key) => key.toString()).toList();
   }
 }
+
+Future<void> atualizarConfigJsonAutomacao(
+    String campo, String? novaPorta) async {}

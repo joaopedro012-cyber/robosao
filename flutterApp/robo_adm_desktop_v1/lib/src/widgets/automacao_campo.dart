@@ -2,31 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fui;
 
 class AutomacaoCampo extends StatelessWidget {
-  final String sensor;
+  final String campo;
   final String placeholder;
-  final List<String> rotinas;
-  final int? distanciaMinima;
-  final Function(int?) onDistanciaChanged;
-  final Function(String) onDiretorioChanged;
+  final List<String> portasArduino;
+  final Function(String) onPortasChanged;
 
   const AutomacaoCampo({
     super.key,
-    required this.sensor,
+    required this.campo,
     required this.placeholder,
-    required this.rotinas,
-    this.distanciaMinima,
-    required this.onDistanciaChanged,
-    required this.onDiretorioChanged,
+    required this.portasArduino,
+    required this.onPortasChanged,
   });
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    int? numberBoxValue = distanciaMinima;
 
     return Wrap(
       children: [
-        Text(sensor),
+        Text(campo),
         SizedBox(
           width: screenWidth * 0.35,
           child: Wrap(
@@ -35,7 +30,7 @@ class AutomacaoCampo extends StatelessWidget {
                 width: screenWidth * 0.27,
                 child: fui.AutoSuggestBox<String>(
                   placeholder: placeholder,
-                  items: rotinas.map((rotina) {
+                  items: portasArduino.map((rotina) {
                     return fui.AutoSuggestBoxItem<String>(
                       value: rotina,
                       label: rotina,
@@ -47,24 +42,13 @@ class AutomacaoCampo extends StatelessWidget {
                     );
                   }).toList(),
                   onSelected: (item) {
-                    onDiretorioChanged(item.value!);
+                    onPortasChanged(item.value!);
                   },
                 ),
               ),
             ],
           ),
         ),
-        SizedBox(
-          width: screenWidth * 0.25,
-          child: fui.NumberBox(
-            value: numberBoxValue,
-            onChanged: (novoValor) {
-              onDistanciaChanged(novoValor);
-            },
-            mode: fui.SpinButtonPlacementMode.inline,
-          ),
-        ),
-        const Text('cm'),
       ],
     );
   }
