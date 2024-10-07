@@ -4,7 +4,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fui;
 class AutomacaoCampo extends StatelessWidget {
   final String campo;
   final String placeholder;
-  final List<fui.AutoSuggestBoxItem<String>> portasArduino;
+  final List<String> portasArduino;
   final Function(String) onPortasChanged;
 
   const AutomacaoCampo({

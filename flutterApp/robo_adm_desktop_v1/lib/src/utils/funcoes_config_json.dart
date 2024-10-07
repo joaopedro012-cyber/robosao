@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:robo_adm_desktop_v1/src/widgets/sensor_rotina.dart';
 
 Future<List<String>> listarArquivosJsonSensores() async {
   final Directory diretorio = await getApplicationDocumentsDirectory();
@@ -96,4 +97,22 @@ Future<List<String>> listaObjJson(String objetoJson, String? chave) async {
 }
 
 Future<void> atualizarConfigJsonAutomacao(
-    String campo, String novaPorta) async {}
+    String campo, String novaPorta) async {
+  final Directory documentsDirectory = await getApplicationDocumentsDirectory();
+  final String caminho = '${documentsDirectory.path}/Rotinas Robo/config.json';
+  final File configFile = File(caminho);
+
+  if (await configFile.exists()) {
+    String conteudo = await configFile.readAsString();
+    Map<String, dynamic> json = jsonDecode(conteudo);
+
+    for (var itemAutomacao in json['automacao']) {
+      if (itemAutomacao['arduino'] == campo) {
+        itemAutomacao['porta'] = novaPorta;
+        break;
+      }
+    }
+
+    await configFile.writeAsString(jsonEncode(json));
+  }
+}

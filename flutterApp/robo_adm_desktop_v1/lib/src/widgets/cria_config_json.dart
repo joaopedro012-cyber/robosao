@@ -90,7 +90,7 @@ class CriadorConfig {
     {
       "arduino": "Motores Vertical",
       "porta": "COM3"
-    },
+    }
   ]
 }
 ''');

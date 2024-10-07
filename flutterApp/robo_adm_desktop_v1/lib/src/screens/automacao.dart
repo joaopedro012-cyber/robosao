@@ -17,25 +17,25 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
   Widget build(BuildContext context) {
     //double screenWidth = MediaQuery.of(context).size.width;
     late List<String> portasDisponiveis = SerialPort.availablePorts;
-    String conexao1Porta = 'teste';
+    String conexao1Porta = 'teste2';
 
     if (kDebugMode) {
       print('Portas sendo utilizadas: $portasDisponiveis');
     }
 
-    List<fui.AutoSuggestBoxItem<String>> portasItens = portasDisponiveis
-        .map((porta) => fui.AutoSuggestBoxItem<String>(
-              value: porta,
-              label: porta,
-            ))
-        .toList();
+    // List<fui.AutoSuggestBoxItem<String>> portasItens = portasDisponiveis
+    //     .map((porta) => fui.AutoSuggestBoxItem<String>(
+    //           value: porta,
+    //           label: porta,
+    //         ))
+    //     .toList();
 
     return AutomacaoCampo(
-        campo: 'sensores',
+        campo: 'Sensores',
         placeholder: conexao1Porta,
-        portasArduino: portasItens,
+        portasArduino: portasDisponiveis,
         onPortasChanged: (String novaPorta) {
-          atualizarConfigJsonAutomacao('sensores', conexao1Porta);
+          atualizarConfigJsonAutomacao('Sensores', conexao1Porta);
         });
 
     // return Wrap(
