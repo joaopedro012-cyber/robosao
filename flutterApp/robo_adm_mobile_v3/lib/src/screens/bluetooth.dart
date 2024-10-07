@@ -1,8 +1,9 @@
-import 'dart:async';
+import 'dart:async';  
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:flutter/foundation.dart';
 import 'controle.dart'; // Importa o controle
+import 'package:robo_adm_mobile_v2/src/database/db.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key, required this.connectedDevices});
@@ -24,10 +25,13 @@ class _MainScreenState extends State<MainScreen> {
   bool _isScanning = false;
   StreamSubscription? _scanningStateSubscription;
 
+  String? _robotUUID;
+
   @override
   void initState() {
     super.initState();
     initPlatformState();
+    _fetchRobotUUID(); // Chame a função para buscar o UUID do robô
   }
 
   Future<void> initPlatformState() async {
@@ -52,6 +56,22 @@ class _MainScreenState extends State<MainScreen> {
       });
     } catch (e) {
       if (kDebugMode) print('Erro: $e');
+    }
+  }
+
+  // Nova função para buscar o UUID do robô no banco de dados
+  Future<void> _fetchRobotUUID() async {
+    final db = DB.instance; // Instância do banco de dados
+    final uuid = await db.getRobotUUID(); // Método que você deve implementar no db.dart
+    setState(() {
+      _robotUUID = uuid; // Armazene o UUID na variável
+    });
+    
+    // Use o UUID para alguma operação
+    if (_robotUUID != null) {
+      if (kDebugMode) {
+        print("UUID do robô: $_robotUUID");
+      }
     }
   }
 

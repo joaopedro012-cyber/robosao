@@ -1,4 +1,4 @@
-import 'package:sqflite/sqflite.dart';   
+import 'package:sqflite/sqflite.dart';    
 import 'package:path/path.dart';
 
 class DB {
@@ -18,7 +18,7 @@ class DB {
     final path = join(await getDatabasesPath(), 'AplicativoRobo.db');
     return await openDatabase(
       path,
-      version: 2, // Atualiza a versão para 2
+      version: 3, // Atualiza a versão para 3
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -54,12 +54,41 @@ class DB {
         FOREIGN KEY(ID_ROTINA) REFERENCES rotinas(ID_ROTINA)
       )
     ''');
+
+    // Criação da tabela para armazenar o UUID
+    await db.execute('''
+      CREATE TABLE robot (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        uuid TEXT NOT NULL
+      )
+    ''');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('ALTER TABLE ADM_EXECUCAO_ROTINAS ADD COLUMN ACAO_HORIZONTAL TEXT');
     }
+    if (oldVersion < 3) {
+      // Se necessário, você pode adicionar mais atualizações aqui
+    }
+  }
+
+  Future<void> insertRobotUUID(String uuid) async {
+    final db = await instance.database;
+    await db.insert(
+      'robot',
+      {'uuid': uuid},
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<String?> getRobotUUID() async {
+    final db = await instance.database;
+    final List<Map<String, dynamic>> result = await db.query('robot', limit: 1);
+    if (result.isNotEmpty) {
+      return result.first['uuid'] as String;
+    }
+    return null;
   }
 
   Future<void> insertRotina(String nome, String descricao) async {

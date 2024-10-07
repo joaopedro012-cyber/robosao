@@ -4,8 +4,10 @@ import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
 import 'dart:typed_data';
 import 'dart:convert';
+import 'package:uuid/uuid.dart';
 
 final log = Logger('JoystickLogger');
+const uuid = Uuid();
 
 class ControlePage extends StatefulWidget {
   final List<BluetoothDevice> connectedDevices;
@@ -23,10 +25,12 @@ class ControlePageState extends State<ControlePage> {
   double _currentSliderValue = 50;
   List<Map<String, dynamic>> _rotinas = [];
   final List<bool> _tomadaSelecionada = [false, false, false];
+  late final String _robotUUID;
 
   @override
   void initState() {
     super.initState();
+    _robotUUID = uuid.v4(); // Gera um UUID para o robô
     _loadRotinas(); // Carrega as rotinas ao iniciar
   }
 
@@ -38,11 +42,12 @@ class ControlePageState extends State<ControlePage> {
     });
   }
 
-  void sendBluetoothCommand(String command) {
+   void sendBluetoothCommand(String command) {
     for (var connection in widget.connections) {
-      List<int> bytes = utf8.encode(command); // Converte o comando em bytes
+      String commandWithUUID = '$_robotUUID: $command'; // Adiciona o UUID ao comando
+      List<int> bytes = utf8.encode(commandWithUUID); // Converte o comando em bytes
       connection.output.add(Uint8List.fromList(bytes)); // Envia o comando
-      log.info('Comando enviado: $command');
+      log.info('Comando enviado: $commandWithUUID');
     }
   }
 
@@ -293,24 +298,24 @@ class JoystickVertical extends StatefulWidget {
 }
 
 class JoystickVerticalState extends State<JoystickVertical> {
-  double _yOffset = 0.0;
+  double _xOffset = 0.0; // Alterado de _yOffset para _xOffset
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onPanUpdate: (details) {
         setState(() {
-          _yOffset += details.delta.dy;
+          _xOffset += details.delta.dx; // Alterado para controlar o movimento horizontal
 
-          if (_yOffset > 40) _yOffset = 40;
-          if (_yOffset < -40) _yOffset = -40;
+          if (_xOffset > 40) _xOffset = 40;
+          if (_xOffset < -40) _xOffset = -40;
 
-          widget.moveRobot(_yOffset / 40);
+          widget.moveRobot(_xOffset / 40);
         });
       },
       onPanEnd: (details) {
         setState(() {
-          _yOffset = 0;
+          _xOffset = 0;
         });
         widget.moveRobot(0);
       },
@@ -323,7 +328,7 @@ class JoystickVerticalState extends State<JoystickVertical> {
         ),
         child: Center(
           child: Transform.translate(
-            offset: Offset(0, _yOffset),
+            offset: Offset(_xOffset, 0), // Ajuste para movimento horizontal
             child: const Icon(Icons.circle, size: 24, color: Colors.white),
           ),
         ),
@@ -343,24 +348,24 @@ class JoystickHorizontal extends StatefulWidget {
 }
 
 class JoystickHorizontalState extends State<JoystickHorizontal> {
-  double _xOffset = 0.0;
+  double _yOffset = 0.0; // Alterado de _xOffset para _yOffset
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onPanUpdate: (details) {
         setState(() {
-          _xOffset += details.delta.dx;
+          _yOffset += details.delta.dy; // Alterado para controlar o movimento vertical
 
-          if (_xOffset > 40) _xOffset = 40;
-          if (_xOffset < -40) _xOffset = -40;
+          if (_yOffset > 40) _yOffset = 40;
+          if (_yOffset < -40) _yOffset = -40;
 
-          widget.moveRobot(_xOffset / 40);
+          widget.moveRobot(_yOffset / 40);
         });
       },
       onPanEnd: (details) {
         setState(() {
-          _xOffset = 0;
+          _yOffset = 0;
         });
         widget.moveRobot(0);
       },
@@ -374,7 +379,7 @@ class JoystickHorizontalState extends State<JoystickHorizontal> {
           ),
           child: Center(
             child: Transform.translate(
-              offset: Offset(_xOffset, 0),
+              offset: Offset(0, _yOffset), // Ajuste para movimento vertical
               child: const Icon(Icons.circle, size: 24, color: Colors.white),
             ),
           ),
@@ -383,3 +388,4 @@ class JoystickHorizontalState extends State<JoystickHorizontal> {
     );
   }
 }
+
