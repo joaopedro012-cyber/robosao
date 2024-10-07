@@ -1,4 +1,4 @@
-import 'dart:async';  
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:flutter/foundation.dart';
@@ -63,14 +63,16 @@ class _MainScreenState extends State<MainScreen> {
   Future<void> _fetchRobotUUID() async {
     final db = DB.instance; // Instância do banco de dados
     final uuid = await db.getRobotUUID(); // Método que você deve implementar no db.dart
-    setState(() {
-      _robotUUID = uuid; // Armazene o UUID na variável
-    });
-    
-    // Use o UUID para alguma operação
-    if (_robotUUID != null) {
-      if (kDebugMode) {
-        print("UUID do robô: $_robotUUID");
+    if (mounted) { // Verifica se o estado ainda está montado
+      setState(() {
+        _robotUUID = uuid; // Armazene o UUID na variável
+      });
+
+      // Use o UUID para alguma operação
+      if (_robotUUID != null) {
+        if (kDebugMode) {
+          print("UUID do robô: $_robotUUID");
+        }
       }
     }
   }
@@ -85,14 +87,28 @@ class _MainScreenState extends State<MainScreen> {
 
   Future<void> _connectToDevice(BluetoothDevice device) async {
     try {
-      final connection = await _flutterBlueClassicPlugin.connect(device.address);
-      if (mounted) {
-        setState(() {
-          _connectedDevices[device.address] = connection!;
-          _selectedDevices[device.address] = true;
-        });
+      // Verifica se o endereço do dispositivo corresponde ao UUID do robô
+      if (_robotUUID != null && device.address == _robotUUID) {
+        final connection = await _flutterBlueClassicPlugin.connect(device.address);
+        if (mounted) {
+          setState(() {
+            _connectedDevices[device.address] = connection!;
+            _selectedDevices[device.address] = true;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Conectado ao robô!')));
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Dispositivo não é o robô.')));
+        }
       }
     } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Erro ao conectar.')));
+      }
       if (kDebugMode) print('Erro ao conectar: $e');
     }
   }
