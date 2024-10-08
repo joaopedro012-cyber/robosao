@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:robo_adm_desktop_v1/src/widgets/sensor_rotina.dart';
 import 'package:robo_adm_desktop_v1/src/utils/funcoes_config_json.dart';
+import 'package:robo_adm_desktop_v1/src/utils/json_config.dart';
+import 'package:robo_adm_desktop_v1/src/widgets/sensor_rotina.dart';
 
 class SensoresPage extends StatefulWidget {
   const SensoresPage({super.key});
@@ -47,12 +48,12 @@ class _SensoresPageState extends State<SensoresPage> {
                 rotinas: rotinas,
                 distanciaMinima: sensor1DistanciaMinima,
                 onDistanciaChanged: (novoValor) {
-                  atualizarConfigJsonSensores('sensor1',
-                      novaDistancia: novoValor);
+                  atualizaJson(
+                      'sensores', 'sensor1', 'distancia_minima', novoValor);
                 },
                 onDiretorioChanged: (novoDiretorio) {
-                  atualizarConfigJsonSensores('sensor1',
-                      novoDiretorio: novoDiretorio);
+                  atualizaJson(
+                      'sensores', 'sensor1', 'diretorio', novoDiretorio);
                 },
               ),
             ],

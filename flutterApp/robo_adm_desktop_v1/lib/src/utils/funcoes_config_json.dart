@@ -34,32 +34,6 @@ Future<void> carregarConfigSensor(
   }
 }
 
-Future<void> atualizarConfigJsonSensores(String sensor,
-    {int? novaDistancia = 100, String? novoDiretorio}) async {
-  final Directory documentsDirectory = await getApplicationDocumentsDirectory();
-  final String caminho = '${documentsDirectory.path}/Rotinas Robo/config.json';
-  final File configFile = File(caminho);
-
-  if (await configFile.exists()) {
-    String conteudo = await configFile.readAsString();
-    Map<String, dynamic> json = jsonDecode(conteudo);
-
-    for (var sensorData in json['sensores']) {
-      if (sensorData['sensor'] == sensor) {
-        if (novaDistancia != null) {
-          sensorData['distancia_minima'] = novaDistancia;
-        }
-        if (novoDiretorio != null) {
-          sensorData['diretorio'] = novoDiretorio;
-        }
-        break;
-      }
-    }
-
-    await configFile.writeAsString(jsonEncode(json));
-  }
-}
-
 Future<List<String>> listaObjJson(String objetoJson, String? chave) async {
   // Pegar o diretório
   final Directory diretorio = await getApplicationDocumentsDirectory();
@@ -92,26 +66,5 @@ Future<List<String>> listaObjJson(String objetoJson, String? chave) async {
     // Se nenhuma chave for fornecida ou não existir no JSON,
     // retornar todas as chaves do objeto principal
     return jsonData.keys.map((key) => key.toString()).toList();
-  }
-}
-
-Future<void> atualizarConfigJsonAutomacao(
-    String campo, String novaPorta) async {
-  final Directory documentsDirectory = await getApplicationDocumentsDirectory();
-  final String caminho = '${documentsDirectory.path}/Rotinas Robo/config.json';
-  final File configFile = File(caminho);
-
-  if (await configFile.exists()) {
-    String conteudo = await configFile.readAsString();
-    Map<String, dynamic> json = jsonDecode(conteudo);
-
-    for (var itemAutomacao in json['automacao']) {
-      if (itemAutomacao['arduino'] == campo) {
-        itemAutomacao['porta'] = novaPorta;
-        break;
-      }
-    }
-
-    await configFile.writeAsString(jsonEncode(json));
   }
 }

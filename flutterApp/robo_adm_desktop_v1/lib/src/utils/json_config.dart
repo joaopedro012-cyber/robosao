@@ -16,7 +16,7 @@ Future<List<String>> carregaConfigJson() async {
 }
 
 Future<void> atualizaJson(
-    String secao, String objeto, String propriedade, String novoValor) async {
+    String secao, String objeto, String propriedade, dynamic novoValor) async {
   final Directory diretorioDocumentos =
       await getApplicationDocumentsDirectory();
   final File configJson =
