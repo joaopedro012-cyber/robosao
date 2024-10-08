@@ -32,9 +32,7 @@ class _RotinasPageState extends State<RotinasPage> {
       final List<Map<String, dynamic>> acoes = await DB.instance.getExecucoesRotina(idRotina);
       acoesPorRotina[idRotina] = acoes;
 
-      if (!_isExpanded.containsKey(idRotina)) {
-        _isExpanded[idRotina] = false;
-      }
+      _isExpanded.putIfAbsent(idRotina, () => false);
     }
 
     if (mounted) {
@@ -104,6 +102,7 @@ class _RotinasPageState extends State<RotinasPage> {
       dtExecucao: dtExecucao,
     );
 
+    // Limpar os campos após a inserção
     vertController.clear();
     horizController.clear();
     platController.clear();
@@ -203,20 +202,11 @@ class _RotinasPageState extends State<RotinasPage> {
                                 _showEditDialog(rotina['ID_ROTINA']);
                               },
                             ),
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.delete, color: Color.fromARGB(255, 96, 3, 112)),
-                                  onPressed: () {
-                                    _deleteRotina(rotina['ID_ROTINA']);
-                                  },
-                                ),
-                                const Icon(
-                                  Icons.clear,
-                                  color: Colors.white,
-                                ),
-                              ],
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Color.fromARGB(255, 96, 3, 112)),
+                              onPressed: () {
+                                _deleteRotina(rotina['ID_ROTINA']);
+                              },
                             ),
                             IconButton(
                               icon: Icon(

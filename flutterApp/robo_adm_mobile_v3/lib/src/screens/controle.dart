@@ -1,13 +1,11 @@
-import 'package:flutter/material.dart';   
+import 'package:flutter/material.dart'; 
 import 'package:logging/logging.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
 import 'dart:typed_data';
 import 'dart:convert';
-import 'package:uuid/uuid.dart';
 
 final log = Logger('JoystickLogger');
-const uuid = Uuid();
 
 class ControlePage extends StatefulWidget {
   final List<BluetoothDevice> connectedDevices;
@@ -25,12 +23,10 @@ class ControlePageState extends State<ControlePage> {
   double _currentSliderValue = 50;
   List<Map<String, dynamic>> _rotinas = [];
   final List<bool> _tomadaSelecionada = [false, false, false];
-  late final String _robotUUID;
 
   @override
   void initState() {
     super.initState();
-    _robotUUID = uuid.v4(); // Gera um UUID para o robô
     _loadRotinas(); // Carrega as rotinas ao iniciar
   }
 
@@ -42,12 +38,11 @@ class ControlePageState extends State<ControlePage> {
     });
   }
 
-   void sendBluetoothCommand(String command) {
+  void sendBluetoothCommand(String command) {
     for (var connection in widget.connections) {
-      String commandWithUUID = '$_robotUUID: $command'; // Adiciona o UUID ao comando
-      List<int> bytes = utf8.encode(commandWithUUID); // Converte o comando em bytes
+      List<int> bytes = utf8.encode(command); // Converte o comando em bytes
       connection.output.add(Uint8List.fromList(bytes)); // Envia o comando
-      log.info('Comando enviado: $commandWithUUID');
+      log.info('Comando enviado: $command');
     }
   }
 
@@ -75,7 +70,7 @@ class ControlePageState extends State<ControlePage> {
       log.warning('Nenhuma rotina selecionada.');
     }
   }
- 
+
   void turnOffDevice(int deviceNumber) async {
     if (_selectedRoutine != null) {
       log.info('Desligando a tomada $deviceNumber');
@@ -128,12 +123,23 @@ class ControlePageState extends State<ControlePage> {
 
   void moveRobot(double horizontal, double vertical) async {
     if (_selectedRoutine != null) {
+      int pulseCount = 0; 
       String command = '';
 
+      if (horizontal > 0) {
+        pulseCount = (horizontal * 100).toInt(); 
+        command = 'MOVE_RIGHT:$pulseCount'; 
+      } else if (horizontal < 0) {
+        pulseCount = (-horizontal * 100).toInt();
+        command = 'MOVE_LEFT:$pulseCount'; 
+      }
+      
       if (vertical > 0) {
-        command = 'FORWARD'; // Comando para frente
+        pulseCount = (vertical * 100).toInt();
+        command = 'MOVE_FORWARD:$pulseCount'; 
       } else if (vertical < 0) {
-        command = 'BACKWARD'; // Comando para trás
+        pulseCount = (-vertical * 100).toInt();
+        command = 'MOVE_BACKWARD:$pulseCount'; 
       }
 
       log.info('Movendo o robô - Comando: $command');
@@ -145,7 +151,7 @@ class ControlePageState extends State<ControlePage> {
         acaoBotao1: '',
         acaoBotao2: '',
         acaoBotao3: '',
-        qtdHorizontal: 0,
+        qtdHorizontal: pulseCount, // Número de pulsos
         qtdVertical: 0,
         qtdPlataforma: 0,
         qtdBotao1: 0,
@@ -160,104 +166,120 @@ class ControlePageState extends State<ControlePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Controle'),
-      ),
-      body: Container(
-        color: const Color(0xFFECE6F0),
-        child: Column(
-          children: [
-            // Dropdown para selecionar a rotina
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Container(
-                alignment: Alignment.topRight,
-                child: SizedBox(
-                  width: 200,
-                  child: DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
-                      labelText: 'Selecione uma rotina',
-                      border: OutlineInputBorder(),
-                    ),
-                    value: _selectedRoutine,
-                    items: _rotinas.map((rotina) {
-                      return DropdownMenuItem<String>(
-                        value: rotina['ID_ROTINA'].toString(),
-                        child: Text(rotina['NOME']),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedRoutine = newValue;
-                      });
-                    },
+Widget build(BuildContext context) {
+  double tamanhoTela = MediaQuery.of(context).size.width;
+
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('Controle'),
+    ),
+    body: Container(
+      color: const Color(0xFFECE6F0),
+      child: Stack(
+        children: [
+          // Dropdown para selecionar a rotina no canto superior direito
+          Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0), // Ajusta a posição no canto
+              child: SizedBox(
+                width: 200,
+                child: DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(
+                    labelText: 'Selecione uma rotina',
+                    border: OutlineInputBorder(),
                   ),
+                  value: _selectedRoutine,
+                  items: _rotinas.map((rotina) {
+                    return DropdownMenuItem<String>(
+                      value: rotina['ID_ROTINA'].toString(),
+                      child: Text(rotina['NOME']),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedRoutine = newValue;
+                    });
+                  },
                 ),
               ),
             ),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Joystick Horizontal (esquerda para direita)
-                    JoystickHorizontal(
-                      moveRobot: (double horizontal) {
-                        moveRobot(horizontal, 0); // Motor horizontal
-                      },
-                    ),
-                    const SizedBox(width: 20),
-                    // Slider Vertical para mover a plataforma
-                    RotatedBox(
-                      quarterTurns: 3,
-                      child: SizedBox(
-                        width: 180,
-                        child: Slider(
-                          value: _currentSliderValue,
-                          min: 0,
-                          max: 100,
-                          divisions: 100,
-                          label: _currentSliderValue.round().toString(),
-                          onChanged: (double value) {
-                            setState(() {
-                              _currentSliderValue = value;
-                            });
-                            movePlatform(value / 100); // Mova a plataforma conforme o slider
+          ),
+          Column(
+            children: [
+              const SizedBox(height: 80), // Deixa espaço para o dropdown no topo
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Container para o joystick esquerdo
+                      SizedBox(
+                        width: tamanhoTela * 0.17,
+                        height: tamanhoTela * 0.17,
+                        child: JoystickHorizontal(
+                          moveRobot: (double horizontal) {
+                            moveRobot(horizontal, 0); // Motor horizontal
                           },
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 20),
-                    // Coluna para os botões de controle
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildTomadaButton(1),
-                        const SizedBox(height: 8),
-                        _buildTomadaButton(2),
-                        const SizedBox(height: 8),
-                        _buildTomadaButton(3),
-                      ],
-                    ),
-                    const SizedBox(width: 20),
-                    // Joystick Vertical (cima e baixo)
-                    JoystickVertical(
-                      moveRobot: (double vertical) {
-                        moveRobot(0, vertical); // Motor vertical
-                      },
-                    ),
-                  ],
+                      // Container para o slider
+                      RotatedBox(
+                        quarterTurns: 3,
+                        child: SizedBox(
+                          width: tamanhoTela * 0.25,
+                          child: Slider(
+                            value: _currentSliderValue,
+                            min: 0,
+                            max: 100,
+                            divisions: 100,
+                            label: _currentSliderValue.round().toString(),
+                            onChanged: (double value) {
+                              setState(() {
+                                _currentSliderValue = value;
+                              });
+                              movePlatform(value / 100); // Mova a plataforma conforme o slider
+                            },
+                          ),
+                        ),
+                      ),
+                      // Container para os botões de controle
+                      SizedBox(
+                        width: tamanhoTela * 0.30,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildTomadaButton(1),
+                            const SizedBox(height: 8),
+                            _buildTomadaButton(2),
+                            const SizedBox(height: 8),
+                            _buildTomadaButton(3),
+                          ],
+                        ),
+                      ),
+                      // Container para o joystick direito
+                      SizedBox(
+                        width: tamanhoTela * 0.17,
+                        height: tamanhoTela * 0.17,
+                        child: JoystickVertical(
+                          moveRobot: (double vertical) {
+                            moveRobot(0, vertical); // Motor vertical
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   // Função para criar os botões de controle das tomadas
   Widget _buildTomadaButton(int deviceNumber) {
@@ -266,22 +288,64 @@ class ControlePageState extends State<ControlePage> {
         if (_tomadaSelecionada[deviceNumber - 1]) {
           turnOffDevice(deviceNumber); // Desliga a tomada se já estiver ligada
         } else {
-          turnOnDevice(deviceNumber); // Liga a tomada
+          turnOnDevice(deviceNumber); // Liga a tomada se estiver desligada
         }
         setState(() {
-          _tomadaSelecionada[deviceNumber - 1] = !_tomadaSelecionada[deviceNumber - 1];
+          _tomadaSelecionada[deviceNumber - 1] = !_tomadaSelecionada[deviceNumber - 1]; // Alterna o estado da tomada
         });
       },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: _tomadaSelecionada[deviceNumber - 1]
-            ? const Color.fromARGB(255, 243, 150, 207)
-            : const Color.fromARGB(255, 62, 2, 80),
-        foregroundColor: Colors.white, 
-      ),
-      child: Text(
-        _tomadaSelecionada[deviceNumber - 1]
-            ? 'Desligar Tomada $deviceNumber'
-            : 'Ligar Tomada $deviceNumber',
+      child: Text(_tomadaSelecionada[deviceNumber - 1] ? 'Desligar Tomada $deviceNumber' : 'Ligar Tomada $deviceNumber'),
+    );
+  }
+}
+
+// Widget para o Joystick Horizontal (esquerda e direita)
+class JoystickHorizontal extends StatefulWidget {
+  final Function(double) moveRobot;
+
+  const JoystickHorizontal({super.key, required this.moveRobot});
+
+  @override
+  JoystickHorizontalState createState() => JoystickHorizontalState();
+}
+
+class JoystickHorizontalState extends State<JoystickHorizontal> {
+  double _yOffset = 0.0; // Alterado de _xOffset para _yOffset
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onPanUpdate: (details) {
+        setState(() {
+          _yOffset += details.delta.dy; // Alterado para controlar o movimento vertical
+
+          if (_yOffset > 40) _yOffset = 40;
+          if (_yOffset < -40) _yOffset = -40;
+
+          widget.moveRobot(_yOffset / 40);
+        });
+      },
+      onPanEnd: (details) {
+        setState(() {
+          _yOffset = 0;
+        });
+        widget.moveRobot(0);
+      },
+      child: SizedBox(
+        width: 50,
+        height: 50,
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFF65558F),
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Transform.translate(
+              offset: Offset(0, _yOffset), // Ajuste para movimento vertical
+              child: const Icon(Icons.circle, size: 48, color: Colors.white),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -329,63 +393,10 @@ class JoystickVerticalState extends State<JoystickVertical> {
         child: Center(
           child: Transform.translate(
             offset: Offset(_xOffset, 0), // Ajuste para movimento horizontal
-            child: const Icon(Icons.circle, size: 24, color: Colors.white),
+            child: const Icon(Icons.circle, size: 48, color: Colors.white),
           ),
         ),
       ),
     );
   }
 }
-
-// Widget para o joystick horizontal (esquerda e direita)
-class JoystickHorizontal extends StatefulWidget {
-  final Function(double) moveRobot;
-
-  const JoystickHorizontal({super.key, required this.moveRobot});
-
-  @override
-  JoystickHorizontalState createState() => JoystickHorizontalState();
-}
-
-class JoystickHorizontalState extends State<JoystickHorizontal> {
-  double _yOffset = 0.0; // Alterado de _xOffset para _yOffset
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onPanUpdate: (details) {
-        setState(() {
-          _yOffset += details.delta.dy; // Alterado para controlar o movimento vertical
-
-          if (_yOffset > 40) _yOffset = 40;
-          if (_yOffset < -40) _yOffset = -40;
-
-          widget.moveRobot(_yOffset / 40);
-        });
-      },
-      onPanEnd: (details) {
-        setState(() {
-          _yOffset = 0;
-        });
-        widget.moveRobot(0);
-      },
-      child: SizedBox(
-        width: 50,
-        height: 50,
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFF65558F),
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: Transform.translate(
-              offset: Offset(0, _yOffset), // Ajuste para movimento vertical
-              child: const Icon(Icons.circle, size: 24, color: Colors.white),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-

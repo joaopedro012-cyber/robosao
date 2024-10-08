@@ -18,7 +18,7 @@ class DB {
     final path = join(await getDatabasesPath(), 'AplicativoRobo.db');
     return await openDatabase(
       path,
-      version: 3, // Atualiza a versão para 3
+      version: 2, // Atualiza a versão para 2
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -54,45 +54,19 @@ class DB {
         FOREIGN KEY(ID_ROTINA) REFERENCES rotinas(ID_ROTINA)
       )
     ''');
-
-    // Criação da tabela para armazenar o UUID
-    await db.execute('''
-      CREATE TABLE robot (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        uuid TEXT NOT NULL
-      )
-    ''');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('ALTER TABLE ADM_EXECUCAO_ROTINAS ADD COLUMN ACAO_HORIZONTAL TEXT');
     }
-    if (oldVersion < 3) {
-      // Se necessário, você pode adicionar mais atualizações aqui
-    }
-  }
-
-  Future<void> insertRobotUUID(String uuid) async {
-    final db = await instance.database;
-    await db.insert(
-      'robot',
-      {'uuid': uuid},
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
-  Future<String?> getRobotUUID() async {
-    final db = await instance.database;
-    final List<Map<String, dynamic>> result = await db.query('robot', limit: 1);
-    if (result.isNotEmpty) {
-      return result.first['uuid'] as String;
-    }
-    return null;
   }
 
   Future<void> insertRotina(String nome, String descricao) async {
     final db = await instance.database;
+    if (nome.isEmpty || descricao.isEmpty) {
+      throw Exception("Nome e descrição não podem ser vazios.");
+    }
     await db.insert('rotinas', {
       'NOME': nome,
       'DESCRICAO': descricao,
@@ -101,6 +75,9 @@ class DB {
 
   Future<void> updateRotina(int idRotina, String nome, String descricao) async {
     final db = await instance.database;
+    if (idRotina <= 0 || nome.isEmpty || descricao.isEmpty) {
+      throw Exception("ID da rotina deve ser maior que zero e nome/descrição não podem ser vazios.");
+    }
     await db.update(
       'rotinas',
       {'NOME': nome, 'DESCRICAO': descricao},
@@ -137,6 +114,14 @@ class DB {
     int? dtExclusao,
   }) async {
     final db = await instance.database;
+
+    // Verificações de nulos e valores válidos
+    if (idRotina <= 0 || acaoHorizontal.isEmpty || acaoVertical.isEmpty || 
+        acaoPlataforma.isEmpty || qtdHorizontal < 0 || qtdVertical < 0 || 
+        qtdPlataforma < 0 || qtdBotao1 < 0 || qtdBotao2 < 0 || qtdBotao3 < 0) {
+      throw Exception("Dados inválidos para inserção.");
+    }
+
     await db.insert('ADM_EXECUCAO_ROTINAS', {
       'ID_ROTINA': idRotina,
       'ACAO_HORIZONTAL': acaoHorizontal,
@@ -171,6 +156,14 @@ class DB {
     required int qtdBotao3,
   }) async {
     final db = await instance.database;
+
+    // Verificações de nulos e valores válidos
+    if (idExecucao <= 0 || acaoHorizontal.isEmpty || acaoVertical.isEmpty || 
+        acaoPlataforma.isEmpty || qtdHorizontal < 0 || qtdVertical < 0 || 
+        qtdPlataforma < 0 || qtdBotao1 < 0 || qtdBotao2 < 0 || qtdBotao3 < 0) {
+      throw Exception("Dados inválidos para atualização.");
+    }
+
     await db.update(
       'ADM_EXECUCAO_ROTINAS',
       {
