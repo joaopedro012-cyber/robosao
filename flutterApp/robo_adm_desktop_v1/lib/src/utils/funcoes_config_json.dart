@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:robo_adm_desktop_v1/src/widgets/sensor_rotina.dart';
 
 Future<List<String>> listarArquivosJsonSensores() async {
   final Directory diretorio = await getApplicationDocumentsDirectory();
