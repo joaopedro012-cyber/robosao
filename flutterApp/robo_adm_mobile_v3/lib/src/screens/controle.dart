@@ -259,7 +259,7 @@ Widget build(BuildContext context) {
                     height: tamanhoTela * 0.17,
                     child: JoystickVertical(
                       moveRobot: (double vertical) {
-                        moveRobot(0, vertical); // Motor vertical
+                        moveRobot(0, vertical); 
                       },
                     ),
                   ),
@@ -274,25 +274,56 @@ Widget build(BuildContext context) {
 }
 
 
-  // Função para criar os botões de controle das tomadas
-  Widget _buildTomadaButton(int deviceNumber) {
-    return ElevatedButton(
-      onPressed: () {
-        if (_tomadaSelecionada[deviceNumber - 1]) {
-          turnOffDevice(deviceNumber); // Desliga a tomada se já estiver ligada
-        } else {
-          turnOnDevice(deviceNumber); // Liga a tomada se estiver desligada
-        }
-        setState(() {
-          _tomadaSelecionada[deviceNumber - 1] = !_tomadaSelecionada[deviceNumber - 1]; // Alterna o estado da tomada
-        });
-      },
-      child: Text(_tomadaSelecionada[deviceNumber - 1] ? 'Desligar Tomada $deviceNumber' : 'Ligar Tomada $deviceNumber'),
-    );
-  }
+ 
+Widget _buildTomadaButton(int deviceNumber) {
+  bool isSelected = _tomadaSelecionada[deviceNumber - 1];
+
+  return ElevatedButton(
+    style: ButtonStyle(
+      backgroundColor: WidgetStateProperty.resolveWith<Color>(
+        (Set<WidgetState> states) {
+          if (isSelected) {
+            return const Color(0xFFE6E0E9); 
+          }
+          return const Color.fromARGB(255, 84, 1, 100); 
+        },
+      ),
+      foregroundColor: WidgetStateProperty.resolveWith<Color>(
+        (Set<WidgetState> states) {
+          if (isSelected) {
+            return Colors.purple; 
+          }
+          return Colors.white; 
+        },
+      ),
+      side: WidgetStateProperty.resolveWith<BorderSide>(
+        (Set<WidgetState> states) {
+          if (isSelected) {
+            return const BorderSide(color: Color.fromARGB(255, 86, 3, 100), width: 2); 
+          }
+          return BorderSide.none; 
+        },
+      ),
+    ),
+    onPressed: () {
+      if (isSelected) {
+        turnOffDevice(deviceNumber); 
+        turnOnDevice(deviceNumber); 
+      }
+      setState(() {
+        _tomadaSelecionada[deviceNumber - 1] = !_tomadaSelecionada[deviceNumber - 1]; 
+      });
+    },
+    child: Text(isSelected ? 'Desligar Tomada $deviceNumber' : 'Ligar Tomada $deviceNumber'),
+  );
 }
 
-// Widget para o Joystick Horizontal (esquerda e direita)
+
+
+
+}
+
+
 class JoystickHorizontal extends StatefulWidget {
   final Function(double) moveRobot;
 
@@ -303,14 +334,14 @@ class JoystickHorizontal extends StatefulWidget {
 }
 
 class JoystickHorizontalState extends State<JoystickHorizontal> {
-  double _yOffset = 0.0; // Alterado de _xOffset para _yOffset
+  double _yOffset = 0.0; 
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onPanUpdate: (details) {
         setState(() {
-          _yOffset += details.delta.dy; // Alterado para controlar o movimento vertical
+          _yOffset += details.delta.dy; 
 
           if (_yOffset > 40) _yOffset = 40;
           if (_yOffset < -40) _yOffset = -40;
@@ -334,7 +365,7 @@ class JoystickHorizontalState extends State<JoystickHorizontal> {
           ),
           child: Center(
             child: Transform.translate(
-              offset: Offset(0, _yOffset), // Ajuste para movimento vertical
+              offset: Offset(0, _yOffset),
               child: const Icon(Icons.circle, size: 48, color: Colors.white),
             ),
           ),
@@ -344,7 +375,7 @@ class JoystickHorizontalState extends State<JoystickHorizontal> {
   }
 }
 
-// Widget para o joystick vertical (cima e baixo)
+
 class JoystickVertical extends StatefulWidget {
   final Function(double) moveRobot;
 
@@ -355,14 +386,14 @@ class JoystickVertical extends StatefulWidget {
 }
 
 class JoystickVerticalState extends State<JoystickVertical> {
-  double _xOffset = 0.0; // Alterado de _yOffset para _xOffset
+  double _xOffset = 0.0; 
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onPanUpdate: (details) {
         setState(() {
-          _xOffset += details.delta.dx; // Alterado para controlar o movimento horizontal
+          _xOffset += details.delta.dx; 
 
           if (_xOffset > 40) _xOffset = 40;
           if (_xOffset < -40) _xOffset = -40;
@@ -385,7 +416,7 @@ class JoystickVerticalState extends State<JoystickVertical> {
         ),
         child: Center(
           child: Transform.translate(
-            offset: Offset(_xOffset, 0), // Ajuste para movimento horizontal
+            offset: Offset(_xOffset, 0), 
             child: const Icon(Icons.circle, size: 48, color: Colors.white),
           ),
         ),
