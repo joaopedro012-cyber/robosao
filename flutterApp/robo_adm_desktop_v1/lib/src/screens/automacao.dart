@@ -17,7 +17,11 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
   Widget build(BuildContext context) {
     //double screenWidth = MediaQuery.of(context).size.width;
     late List<String> portasDisponiveis = SerialPort.availablePorts;
-    String conexao1Porta = 'COM9p99';
+    dynamic conexao1Porta;
+
+    void atualizaConexao1Porta() async {
+      conexao1Porta = await carregaInfoJson('automacao', 'Sensores', 'porta');
+    }
 
     if (kDebugMode) {
       print('Portas sendo utilizadas: $portasDisponiveis');
@@ -25,10 +29,18 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
 
     return AutomacaoCampo(
         campo: 'Sensores',
-        placeholder: conexao1Porta,
+        placeholder: conexao1Porta ?? 'vazio',
         portasArduino: portasDisponiveis,
         onPortasChanged: (String novaPorta) {
           atualizaJson('automacao', 'Sensores', 'porta', conexao1Porta);
         });
+
+    // return AutomacaoCampo(
+    //     campo: 'Sensores',
+    //     placeholder: conexao1Porta.toString(),
+    //     portasArduino: portasDisponiveis,
+    //     onPortasChanged: (String novaPorta) {
+    //       atualizaJson('automacao', 'Sensores', 'porta', conexao1Porta);
+    //     });
   }
 }
