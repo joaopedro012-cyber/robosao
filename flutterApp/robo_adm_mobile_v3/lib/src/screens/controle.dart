@@ -46,22 +46,61 @@ class ControlePageState extends State<ControlePage> {
     }
   }
 
+  Future<void> admAcaorobo({
+    required int idRotina,
+    required String acaoHorizontal,
+    required int qtdHorizontal,
+    required String acaoVertical,
+    required int qtdVertical,
+    required String acaoPlataforma,
+    required int qtdPlataforma,
+    required String acaoBotao1,
+    required int qtdBotao1,
+    required String acaoBotao2,
+    required int qtdBotao2,
+    required String acaoBotao3,
+    required int qtdBotao3,
+    required int dtExecucao,
+  }) async {
+    try {
+      await _db.insertAcao(
+        idRotina: idRotina,
+        acaoHorizontal: acaoHorizontal,
+        qtdHorizontal: qtdHorizontal,
+        acaoVertical: acaoVertical,
+        qtdVertical: qtdVertical,
+        acaoPlataforma: acaoPlataforma,
+        qtdPlataforma: qtdPlataforma,
+        acaoBotao1: acaoBotao1,
+        qtdBotao1: qtdBotao1,
+        acaoBotao2: acaoBotao2,
+        qtdBotao2: qtdBotao2,
+        acaoBotao3: acaoBotao3,
+        qtdBotao3: qtdBotao3,
+        dtExecucao: dtExecucao,
+      );
+      log.info('Ação do robô registrada com sucesso.');
+    } catch (e) {
+      log.severe('Erro ao registrar ação do robô: $e');
+    }
+  }
+
   void turnOnDevice(int deviceNumber) async {
     if (_selectedRoutine != null) {
       log.info('Ligando a tomada $deviceNumber');
-      await _db.insertAcao(
+      await admAcaorobo(
         idRotina: int.parse(_selectedRoutine!),
         acaoHorizontal: 'Ligar Tomada $deviceNumber',
-        acaoVertical: '',
-        acaoPlataforma: '',
-        acaoBotao1: '',
-        acaoBotao2: '',
-        acaoBotao3: '',
         qtdHorizontal: 0,
+        acaoVertical: '',
         qtdVertical: 0,
+        acaoPlataforma: '',
         qtdPlataforma: 0,
+        acaoBotao1: '',
         qtdBotao1: 0,
+        acaoBotao2: '',
         qtdBotao2: 0,
+        acaoBotao3: '',
         qtdBotao3: 0,
         dtExecucao: DateTime.now().millisecondsSinceEpoch,
       );
@@ -74,19 +113,19 @@ class ControlePageState extends State<ControlePage> {
   void turnOffDevice(int deviceNumber) async {
     if (_selectedRoutine != null) {
       log.info('Desligando a tomada $deviceNumber');
-      await _db.insertAcao(
+      await admAcaorobo(
         idRotina: int.parse(_selectedRoutine!),
         acaoHorizontal: 'Desligar Tomada $deviceNumber',
-        acaoVertical: '',
-        acaoPlataforma: '',
-        acaoBotao1: '',
-        acaoBotao2: '',
-        acaoBotao3: '',
         qtdHorizontal: 0,
+        acaoVertical: '',
         qtdVertical: 0,
+        acaoPlataforma: '',
         qtdPlataforma: 0,
+        acaoBotao1: '',
         qtdBotao1: 0,
+        acaoBotao2: '',
         qtdBotao2: 0,
+        acaoBotao3: '',
         qtdBotao3: 0,
         dtExecucao: DateTime.now().millisecondsSinceEpoch,
       );
@@ -99,19 +138,19 @@ class ControlePageState extends State<ControlePage> {
   void movePlatform(double position) async {
     if (_selectedRoutine != null) {
       log.info('Movendo a plataforma para: $position');
-      await _db.insertAcao(
+      await admAcaorobo(
         idRotina: int.parse(_selectedRoutine!),
         acaoHorizontal: '',
-        acaoVertical: '',
-        acaoPlataforma: 'Movendo Plataforma para ${position * 100}%',
-        acaoBotao1: '',
-        acaoBotao2: '',
-        acaoBotao3: '',
         qtdHorizontal: 0,
+        acaoVertical: '',
         qtdVertical: 0,
+        acaoPlataforma: 'Movendo Plataforma para ${position * 100}%',
         qtdPlataforma: (position * 100).toInt(),
+        acaoBotao1: '',
         qtdBotao1: 0,
+        acaoBotao2: '',
         qtdBotao2: 0,
+        acaoBotao3: '',
         qtdBotao3: 0,
         dtExecucao: DateTime.now().millisecondsSinceEpoch,
       );
@@ -143,19 +182,19 @@ class ControlePageState extends State<ControlePage> {
       }
 
       log.info('Movendo o robô - Comando: $command');
-      await _db.insertAcao(
+      await admAcaorobo(
         idRotina: int.parse(_selectedRoutine!),
         acaoHorizontal: command,
+        qtdHorizontal: pulseCount,
         acaoVertical: '',
-        acaoPlataforma: '',
-        acaoBotao1: '',
-        acaoBotao2: '',
-        acaoBotao3: '',
-        qtdHorizontal: pulseCount, // Número de pulsos
         qtdVertical: 0,
+        acaoPlataforma: '',
         qtdPlataforma: 0,
+        acaoBotao1: '',
         qtdBotao1: 0,
+        acaoBotao2: '',
         qtdBotao2: 0,
+        acaoBotao3: '',
         qtdBotao3: 0,
         dtExecucao: DateTime.now().millisecondsSinceEpoch,
       );
@@ -165,33 +204,33 @@ class ControlePageState extends State<ControlePage> {
     }
   }
 
- @override
-Widget build(BuildContext context) {
-  double tamanhoTela = MediaQuery.of(context).size.width;
+  @override
+  Widget build(BuildContext context) {
+    double tamanhoTela = MediaQuery.of(context).size.width;
 
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text('Controle'),
-      actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 16.0),  // Espaçamento da borda direita
-          child: SizedBox(
-            width: 200,  // Largura do Dropdown
-            child: DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
-                labelText: 'Selecione uma rotina',
-                border: OutlineInputBorder(),
-              ),
-              value: _selectedRoutine,
-              items: _rotinas.map((rotina) {
-                return DropdownMenuItem<String>(
-                  value: rotina['ID_ROTINA'].toString(),
-                  child: Text(rotina['NOME']),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedRoutine = newValue;
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Controle'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),  // Espaçamento da borda direita
+            child: SizedBox(
+              width: 200,  // Largura do Dropdown
+              child: DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Selecione uma rotina',
+                  border: OutlineInputBorder(),
+                ),
+                value: _selectedRoutine,
+                items: _rotinas.map((rotina) {
+                  return DropdownMenuItem<String>(
+                    value: rotina['ID_ROTINA'].toString(),
+                    child: Text(rotina['NOME']),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedRoutine = newValue;
                 });
               },
             ),
@@ -412,7 +451,7 @@ class JoystickVerticalState extends State<JoystickVertical> {
         height: 75,
         decoration: const BoxDecoration(
           color: Color(0xFF65558F),
-          shape: BoxShape.circle,
+          shape: BoxShape.circle,  
         ),
         child: Center(
           child: Transform.translate(

@@ -1,4 +1,5 @@
-import 'package:sqflite/sqflite.dart';    
+import 'package:flutter/foundation.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class DB {
@@ -20,7 +21,7 @@ class DB {
       path,
       version: 2, // Atualiza a versão para 2
       onCreate: _onCreate,
-      onUpgrade: _onUpgrade,
+      onUpgrade: _onUpgrade, 
     );
   }
 
@@ -54,6 +55,15 @@ class DB {
         FOREIGN KEY(ID_ROTINA) REFERENCES rotinas(ID_ROTINA)
       )
     ''');
+
+    await db.execute(''' 
+      CREATE TABLE ADM_ACAO_ROBO (
+        ID_ACAO INTEGER PRIMARY KEY AUTOINCREMENT,
+        ACAO TEXT,
+        NOME TEXT,
+        DT_EXCLUSAO_UNIX_MICROSSEGUNDOS INTEGER
+      )
+    ''');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -61,6 +71,8 @@ class DB {
       await db.execute('ALTER TABLE ADM_EXECUCAO_ROTINAS ADD COLUMN ACAO_HORIZONTAL TEXT');
     }
   }
+
+  // Métodos para manipulação das tabelas
 
   Future<void> insertRotina(String nome, String descricao) async {
     final db = await instance.database;
@@ -186,6 +198,8 @@ class DB {
   }
 
   Future<void> deleteExecucao(int idExecucao) async {
+    if (idExecucao <= 0) throw Exception("ID da execução deve ser maior que zero.");
+    
     final db = await instance.database;
     await db.delete('ADM_EXECUCAO_ROTINAS', where: 'ID_EXECUCAO = ?', whereArgs: [idExecucao]);
   }
@@ -204,7 +218,8 @@ class DB {
     return await db.query('ADM_EXECUCAO_ROTINAS', where: 'ID_ROTINA = ?', whereArgs: [idRotina]);
   }
 
-  Future<void> insertAcao({
+  // Inserção de ação na tabela ADM_ACAO_ROBO
+  Future<void> insertAcao({ 
     required int idRotina,
     required String acaoHorizontal,
     required String acaoVertical,
@@ -220,6 +235,9 @@ class DB {
     required int qtdBotao3,
     required int dtExecucao,
   }) async {
+    if (kDebugMode) {
+      print('Inserindo ação: $acaoHorizontal, $acaoVertical, $acaoPlataforma');
+    }
     await insertExecucaoRotina(
       idRotina: idRotina,
       acaoHorizontal: acaoHorizontal,
