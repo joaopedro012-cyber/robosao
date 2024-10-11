@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
 
 class RotinasPage extends StatefulWidget {
@@ -13,12 +13,6 @@ class _RotinasPageState extends State<RotinasPage> {
   Map<int, List<Map<String, dynamic>>> _acoesPorRotina = {};
   final TextEditingController nomeController = TextEditingController();
   final TextEditingController editNomeController = TextEditingController();
-  final TextEditingController vertController = TextEditingController();
-  final TextEditingController horizController = TextEditingController();
-  final TextEditingController platController = TextEditingController();
-  final TextEditingController bt1Controller = TextEditingController();
-  final TextEditingController bt2Controller = TextEditingController();
-  final TextEditingController bt3Controller = TextEditingController();
 
   final Map<int, bool> _isExpanded = {};
 
@@ -72,53 +66,8 @@ class _RotinasPageState extends State<RotinasPage> {
     await _loadRotinas();
   }
 
-  Future<void> insertAcao(int idRotina) async {
-    if (vertController.text.isEmpty ||
-        horizController.text.isEmpty ||
-        platController.text.isEmpty ||
-        bt1Controller.text.isEmpty ||
-        bt2Controller.text.isEmpty ||
-        bt3Controller.text.isEmpty) {
-      _showSnackBar('Todos os campos são obrigatórios');
-      return;
-    }
-
-    final dtExecucao = DateTime.now().millisecondsSinceEpoch;
-
-    await DB.instance.insertAcao(
-      idRotina: idRotina,
-      acaoHorizontal: horizController.text,
-      qtdHorizontal: int.tryParse(horizController.text) ?? 0,
-      acaoVertical: vertController.text,
-      qtdVertical: int.tryParse(vertController.text) ?? 0,
-      acaoPlataforma: platController.text,
-      qtdPlataforma: int.tryParse(platController.text) ?? 0,
-      acaoBotao1: bt1Controller.text,
-      qtdBotao1: int.tryParse(bt1Controller.text) ?? 0,
-      acaoBotao2: bt2Controller.text,
-      qtdBotao2: int.tryParse(bt2Controller.text) ?? 0,
-      acaoBotao3: bt3Controller.text,
-      qtdBotao3: int.tryParse(bt3Controller.text) ?? 0,
-      dtExecucao: dtExecucao,
-    );
-
-    vertController.clear();
-    horizController.clear();
-    platController.clear();
-    bt1Controller.clear();
-    bt2Controller.clear();
-    bt3Controller.clear();
-
-    await _loadRotinas();
-  }
-
   Future<void> _deleteRotina(int idRotina) async {
     await DB.instance.deleteRotina(idRotina);
-    await _loadRotinas();
-  }
-
-  Future<void> deleteAcao(int idAcao) async {
-    await DB.instance.deleteAcao(idAcao);
     await _loadRotinas();
   }
 
@@ -141,29 +90,37 @@ class _RotinasPageState extends State<RotinasPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Rotinas'),
+        backgroundColor: const Color.fromARGB(255, 69, 94, 235),
       ),
       body: SingleChildScrollView(
         child: Container(
+          padding: const EdgeInsets.all(8.0),
           color: const Color(0xFFECE6F0),
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
                 child: Row(
                   children: [
                     Expanded(
                       child: TextField(
                         controller: nomeController,
-                        decoration: const InputDecoration(labelText: 'Nome da Rotina'),
+                        decoration: const InputDecoration(
+                          hintText: 'Nome da nova rotina...',
+                          border: OutlineInputBorder(),
+                        ),
                       ),
                     ),
+                    const SizedBox(width: 10),
                     Container(
+                      height: 50,
+                      width: 50,
                       decoration: BoxDecoration(
-                        color: Colors.purple[800],
+                        color: const Color.fromARGB(255, 88, 69, 252),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                       child: IconButton(
-                        icon: const Icon(Icons.add, color: Colors.black),
+                        icon: const Icon(Icons.add, color: Colors.white),
                         onPressed: () {
                           final nome = nomeController.text;
                           _insertRotina(nome);
@@ -179,9 +136,9 @@ class _RotinasPageState extends State<RotinasPage> {
                 return Card(
                   margin: const EdgeInsets.all(8.0),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(20), // Borda arredondada
                   ),
-                  color: Colors.white,
+                  color: const Color.fromARGB(255, 160, 173, 230), // Fundo lilás
                   child: Column(
                     children: [
                       ListTile(
@@ -189,36 +146,50 @@ class _RotinasPageState extends State<RotinasPage> {
                           rotina['NOME'],
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit, color: Color.fromARGB(255, 109, 6, 128)),
-                              onPressed: () {
-                                editNomeController.text = rotina['NOME'];
-                                _showEditDialog(rotina['ID_ROTINA']);
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Color.fromARGB(255, 96, 3, 112)),
-                              onPressed: () {
-                                _deleteRotina(rotina['ID_ROTINA']);
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                _isExpanded[rotina['ID_ROTINA']] == true
-                                    ? Icons.arrow_drop_up
-                                    : Icons.arrow_drop_down,
-                                color: Colors.purple,
+                        trailing: Container(
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 255, 255, 255), // Fundo branco
+                            borderRadius: BorderRadius.circular(20), // Borda arredondada
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5), // Sombra
+                                spreadRadius: 2,
+                                blurRadius: 5,
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _isExpanded[rotina['ID_ROTINA']] = !_isExpanded[rotina['ID_ROTINA']]!;
-                                });
-                              },
-                            ),
-                          ],
+                            ],
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit_note, color: Color.fromARGB(255, 53, 36, 204)),
+                                onPressed: () {
+                                  editNomeController.text = rotina['NOME'];
+                                  _showEditDialog(rotina['ID_ROTINA']);
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete_forever, color: Color.fromARGB(255, 56, 44, 219)),
+                                onPressed: () {
+                                  _deleteRotina(rotina['ID_ROTINA']);
+                                },
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  _isExpanded[rotina['ID_ROTINA']] == true
+                                      ? Icons.arrow_drop_up
+                                      : Icons.arrow_drop_down,
+                                  color: const Color.fromARGB(255, 82, 48, 238),
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _isExpanded[rotina['ID_ROTINA']] = !_isExpanded[rotina['ID_ROTINA']]!;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       if (_isExpanded[rotina['ID_ROTINA']] == true && acoes.isNotEmpty)
@@ -227,30 +198,30 @@ class _RotinasPageState extends State<RotinasPage> {
                             const Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Expanded(child: Text("VERT.", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  Expanded(child: Text("HORIZ.", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  Expanded(child: Text("PLAT.", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  Expanded(child: Text("BT1", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  Expanded(child: Text("BT2", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  Expanded(child: Text("BT3", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  SizedBox(width: 60),
+                                  Text("VERT.", style: TextStyle(fontWeight: FontWeight.bold)),
+                                  Text("HORIZ.", style: TextStyle(fontWeight: FontWeight.bold)),
+                                  Text("PLAT.", style: TextStyle(fontWeight: FontWeight.bold)),
+                                  Text("BT1", style: TextStyle(fontWeight: FontWeight.bold)),
+                                  Text("BT2", style: TextStyle(fontWeight: FontWeight.bold)),
+                                  Text("BT3", style: TextStyle(fontWeight: FontWeight.bold)),
                                 ],
                               ),
                             ),
                             Column(
                               children: acoes.map((acao) {
                                 return Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                  padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
                                   child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Expanded(child: Text(acao['acaoVertical'].toString())),
-                                      Expanded(child: Text(acao['acaoHorizontal'].toString())),
-                                      Expanded(child: Text(acao['acaoPlataforma'].toString())),
-                                      Expanded(child: Text(acao['acaoBotao1'].toString())),
-                                      Expanded(child: Text(acao['acaoBotao2'].toString())),
-                                      Expanded(child: Text(acao['acaoBotao3'].toString())),
-                                      // Ícone da lixeira removido
+                                      Text(acao['acaoVertical'].toString()),
+                                      Text(acao['acaoHorizontal'].toString()),
+                                      Text(acao['acaoPlataforma'].toString()),
+                                      Text(acao['acaoBotao1'].toString()),
+                                      Text(acao['acaoBotao2'].toString()),
+                                      Text(acao['acaoBotao3'].toString()),
                                     ],
                                   ),
                                 );
