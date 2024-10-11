@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';  
+import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
@@ -46,159 +46,93 @@ class ControlePageState extends State<ControlePage> {
     }
   }
 
-  Future<void> admAcaorobo({
-    required int idRotina,
-    required String acaoHorizontal,
-    required int qtdHorizontal,
-    required String acaoVertical,
-    required int qtdVertical,
-    required String acaoPlataforma,
-    required int qtdPlataforma,
-    required String acaoBotao1,
-    required int qtdBotao1,
-    required String acaoBotao2,
-    required int qtdBotao2,
-    required String acaoBotao3,
-    required int qtdBotao3,
-    required int dtExecucao,
+  Future<void> registerActionAndSendCommand({
+    required String actionDescription,
+    required int quantidade,
+    required String bluetoothCommand,
   }) async {
-    try {
-      await _db.insertAcao(
-        idRotina: idRotina,
-        acaoHorizontal: acaoHorizontal,
-        qtdHorizontal: qtdHorizontal,
-        acaoVertical: acaoVertical,
-        qtdVertical: qtdVertical,
-        acaoPlataforma: acaoPlataforma,
-        qtdPlataforma: qtdPlataforma,
-        acaoBotao1: acaoBotao1,
-        qtdBotao1: qtdBotao1,
-        acaoBotao2: acaoBotao2,
-        qtdBotao2: qtdBotao2,
-        acaoBotao3: acaoBotao3,
-        qtdBotao3: qtdBotao3,
-        dtExecucao: dtExecucao,
-      );
-      log.info('Ação do robô registrada com sucesso.');
-    } catch (e) {
-      log.severe('Erro ao registrar ação do robô: $e');
+    if (_selectedRoutine != null) {
+      try {
+        await _db.insertAcao(
+          idRotina: int.parse(_selectedRoutine!),
+          acaoHorizontal: actionDescription,
+          qtdHorizontal: quantidade,
+          acaoVertical: '',
+          qtdVertical: 0,
+          acaoPlataforma: '',
+          qtdPlataforma: 0,
+          acaoBotao1: '',
+          qtdBotao1: 0,
+          acaoBotao2: '',
+          qtdBotao2: 0,
+          acaoBotao3: '',
+          qtdBotao3: 0,
+          dtExecucao: DateTime.now().millisecondsSinceEpoch,
+        );
+        log.info('Ação do robô registrada com sucesso: $actionDescription');
+        sendBluetoothCommand(bluetoothCommand);
+      } catch (e) {
+        log.severe('Erro ao registrar ação do robô: $e');
+      }
+    } else {
+      log.warning('Nenhuma rotina selecionada.');
     }
   }
 
   void turnOnDevice(int deviceNumber) async {
-    if (_selectedRoutine != null) {
-      log.info('Ligando a tomada $deviceNumber');
-      await admAcaorobo(
-        idRotina: int.parse(_selectedRoutine!),
-        acaoHorizontal: 'Ligar Tomada $deviceNumber',
-        qtdHorizontal: 0,
-        acaoVertical: '',
-        qtdVertical: 0,
-        acaoPlataforma: '',
-        qtdPlataforma: 0,
-        acaoBotao1: '',
-        qtdBotao1: 0,
-        acaoBotao2: '',
-        qtdBotao2: 0,
-        acaoBotao3: '',
-        qtdBotao3: 0,
-        dtExecucao: DateTime.now().millisecondsSinceEpoch,
-      );
-      sendBluetoothCommand('Ligar Tomada $deviceNumber'); // Envia comando Bluetooth
-    } else {
-      log.warning('Nenhuma rotina selecionada.');
-    }
+    log.info('Ligando a tomada $deviceNumber');
+    await registerActionAndSendCommand(
+      actionDescription: 'Ligar Tomada $deviceNumber',
+      quantidade: 0,
+      bluetoothCommand: 'Ligar Tomada $deviceNumber',
+    );
   }
 
   void turnOffDevice(int deviceNumber) async {
-    if (_selectedRoutine != null) {
-      log.info('Desligando a tomada $deviceNumber');
-      await admAcaorobo(
-        idRotina: int.parse(_selectedRoutine!),
-        acaoHorizontal: 'Desligar Tomada $deviceNumber',
-        qtdHorizontal: 0,
-        acaoVertical: '',
-        qtdVertical: 0,
-        acaoPlataforma: '',
-        qtdPlataforma: 0,
-        acaoBotao1: '',
-        qtdBotao1: 0,
-        acaoBotao2: '',
-        qtdBotao2: 0,
-        acaoBotao3: '',
-        qtdBotao3: 0,
-        dtExecucao: DateTime.now().millisecondsSinceEpoch,
-      );
-      sendBluetoothCommand('Desligar Tomada $deviceNumber'); // Envia comando Bluetooth
-    } else {
-      log.warning('Nenhuma rotina selecionada.');
-    }
+    log.info('Desligando a tomada $deviceNumber');
+    await registerActionAndSendCommand(
+      actionDescription: 'Desligar Tomada $deviceNumber',
+      quantidade: 0,
+      bluetoothCommand: 'Desligar Tomada $deviceNumber',
+    );
   }
 
   void movePlatform(double position) async {
-    if (_selectedRoutine != null) {
-      log.info('Movendo a plataforma para: $position');
-      await admAcaorobo(
-        idRotina: int.parse(_selectedRoutine!),
-        acaoHorizontal: '',
-        qtdHorizontal: 0,
-        acaoVertical: '',
-        qtdVertical: 0,
-        acaoPlataforma: 'Movendo Plataforma para ${position * 100}%',
-        qtdPlataforma: (position * 100).toInt(),
-        acaoBotao1: '',
-        qtdBotao1: 0,
-        acaoBotao2: '',
-        qtdBotao2: 0,
-        acaoBotao3: '',
-        qtdBotao3: 0,
-        dtExecucao: DateTime.now().millisecondsSinceEpoch,
-      );
-      sendBluetoothCommand('Movendo Plataforma para ${position * 100}%'); // Envia comando Bluetooth
-    } else {
-      log.warning('Nenhuma rotina selecionada.');
-    }
+    log.info('Movendo a plataforma para: $position');
+    await registerActionAndSendCommand(
+      actionDescription: 'Movendo Plataforma para ${position * 100}%',
+      quantidade: (position * 100).toInt(),
+      bluetoothCommand: 'Movendo Plataforma para ${position * 100}%',
+    );
   }
 
   void moveRobot(double horizontal, double vertical) async {
     if (_selectedRoutine != null) {
-      int pulseCount = 0; 
+      int pulseCount = 0;
       String command = '';
 
       if (horizontal > 0) {
-        pulseCount = (horizontal * 100).toInt(); 
-        command = 'MOVE_RIGHT:$pulseCount'; 
+        pulseCount = (horizontal * 100).toInt();
+        command = 'MOVE_RIGHT:$pulseCount';
       } else if (horizontal < 0) {
         pulseCount = (-horizontal * 100).toInt();
-        command = 'MOVE_LEFT:$pulseCount'; 
+        command = 'MOVE_LEFT:$pulseCount';
       }
-      
+
       if (vertical > 0) {
         pulseCount = (vertical * 100).toInt();
-        command = 'MOVE_FORWARD:$pulseCount'; 
+        command = 'MOVE_FORWARD:$pulseCount';
       } else if (vertical < 0) {
         pulseCount = (-vertical * 100).toInt();
-        command = 'MOVE_BACKWARD:$pulseCount'; 
+        command = 'MOVE_BACKWARD:$pulseCount';
       }
 
       log.info('Movendo o robô - Comando: $command');
-      await admAcaorobo(
-        idRotina: int.parse(_selectedRoutine!),
-        acaoHorizontal: command,
-        qtdHorizontal: pulseCount,
-        acaoVertical: '',
-        qtdVertical: 0,
-        acaoPlataforma: '',
-        qtdPlataforma: 0,
-        acaoBotao1: '',
-        qtdBotao1: 0,
-        acaoBotao2: '',
-        qtdBotao2: 0,
-        acaoBotao3: '',
-        qtdBotao3: 0,
-        dtExecucao: DateTime.now().millisecondsSinceEpoch,
+      await registerActionAndSendCommand(
+        actionDescription: command,
+        quantidade: pulseCount,
+        bluetoothCommand: command,
       );
-      sendBluetoothCommand(command); // Envia comando Bluetooth
     } else {
       log.warning('Nenhuma rotina selecionada.');
     }
@@ -231,136 +165,130 @@ class ControlePageState extends State<ControlePage> {
                 onChanged: (String? newValue) {
                   setState(() {
                     _selectedRoutine = newValue;
-                });
-              },
-            ),
-          ),
-        ),
-      ],
-    ),
-    body: Container(
-      color: const Color(0xFFECE6F0),
-      child: Column(
-        children: [
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Container para o joystick esquerdo
-                  SizedBox(
-                    width: tamanhoTela * 0.17,
-                    height: tamanhoTela * 0.17,
-                    child: JoystickHorizontal(
-                      moveRobot: (double horizontal) {
-                        moveRobot(horizontal, 0); // Motor horizontal
-                      },
-                    ),
-                  ),
-                  // Container para o slider
-                  RotatedBox(
-                    quarterTurns: 3,
-                    child: SizedBox(
-                      width: tamanhoTela * 0.40,
-                      child: Slider(
-                        value: _currentSliderValue,
-                        min: 0,
-                        max: 100,
-                        divisions: 100,
-                        label: _currentSliderValue.round().toString(),
-                        onChanged: (double value) {
-                          setState(() {
-                            _currentSliderValue = value;
-                          });
-                          movePlatform(value / 100); // Mova a plataforma conforme o slider
-                        },
-                      ),
-                    ),
-                  ),
-                  // Container para os botões de controle
-                  SizedBox(
-                    width: tamanhoTela * 0.30,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildTomadaButton(1),
-                        const SizedBox(height: 8),
-                        _buildTomadaButton(2),
-                        const SizedBox(height: 8),
-                        _buildTomadaButton(3),
-                      ],
-                    ),
-                  ),
-                  // Container para o joystick direito
-                  SizedBox(
-                    width: tamanhoTela * 0.17,
-                    height: tamanhoTela * 0.17,
-                    child: JoystickVertical(
-                      moveRobot: (double vertical) {
-                        moveRobot(0, vertical); 
-                      },
-                    ),
-                  ),
-                ],
+                  });
+                },
               ),
             ),
           ),
         ],
       ),
-    ),
-  );
+      body: Container(
+        color: const Color(0xFFECE6F0),
+        child: Column(
+          children: [
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Container para o joystick esquerdo
+                    SizedBox(
+                      width: tamanhoTela * 0.17,
+                      height: tamanhoTela * 0.17,
+                      child: JoystickHorizontal(
+                        moveRobot: (double horizontal) {
+                          moveRobot(horizontal, 0); // Motor horizontal
+                        },
+                      ),
+                    ),
+                    // Container para o slider
+                    RotatedBox(
+                      quarterTurns: 3,
+                      child: SizedBox(
+                        width: tamanhoTela * 0.40,
+                        child: Slider(
+                          value: _currentSliderValue,
+                          min: 0,
+                          max: 100,
+                          divisions: 100,
+                          label: _currentSliderValue.round().toString(),
+                          onChanged: (double value) {
+                            setState(() {
+                              _currentSliderValue = value;
+                            });
+                            movePlatform(value / 100); // Mova a plataforma conforme o slider
+                          },
+                        ),
+                      ),
+                    ),
+                    // Container para os botões de controle
+                    SizedBox(
+                      width: tamanhoTela * 0.30,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildTomadaButton(1),
+                          const SizedBox(height: 8),
+                          _buildTomadaButton(2),
+                          const SizedBox(height: 8),
+                          _buildTomadaButton(3),
+                        ],
+                      ),
+                    ),
+                    // Container para o joystick direito
+                    SizedBox(
+                      width: tamanhoTela * 0.17,
+                      height: tamanhoTela * 0.17,
+                      child: JoystickVertical(
+                        moveRobot: (double vertical) {
+                          moveRobot(0, vertical);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTomadaButton(int deviceNumber) {
+    bool isSelected = _tomadaSelecionada[deviceNumber - 1];
+
+    return ElevatedButton(
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.resolveWith<Color>(
+          (Set<WidgetState> states) {
+            if (isSelected) {
+              return const Color(0xFFE6E0E9);
+            }
+            return const Color.fromARGB(255, 84, 1, 100);
+          },
+        ),
+        foregroundColor: WidgetStateProperty.resolveWith<Color>(
+          (Set<WidgetState> states) {
+            if (isSelected) {
+              return Colors.purple;
+            }
+            return Colors.white;
+          },
+        ),
+        side: WidgetStateProperty.resolveWith<BorderSide>((Set<WidgetState> states) {
+          return const BorderSide(color: Color.fromARGB(255, 30, 30, 30), width: 2);
+        }),
+      ),
+      onPressed: () {
+        setState(() {
+          isSelected = !isSelected;
+          _tomadaSelecionada[deviceNumber - 1] = isSelected;
+
+          if (isSelected) {
+            turnOnDevice(deviceNumber);
+          } else {
+            turnOffDevice(deviceNumber);
+          }
+        });
+      },
+      child: Text('Tomada $deviceNumber'),
+    );
+  }
 }
 
 
- 
-Widget _buildTomadaButton(int deviceNumber) {
-  bool isSelected = _tomadaSelecionada[deviceNumber - 1];
-
-  return ElevatedButton(
-    style: ButtonStyle(
-      backgroundColor: WidgetStateProperty.resolveWith<Color>(
-        (Set<WidgetState> states) {
-          if (isSelected) {
-            return const Color(0xFFE6E0E9); 
-          }
-          return const Color.fromARGB(255, 84, 1, 100); 
-        },
-      ),
-      foregroundColor: WidgetStateProperty.resolveWith<Color>(
-        (Set<WidgetState> states) {
-          if (isSelected) {
-            return Colors.purple; 
-          }
-          return Colors.white; 
-        },
-      ),
-      side: WidgetStateProperty.resolveWith<BorderSide>(
-        (Set<WidgetState> states) {
-          if (isSelected) {
-            return const BorderSide(color: Color.fromARGB(255, 86, 3, 100), width: 2); 
-          }
-          return BorderSide.none; 
-        },
-      ),
-    ),
-    onPressed: () {
-      if (isSelected) {
-        turnOffDevice(deviceNumber); 
-        turnOnDevice(deviceNumber); 
-      }
-      setState(() {
-        _tomadaSelecionada[deviceNumber - 1] = !_tomadaSelecionada[deviceNumber - 1]; 
-      });
-    },
-    child: Text(isSelected ? 'Desligar Tomada $deviceNumber' : 'Ligar Tomada $deviceNumber'),
-  );
-}
-
-
-
-
-}
 
 
 class JoystickHorizontal extends StatefulWidget {

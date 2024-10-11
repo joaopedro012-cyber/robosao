@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';  
+import 'package:flutter/material.dart'; 
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
 
 class RotinasPage extends StatefulWidget {
@@ -20,7 +20,7 @@ class _RotinasPageState extends State<RotinasPage> {
   final TextEditingController bt2Controller = TextEditingController();
   final TextEditingController bt3Controller = TextEditingController();
 
-  final Map<int, bool> _isExpanded = {}; 
+  final Map<int, bool> _isExpanded = {};
 
   Future<void> _loadRotinas() async {
     final db = await DB.instance.database;
@@ -72,7 +72,7 @@ class _RotinasPageState extends State<RotinasPage> {
     await _loadRotinas();
   }
 
-  Future<void> _insertAcao(int idRotina) async {
+  Future<void> insertAcao(int idRotina) async {
     if (vertController.text.isEmpty ||
         horizController.text.isEmpty ||
         platController.text.isEmpty ||
@@ -102,7 +102,6 @@ class _RotinasPageState extends State<RotinasPage> {
       dtExecucao: dtExecucao,
     );
 
-    // Limpar os campos após a inserção
     vertController.clear();
     horizController.clear();
     platController.clear();
@@ -118,7 +117,7 @@ class _RotinasPageState extends State<RotinasPage> {
     await _loadRotinas();
   }
 
-  Future<void> _deleteAcao(int idAcao) async {
+  Future<void> deleteAcao(int idAcao) async {
     await DB.instance.deleteAcao(idAcao);
     await _loadRotinas();
   }
@@ -148,7 +147,6 @@ class _RotinasPageState extends State<RotinasPage> {
           color: const Color(0xFFECE6F0),
           child: Column(
             children: [
-              // Campo para adicionar novas rotinas
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
@@ -176,7 +174,6 @@ class _RotinasPageState extends State<RotinasPage> {
                   ],
                 ),
               ),
-              // Exibindo as rotinas
               ..._rotinas.map((rotina) {
                 final acoes = _acoesPorRotina[rotina['ID_ROTINA']] ?? [];
                 return Card(
@@ -237,7 +234,7 @@ class _RotinasPageState extends State<RotinasPage> {
                                   Expanded(child: Text("BT1", style: TextStyle(fontWeight: FontWeight.bold))),
                                   Expanded(child: Text("BT2", style: TextStyle(fontWeight: FontWeight.bold))),
                                   Expanded(child: Text("BT3", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  SizedBox(width: 60), // Espaço para os botões
+                                  SizedBox(width: 60),
                                 ],
                               ),
                             ),
@@ -253,12 +250,7 @@ class _RotinasPageState extends State<RotinasPage> {
                                       Expanded(child: Text(acao['acaoBotao1'].toString())),
                                       Expanded(child: Text(acao['acaoBotao2'].toString())),
                                       Expanded(child: Text(acao['acaoBotao3'].toString())),
-                                      IconButton(
-                                        icon: const Icon(Icons.delete, color: Colors.purple),
-                                        onPressed: () {
-                                          _deleteAcao(acao['ID_ACAO']);
-                                        },
-                                      ),
+                                      // Ícone da lixeira removido
                                     ],
                                   ),
                                 );
@@ -266,59 +258,10 @@ class _RotinasPageState extends State<RotinasPage> {
                             ),
                           ],
                         ),
-                      if (_isExpanded[rotina['ID_ROTINA']] == true)
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: TextField(
-                                      controller: vertController,
-                                      decoration: const InputDecoration(labelText: 'VERT.'),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: horizController,
-                                      decoration: const InputDecoration(labelText: 'HORIZ.'),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: platController,
-                                      decoration: const InputDecoration(labelText: 'PLAT.'),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: bt1Controller,
-                                      decoration: const InputDecoration(labelText: 'BT1'),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: bt2Controller,
-                                      decoration: const InputDecoration(labelText: 'BT2'),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: bt3Controller,
-                                      decoration: const InputDecoration(labelText: 'BT3'),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.add, color: Colors.purple),
-                                    onPressed: () {
-                                      _insertAcao(rotina['ID_ROTINA']);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                      if (_isExpanded[rotina['ID_ROTINA']] == true && acoes.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Text("Nenhuma ação registrada"),
                         ),
                     ],
                   ),
@@ -339,21 +282,21 @@ class _RotinasPageState extends State<RotinasPage> {
           title: const Text('Editar Rotina'),
           content: TextField(
             controller: editNomeController,
-            decoration: const InputDecoration(labelText: 'Nome da Rotina'),
+            decoration: const InputDecoration(hintText: 'Nome da Rotina'),
           ),
           actions: <Widget>[
             TextButton(
+              child: const Text('Cancelar'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancelar'),
             ),
             TextButton(
+              child: const Text('Salvar'),
               onPressed: () {
                 _editRotina(idRotina);
                 Navigator.of(context).pop();
               },
-              child: const Text('Salvar'),
             ),
           ],
         );

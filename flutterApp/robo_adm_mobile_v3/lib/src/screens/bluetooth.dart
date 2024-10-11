@@ -1,5 +1,4 @@
-import 'dart:async'; 
-import 'dart:convert'; 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:flutter/foundation.dart';
@@ -74,18 +73,21 @@ class _MainScreenState extends State<MainScreen> {
         });
 
         // Aqui você pode enviar comandos após a conexão
-        _sendCommands(connection!);
+        // Passando a conexão para a tela de controle
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ControlePage(
+              connectedDevices: _scanResults.where((d) => _connectedDevices.containsKey(d.address)).toList(),
+              connections: _connectedDevices.values.whereType<BluetoothConnection>().toList(),
+            ),
+          ),
+        );
+
       }
     } catch (e) {
       if (kDebugMode) print('Erro ao conectar: $e');
     }
-  }
-
-  // Função para enviar comandos
-  void _sendCommands(BluetoothConnection connection) {
-    // Exemplo de envio de comando
-    String command = "COMANDO_EXEMPLO"; // Substitua pelo comando que deseja enviar
-    connection.output.add(utf8.encode(command)); // Enviar o comando
   }
 
   Future<void> _connectToDevices() async {
@@ -104,16 +106,6 @@ class _MainScreenState extends State<MainScreen> {
       await Future.wait(connectionFutures);
 
       if (mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ControlePage(
-              connectedDevices: _scanResults.where((d) => _connectedDevices.containsKey(d.address)).toList(),
-              connections: _connectedDevices.values.whereType<BluetoothConnection>().toList(),
-            ),
-          ),
-        );
-
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Conexão bem-sucedida!')));
       }
     } else {
