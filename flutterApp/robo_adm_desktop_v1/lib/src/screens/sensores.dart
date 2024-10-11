@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:robo_adm_desktop_v1/src/utils/funcoes_config_json.dart';
 import 'package:robo_adm_desktop_v1/src/utils/json_config.dart';
@@ -19,11 +20,15 @@ class _SensoresPageState extends State<SensoresPage> {
   void initState() {
     super.initState();
     rotinasNoDiretorio = listarArquivosJsonSensores();
-    carregarConfigSensor('sensor1', (diretorio, distanciaMinima) {
-      setState(() {
-        sensor1Diretorio = diretorio ?? 'Exemplo.json';
-        sensor1DistanciaMinima = distanciaMinima ?? 100;
-      });
+    carregaInfoJson('sensores', 'sensor1', 'diretorio').then((value) {
+      sensor1Diretorio = value as String?;
+    });
+    carregaInfoJson('sensores', 'sensor1', 'distancia_minima').then((value) {
+      sensor1DistanciaMinima = value as int?;
+      if (kDebugMode) {
+        print(sensor1DistanciaMinima);
+        print(sensor1Diretorio);
+      }
     });
   }
 

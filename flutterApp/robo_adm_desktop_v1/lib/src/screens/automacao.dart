@@ -1,5 +1,4 @@
 import 'package:robo_adm_desktop_v1/src/widgets/automacao_campo.dart';
-import 'package:robo_adm_desktop_v1/src/utils/funcoes_config_json.dart';
 import 'package:robo_adm_desktop_v1/src/utils/json_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:libserialport/libserialport.dart';
@@ -13,34 +12,36 @@ class AutomacaoPage extends StatefulWidget {
 }
 
 class _AutomacaoPageState extends State<AutomacaoPage> {
+  late List<String> portasDisponiveis;
+  dynamic conexao1Porta;
+
+  @override
+  void initState() {
+    super.initState();
+    portasDisponiveis = SerialPort.availablePorts;
+    carregaInfoJson('automacao', 'Sensores', 'porta').then((value) {
+      setState(() {
+        conexao1Porta = value as String?;
+      });
+      if (kDebugMode) {
+        print(conexao1Porta);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    //double screenWidth = MediaQuery.of(context).size.width;
-    late List<String> portasDisponiveis = SerialPort.availablePorts;
-    dynamic conexao1Porta;
-
-    void atualizaConexao1Porta() async {
-      conexao1Porta = await carregaInfoJson('automacao', 'Sensores', 'porta');
-    }
-
     if (kDebugMode) {
       print('Portas sendo utilizadas: $portasDisponiveis');
     }
 
     return AutomacaoCampo(
-        campo: 'Sensores',
-        placeholder: conexao1Porta ?? 'vazio',
-        portasArduino: portasDisponiveis,
-        onPortasChanged: (String novaPorta) {
-          atualizaJson('automacao', 'Sensores', 'porta', conexao1Porta);
-        });
-
-    // return AutomacaoCampo(
-    //     campo: 'Sensores',
-    //     placeholder: conexao1Porta.toString(),
-    //     portasArduino: portasDisponiveis,
-    //     onPortasChanged: (String novaPorta) {
-    //       atualizaJson('automacao', 'Sensores', 'porta', conexao1Porta);
-    //     });
+      campo: 'Sensores',
+      placeholder: conexao1Porta ?? 'vazio',
+      portasArduino: portasDisponiveis,
+      onPortasChanged: (String novaPorta) {
+        atualizaJson('automacao', 'Sensores', 'porta', novaPorta);
+      },
+    );
   }
 }

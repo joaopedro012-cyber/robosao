@@ -40,7 +40,6 @@ Future<void> atualizaJson(
         }
       }
     }
-
     await configJson.writeAsString(jsonEncode(json));
   }
 }
@@ -65,4 +64,5 @@ Future<dynamic> carregaInfoJson(
       }
     }
   }
+  return null;
 }
