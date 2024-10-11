@@ -16,6 +16,18 @@ Future<List<String>> carregaConfigJson() async {
       .toList();
 }
 
+Future<List<String>> listarArquivosJsonSensores() async {
+  final Directory diretorio = await getApplicationDocumentsDirectory();
+  final String diretorioFinalCaminho = '${diretorio.path}/Rotinas Robo';
+  final Directory diretorioFinal = Directory(diretorioFinalCaminho);
+  final List<FileSystemEntity> arquivos = diretorioFinal.listSync();
+
+  return arquivos
+      .whereType<File>()
+      .map((file) => path.basename(file.path))
+      .toList();
+}
+
 Future<void> atualizaJson(
     String secao, String objeto, String propriedade, dynamic novoValor) async {
   final Directory diretorioDocumentos =

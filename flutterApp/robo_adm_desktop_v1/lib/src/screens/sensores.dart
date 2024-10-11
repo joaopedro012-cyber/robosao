@@ -21,10 +21,14 @@ class _SensoresPageState extends State<SensoresPage> {
     super.initState();
     rotinasNoDiretorio = listarArquivosJsonSensores();
     carregaInfoJson('sensores', 'sensor1', 'diretorio').then((value) {
-      sensor1Diretorio = value as String?;
+      setState(() {
+        sensor1Diretorio = value as String?;
+      });
     });
     carregaInfoJson('sensores', 'sensor1', 'distancia_minima').then((value) {
-      sensor1DistanciaMinima = value as int?;
+      setState(() {
+        sensor1DistanciaMinima = value as int?;
+      });
       if (kDebugMode) {
         print(sensor1DistanciaMinima);
         print(sensor1Diretorio);
