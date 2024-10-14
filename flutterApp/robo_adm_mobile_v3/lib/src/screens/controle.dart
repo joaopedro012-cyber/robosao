@@ -149,17 +149,17 @@ class ControlePageState extends State<ControlePage> {
 
   void moveRobot(double horizontal, double vertical) async {
     if (_selectedRoutine != null) {
-      if (vertical > 0) {
+      if (horizontal < 0) {
         _sendMovementCommand('w'); // Para frente
         log.info('Movendo para frente: w');
-      } else if (vertical < 0) {
+      } else if (horizontal > 0) {
         _sendMovementCommand('x'); // Para trás
         log.info('Movendo para trás: x');
       }
-      if (horizontal < 0) {
+      if (vertical < 0) {
         _sendMovementCommand('a'); // Para esquerda
         log.info('Movendo para esquerda: a');
-      } else if (horizontal > 0) {
+      } else if (vertical > 0) {
         _sendMovementCommand('d'); // Para direita
         log.info('Movendo para direita: d');
       }
