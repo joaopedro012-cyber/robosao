@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:flutter/foundation.dart';
-import 'controle.dart'; // Importa o controle
+import 'controle.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key, required this.connectedDevices});
@@ -33,7 +33,6 @@ class _MainScreenState extends State<MainScreen> {
   Future<void> initPlatformState() async {
     try {
       _adapterState = await _flutterBlueClassicPlugin.adapterStateNow;
-
       _adapterStateSubscription = _flutterBlueClassicPlugin.adapterState.listen((current) {
         if (mounted) setState(() => _adapterState = current);
       });
@@ -44,6 +43,7 @@ class _MainScreenState extends State<MainScreen> {
             _scanResults.add(device);
             _selectedDevices[device.address] = false;
           });
+          if (kDebugMode) print('Dispositivo encontrado: ${device.name} (${device.address})');
         }
       });
 
@@ -71,19 +71,6 @@ class _MainScreenState extends State<MainScreen> {
           _connectedDevices[device.address] = connection;
           _selectedDevices[device.address] = true;
         });
-
-        // Aqui você pode enviar comandos após a conexão
-        // Passando a conexão para a tela de controle
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ControlePage(
-              connectedDevices: _scanResults.where((d) => _connectedDevices.containsKey(d.address)).toList(),
-              connections: _connectedDevices.values.whereType<BluetoothConnection>().toList(),
-            ),
-          ),
-        );
-
       }
     } catch (e) {
       if (kDebugMode) print('Erro ao conectar: $e');
@@ -105,8 +92,18 @@ class _MainScreenState extends State<MainScreen> {
 
       await Future.wait(connectionFutures);
 
+      // Após tentar conectar a todos os dispositivos, navegue para a tela de controle
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Conexão bem-sucedida!')));
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ControlePage(
+              connectedDevices: _scanResults.where((d) => _connectedDevices.containsKey(d.address)).toList(),
+              connections: _connectedDevices.values.whereType<BluetoothConnection>().toList(), // Mantenha as conexões
+            ),
+          ),
+        );
       }
     } else {
       if (mounted) {

@@ -1,11 +1,41 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
-import 'dart:typed_data';
 import 'dart:convert';
 
 final log = Logger('JoystickLogger');
+
+void main() {
+  // Configurar o nível de log para exibir informações no console
+  Logger.root.level = Level.ALL; // Capturar todas as mensagens de log
+  Logger.root.onRecord.listen((record) {
+    if (kDebugMode) {
+      print('${record.level.name}: ${record.time}: ${record.message}');
+    }
+  });
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Controle do Robô',
+      theme: ThemeData(
+        primarySwatch: Colors.purple,
+      ),
+      home: const ControlePage(
+        connectedDevices: [], // Preencha com os dispositivos Bluetooth conectados
+        connections: [], // Preencha com as conexões Bluetooth
+      ),
+    );
+  }
+}
 
 class ControlePage extends StatefulWidget {
   final List<BluetoothDevice> connectedDevices;
@@ -43,6 +73,10 @@ class ControlePageState extends State<ControlePage> {
       List<int> bytes = utf8.encode(command); // Converte o comando em bytes
       connection.output.add(Uint8List.fromList(bytes)); // Envia o comando
       log.info('Comando enviado: $command');
+      // Imprimir no debug console
+      if (kDebugMode) {
+        print('Comando Bluetooth enviado: $command');
+      }
     }
   }
 
@@ -106,33 +140,29 @@ class ControlePageState extends State<ControlePage> {
     );
   }
 
+  void _sendMovementCommand(String command) {
+    if (kDebugMode) {
+      print('Comando enviado: $command');
+    }
+    sendBluetoothCommand(command);
+  }
+
   void moveRobot(double horizontal, double vertical) async {
     if (_selectedRoutine != null) {
-      int pulseCount = 0;
-      String command = '';
-
-      if (horizontal > 0) {
-        pulseCount = (horizontal * 100).toInt();
-        command = 'MOVE_RIGHT:$pulseCount';
-      } else if (horizontal < 0) {
-        pulseCount = (-horizontal * 100).toInt();
-        command = 'MOVE_LEFT:$pulseCount';
-      }
-
       if (vertical > 0) {
-        pulseCount = (vertical * 100).toInt();
-        command = 'MOVE_FORWARD:$pulseCount';
+        _sendMovementCommand('w'); // Para frente
+        log.info('Movendo para frente: w');
       } else if (vertical < 0) {
-        pulseCount = (-vertical * 100).toInt();
-        command = 'MOVE_BACKWARD:$pulseCount';
+        _sendMovementCommand('x'); // Para trás
+        log.info('Movendo para trás: x');
       }
-
-      log.info('Movendo o robô - Comando: $command');
-      await registerActionAndSendCommand(
-        actionDescription: command,
-        quantidade: pulseCount,
-        bluetoothCommand: command,
-      );
+      if (horizontal < 0) {
+        _sendMovementCommand('a'); // Para esquerda
+        log.info('Movendo para esquerda: a');
+      } else if (horizontal > 0) {
+        _sendMovementCommand('d'); // Para direita
+        log.info('Movendo para direita: d');
+      }
     } else {
       log.warning('Nenhuma rotina selecionada.');
     }
@@ -147,9 +177,9 @@ class ControlePageState extends State<ControlePage> {
         title: const Text('Controle'),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 16.0),  // Espaçamento da borda direita
+            padding: const EdgeInsets.only(right: 16.0),
             child: SizedBox(
-              width: 200,  // Largura do Dropdown
+              width: 200,
               child: DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
                   labelText: 'Selecione uma rotina',
@@ -232,7 +262,7 @@ class ControlePageState extends State<ControlePage> {
                       height: tamanhoTela * 0.17,
                       child: JoystickVertical(
                         moveRobot: (double vertical) {
-                          moveRobot(0, vertical);
+                          moveRobot(0, vertical); // Motor vertical
                         },
                       ),
                     ),
@@ -251,44 +281,37 @@ class ControlePageState extends State<ControlePage> {
 
     return ElevatedButton(
       style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.resolveWith<Color>(
-          (Set<WidgetState> states) {
-            if (isSelected) {
-              return const Color(0xFFE6E0E9);
-            }
-            return const Color.fromARGB(255, 84, 1, 100);
-          },
-        ),
-        foregroundColor: WidgetStateProperty.resolveWith<Color>(
-          (Set<WidgetState> states) {
-            if (isSelected) {
-              return Colors.purple;
-            }
-            return Colors.white;
-          },
-        ),
-        side: WidgetStateProperty.resolveWith<BorderSide>((Set<WidgetState> states) {
-          return const BorderSide(color: Color.fromARGB(255, 30, 30, 30), width: 2);
+        backgroundColor: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+          if (isSelected) {
+            return const Color(0xFFE6E0E9);
+          }
+          return const Color.fromARGB(255, 84, 1, 100);
         }),
+        foregroundColor: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+          if (isSelected) {
+            return Colors.purple;
+          }
+          return Colors.white;
+        }),
+        side: WidgetStateProperty.all(
+          const BorderSide(color: Color.fromARGB(255, 111, 43, 131), width: 2),
+        ),
+        minimumSize: WidgetStateProperty.all(const Size(100, 40)),
       ),
       onPressed: () {
         setState(() {
-          isSelected = !isSelected;
-          _tomadaSelecionada[deviceNumber - 1] = isSelected;
-
-          if (isSelected) {
-            turnOnDevice(deviceNumber);
-          } else {
-            turnOffDevice(deviceNumber);
-          }
+          _tomadaSelecionada[deviceNumber - 1] = !isSelected;
         });
+        if (isSelected) {
+          turnOffDevice(deviceNumber);
+        } else {
+          turnOnDevice(deviceNumber);
+        }
       },
-      child: Text('Tomada $deviceNumber'),
+      child: Text(isSelected ? 'Desligar Tomada $deviceNumber' : 'Ligar Tomada $deviceNumber'),
     );
   }
 }
-
-
 
 
 class JoystickHorizontal extends StatefulWidget {
@@ -341,7 +364,6 @@ class JoystickHorizontalState extends State<JoystickHorizontal> {
     );
   }
 }
-
 
 class JoystickVertical extends StatefulWidget {
   final Function(double) moveRobot;

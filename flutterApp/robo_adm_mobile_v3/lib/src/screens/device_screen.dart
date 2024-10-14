@@ -1,8 +1,9 @@
-import 'dart:async';
+import 'dart:async';  
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
+import 'package:robo_adm_mobile_v2/src/database/db.dart';
 
 class DeviceScreen extends StatefulWidget {
   const DeviceScreen({super.key, required this.connection});
@@ -19,12 +20,12 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
   @override
   void initState() {
+    super.initState();
     _readSubscription = widget.connection.input?.listen((event) {
       if (mounted) {
         setState(() => _receivedInput.add(utf8.decode(event)));
       }
     });
-    super.initState();
   }
 
   @override
@@ -32,6 +33,48 @@ class _DeviceScreenState extends State<DeviceScreen> {
     widget.connection.dispose();
     _readSubscription?.cancel();
     super.dispose();
+  }
+
+  Future<void> _sendCommand(String command) async {
+    if (widget.connection.isConnected) {
+      try {
+        // Se writeString retornar void, remova o await
+        widget.connection.writeString(command); // Remova await se não retornar Future
+
+        // Certifique-se de que insertExecucaoRotina retorna Future<void>
+        await DB.instance.insertExecucaoRotina( // Substitua DB.instance pelo construtor correto
+          idRotina: 1,
+          acaoHorizontal: command,
+          qtdHorizontal: 1,
+          acaoVertical: "",
+          qtdVertical: 0,
+          acaoPlataforma: "",
+          qtdPlataforma: 0,
+          acaoBotao1: "",
+          qtdBotao1: 0,
+          acaoBotao2: "",
+          qtdBotao2: 0,
+          acaoBotao3: "",
+          qtdBotao3: 0,
+          dtExecucao: DateTime.now().microsecondsSinceEpoch,
+        );
+      } catch (e) {
+        if (kDebugMode) print(e);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
+              "Error sending to device. Device is ${widget.connection.isConnected ? "connected" : "not connected"}"
+            ),
+          ));
+        }
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Device is not connected."),
+        ));
+      }
+    }
   }
 
   @override
@@ -43,17 +86,21 @@ class _DeviceScreenState extends State<DeviceScreen> {
       body: ListView(
         children: [
           ElevatedButton(
-              onPressed: () {
-                try {
-                  widget.connection.writeString("w");
-                } catch (e) {
-                  if (kDebugMode) print(e);
-                  ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(
-                      content: Text(
-                          "Error sending to device. Device is ${widget.connection.isConnected ? "connected" : "not connected"}")));
-                }
-              },
-              child: const Text("Send hello world to remote device")),
+            onPressed: () => _sendCommand("FORWARD"),
+            child: const Text("Send FORWARD command to remote device"),
+          ),
+          ElevatedButton(
+            onPressed: () => _sendCommand("BACKWARD"),
+            child: const Text("Send BACKWARD command to remote device"),
+          ),
+          ElevatedButton(
+            onPressed: () => _sendCommand("LEFT"),
+            child: const Text("Send LEFT command to remote device"),
+          ),
+          ElevatedButton(
+            onPressed: () => _sendCommand("RIGHT"),
+            child: const Text("Send RIGHT command to remote device"),
+          ),
           const Divider(),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
