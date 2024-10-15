@@ -51,6 +51,18 @@ Future<void> atualizaJson(
           break;
         }
       }
+    } else if (secao == 'sensores' && propriedade == 'diretorio') {
+      for (var secaoJson in json[secao]) {
+        if (secaoJson['nome'] == objeto) {
+          if (novoValor == null) {
+            novoValor = 'SEM ARQUIVO SELECIONADO';
+          } else if (novoValor is! String) {
+            novoValor = (novoValor).toString();
+          }
+          secaoJson[propriedade] = novoValor;
+          break;
+        }
+      }
     }
     await configJson.writeAsString(jsonEncode(json));
   }

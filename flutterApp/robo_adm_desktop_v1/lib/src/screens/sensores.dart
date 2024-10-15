@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:robo_adm_desktop_v1/src/utils/funcoes_config_json.dart';
 import 'package:robo_adm_desktop_v1/src/utils/json_config.dart';
 import 'package:robo_adm_desktop_v1/src/widgets/sensor_rotina.dart';
 
@@ -48,22 +47,10 @@ class _SensoresPageState extends State<SensoresPage> {
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Text('Nenhum arquivo encontrado');
         } else {
-          List<String> rotinas = snapshot.data!;
-          return Column(
+          return const Column(
             children: [
               SensorRotina(
-                sensor: 'Sensor 1',
-                placeholder: sensor1Diretorio ?? 'Exemplo.json',
-                rotinas: rotinas,
-                distanciaMinima: sensor1DistanciaMinima,
-                onDistanciaChanged: (novoValor) {
-                  atualizaJson(
-                      'sensores', 'sensor1', 'distancia_minima', novoValor);
-                },
-                onDiretorioChanged: (novoDiretorio) {
-                  atualizaJson(
-                      'sensores', 'sensor1', 'diretorio', novoDiretorio);
-                },
+                objetoSensor: 'sensor1',
               ),
             ],
           );

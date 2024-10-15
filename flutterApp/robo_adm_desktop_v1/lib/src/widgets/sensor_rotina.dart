@@ -1,71 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fui;
+import 'package:robo_adm_desktop_v1/src/utils/json_config.dart';
 
-class SensorRotina extends StatelessWidget {
-  final String sensor;
-  final String placeholder;
-  final List<String> rotinas;
-  final int? distanciaMinima;
-  final Function(int?) onDistanciaChanged;
-  final Function(String) onDiretorioChanged;
+Future<List<String>> objetoListaDeRotinas = listarArquivosJsonSensores();
 
-  const SensorRotina({
-    super.key,
-    required this.sensor,
-    required this.placeholder,
-    required this.rotinas,
-    this.distanciaMinima,
-    required this.onDistanciaChanged,
-    required this.onDiretorioChanged,
-  });
+class SensorRotina extends StatefulWidget {
+  final String objetoSensor;
+  const SensorRotina({super.key, required this.objetoSensor});
+
+  @override
+  _SensorRotinaState createState() => _SensorRotinaState();
+}
+
+class _SensorRotinaState extends State<SensorRotina> {
+  fui.AutoSuggestBoxItem<String>? selected;
+  String rotinaNoPlaceholder = '';
+
+  @override
+  void initState() {
+    super.initState();
+    carregaInfo();
+  }
+
+  Future<void> carregaInfo() async {
+    rotinaNoPlaceholder =
+        await carregaInfoJson('sensores', widget.objetoSensor, 'diretorio');
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    int? numberBoxValue = distanciaMinima;
-
-    return Wrap(
-      children: [
-        Text(sensor),
-        SizedBox(
-          width: screenWidth * 0.35,
-          child: Wrap(
-            children: [
-              SizedBox(
-                width: screenWidth * 0.27,
-                child: fui.AutoSuggestBox<String>(
-                  placeholder: placeholder,
-                  items: rotinas.map((rotina) {
-                    return fui.AutoSuggestBoxItem<String>(
-                      value: rotina,
-                      label: rotina,
-                      onFocusChange: (focused) {
-                        if (focused) {
-                          debugPrint('Focused $rotina');
-                        }
-                      },
-                    );
-                  }).toList(),
-                  onSelected: (item) {
-                    onDiretorioChanged(item.value!);
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(
-          width: screenWidth * 0.25,
-          child: fui.NumberBox(
-            value: numberBoxValue,
-            onChanged: (novoValor) {
-              onDistanciaChanged(novoValor);
+    return FutureBuilder<List<String>>(
+      future: objetoListaDeRotinas,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Text('No data available');
+        } else {
+          return fui.AutoSuggestBox<String>(
+            placeholder: rotinaNoPlaceholder,
+            items: snapshot.data!.map((lista) {
+              return fui.AutoSuggestBoxItem<String>(
+                value: lista,
+                label: lista,
+                onFocusChange: (focused) {
+                  if (focused) {
+                    debugPrint('Focused $lista');
+                  }
+                },
+              );
+            }).toList(),
+            onSelected: (item) async {
+              setState(() => selected = item);
+              await atualizaJson(
+                  'sensores', widget.objetoSensor, 'diretorio', item.value);
             },
-            mode: fui.SpinButtonPlacementMode.inline,
-          ),
-        ),
-        const Text('cm'),
-      ],
+          );
+        }
+      },
     );
   }
 }

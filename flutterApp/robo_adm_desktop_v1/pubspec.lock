@@ -302,7 +302,7 @@ packages:
     source: hosted
     version: "3.0.1"
   libserialport:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: libserialport
       sha256: "392e1592def65282429832ec66fa25e9e163d3b37716b97691482e2406720727"
