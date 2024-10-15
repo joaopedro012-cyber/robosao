@@ -9,27 +9,26 @@ import 'src/screens/rotinas.dart';
 import 'src/screens/testes.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Inicialização necessária para chamadas assíncronas.
+  WidgetsFlutterBinding.ensureInitialized(); 
 
-  // Configuração do nível de logging
-  Logger.root.level = Level.ALL; // Agora captura todos os níveis de log.
+ 
+  Logger.root.level = Level.ALL; 
 
-  // Configuração do arquivo de log
   final logFile = File('${Directory.systemTemp.path}/log.txt'); 
   final logSink = logFile.openWrite(mode: FileMode.append);
 
-  // Configuração para exibir logs no console e gravar no arquivo
+  
   Logger.root.onRecord.listen((record) {
     final message = '${record.level.name}: ${record.time}: ${record.message}\n';
 
-    // Exibir no console durante o desenvolvimento
+    
     if (const bool.fromEnvironment('dart.vm.product') == false) {
       if (kDebugMode) {
         print(message);
-      } // Isso garante que o log apareça no console.
-      logSink.write(message); // Também grava no arquivo.
+      } 
+      logSink.write(message); 
     } else if (record.level >= Level.WARNING) {
-      // No modo de produção, apenas logs de advertência e erro são gravados.
+    
       logSink.write(message);
     }
   });
@@ -48,7 +47,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const HomeScreen(),
-        '/controle': (context) => const ControlePage(connectedDevices: [], connections: []), // Passa uma lista vazia para connections
+        '/controle': (context) => const ControlePage(connectedDevices: [], connections: []), 
         '/bluetooth': (context) => const MainScreen(connectedDevices: []),
         '/rotinas': (context) => const RotinasPage(),
         '/testes': (context) => const Testetela(),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; 
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
 
 class RotinasPage extends StatefulWidget {
@@ -136,9 +136,9 @@ class _RotinasPageState extends State<RotinasPage> {
                 return Card(
                   margin: const EdgeInsets.all(8.0),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20), // Borda arredondada
+                    borderRadius: BorderRadius.circular(20), 
                   ),
-                  color: const Color.fromARGB(255, 160, 173, 230), // Fundo lilás
+                  color: const Color.fromARGB(255, 237, 239, 247), 
                   child: Column(
                     children: [
                       ListTile(
@@ -148,11 +148,11 @@ class _RotinasPageState extends State<RotinasPage> {
                         ),
                         trailing: Container(
                           decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 255, 255, 255), // Fundo branco
-                            borderRadius: BorderRadius.circular(20), // Borda arredondada
+                            color: const Color.fromARGB(255, 255, 255, 255), 
+                            borderRadius: BorderRadius.circular(20), 
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.grey.withOpacity(0.5), // Sombra
+                                color: Colors.grey.withOpacity(0.5), 
                                 spreadRadius: 2,
                                 blurRadius: 5,
                               ),
@@ -192,7 +192,7 @@ class _RotinasPageState extends State<RotinasPage> {
                           ),
                         ),
                       ),
-                      if (_isExpanded[rotina['ID_ROTINA']] == true && acoes.isNotEmpty)
+                      if (_isExpanded[rotina['ID_ROTINA']] == true)
                         Column(
                           children: [
                             const Padding(
@@ -209,30 +209,43 @@ class _RotinasPageState extends State<RotinasPage> {
                                 ],
                               ),
                             ),
-                            Column(
-                              children: acoes.map((acao) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(acao['acaoVertical'].toString()),
-                                      Text(acao['acaoHorizontal'].toString()),
-                                      Text(acao['acaoPlataforma'].toString()),
-                                      Text(acao['acaoBotao1'].toString()),
-                                      Text(acao['acaoBotao2'].toString()),
-                                      Text(acao['acaoBotao3'].toString()),
+                           Column(
+  children: acoes.isNotEmpty
+      ? acoes.map((acao) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(acao['acaoVertical']?.toString() ?? ''),  // Verifique se a chave é correta
+                Text(acao['acaoHorizontal']?.toString() ?? ''), // Verifique se a chave é correta
+                Text(acao['acaoPlataforma']?.toString() ?? ''), // Verifique se a chave é correta
+                Text(acao['acaoBotao1']?.toString() ?? ''),     // Verifique se a chave é correta
+                Text(acao['acaoBotao2']?.toString() ?? ''),     // Verifique se a chave é correta
+                Text(acao['acaoBotao3']?.toString() ?? ''),     // Verifique se a chave é correta
+              ],
+            ),
+          );
+        }).toList()
+      : [
+          // Exibição da tabela com valores vazios
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(''), // Valor vazio para VERT.
+                Text(''), // Valor vazio para HORIZ.
+                Text(''), // Valor vazio para PLAT.
+                Text(''), // Valor vazio para BT1
+                Text(''), // Valor vazio para BT2
+                Text(''), // Valor vazio para BT3
+                                          ],
+                                        ),
+                                      ),
                                     ],
-                                  ),
-                                );
-                              }).toList(),
                             ),
                           ],
-                        ),
-                      if (_isExpanded[rotina['ID_ROTINA']] == true && acoes.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Text("Nenhuma ação registrada"),
                         ),
                     ],
                   ),
@@ -246,28 +259,30 @@ class _RotinasPageState extends State<RotinasPage> {
   }
 
   Future<void> _showEditDialog(int idRotina) async {
-    return showDialog<void>(
+    showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         return AlertDialog(
           title: const Text('Editar Rotina'),
           content: TextField(
             controller: editNomeController,
-            decoration: const InputDecoration(hintText: 'Nome da Rotina'),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cancelar'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+            decoration: const InputDecoration(
+              hintText: 'Nome da rotina...',
             ),
-            TextButton(
-              child: const Text('Salvar'),
+          ),
+          actions: [
+            ElevatedButton(
               onPressed: () {
                 _editRotina(idRotina);
                 Navigator.of(context).pop();
               },
+              child: const Text('Salvar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancelar'),
             ),
           ],
         );
