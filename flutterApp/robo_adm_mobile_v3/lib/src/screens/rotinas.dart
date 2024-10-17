@@ -44,7 +44,7 @@ class _RotinasPageState extends State<RotinasPage> {
     
     if (mounted) {
       setState(() {
-        acoesRobo = acoes; // Atualiza a lista de ações do robô
+        acoesRobo = acoes; // Atualiza a lista de ações do rob ô
       });
     }
   }
@@ -109,22 +109,22 @@ class _RotinasPageState extends State<RotinasPage> {
   // Funções para movimentar o robô
   void moverParaFrente() {
     // Lógica para mover o robô para frente
-    _insertAcao('Mover para frente', acaoVertical: 1);
+    _insertAcao('Mover para frente', acaoVertical: 13);
   }
 
   void moverParaTras() {
     // Lógica para mover o robô para trás
-    _insertAcao('Mover para trás', acaoVertical: -1);
+    _insertAcao('Mover para trás', acaoVertical: 13);
   }
 
   void subirPlataforma() {
     // Lógica para subir a plataforma
-    _insertAcao('Subir plataforma', acaoPlataforma: 1);
+    _insertAcao('Subir plataforma', acaoPlataforma: 13);
   }
 
   void descerPlataforma() {
     // Lógica para descer a plataforma
-    _insertAcao('Descer plataforma', acaoPlataforma: -1);
+    _insertAcao('Descer plataforma', acaoPlataforma: 13);
   }
 
   @override
@@ -179,7 +179,7 @@ class _RotinasPageState extends State<RotinasPage> {
                     ),
                   ],
                 ),
-              ),
+ ),
               ..._rotinas.map((rotina) {
                 final acoes = _acoesPorRotina[rotina['ID_ROTINA']] ?? [];
                 return Card(
@@ -322,7 +322,7 @@ class _RotinasPageState extends State<RotinasPage> {
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: const Text('Salvar'),
+              child: const Text ('Salvar'),
               onPressed: () {
                 _editRotina(idRotina);
                 Navigator.of(context).pop();

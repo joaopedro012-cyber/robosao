@@ -67,9 +67,7 @@ class DB {
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 2) {
-      await db.execute('ALTER TABLE ADM_EXECUCAO_ROTINAS ADD COLUMN ACAO_HORIZONTAL TEXT');
-    }
+    // Remova essa parte do código
   }
 
   // Métodos para manipulação das tabelas
@@ -219,7 +217,7 @@ class DB {
   }
 
   // Inserção de ação na tabela ADM_ACAO_ROBO
-  Future<void> insertAcao({ 
+  Future <void> insertAcao({ 
     required int idRotina,
     required String acaoHorizontal,
     required String acaoVertical,

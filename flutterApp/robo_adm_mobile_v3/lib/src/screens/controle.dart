@@ -62,7 +62,7 @@ class ControlePageState extends State<ControlePage> {
 
   Future<void> _loadRotinas() async {
     final db = await DB.instance.database;
-    final List<Map<String, dynamic>> rotinas = await db.query('rotinas');
+    final List<Map<String, dynamic >> rotinas = await db.query('rotinas');
     setState(() {
       _rotinas = rotinas; // Atualiza a lista de rotinas
     });
@@ -148,27 +148,26 @@ class ControlePageState extends State<ControlePage> {
   }
 
   void moveRobot(double horizontal, double vertical) async {
-  if (_selectedRoutine != null) {
-    if (horizontal < 0) {
-      _sendMovementCommand('w'); // Para frente
-      log.info('Movendo para frente: w');
-    } else if (horizontal > 0) {
-      _sendMovementCommand('x'); // Para trás
-      log.info('Movendo para trás: x');
+    if (_selectedRoutine != null) {
+      if (horizontal < 0) {
+        _sendMovementCommand('w'); // Para frente
+        log.info('Movendo para frente: w');
+      } else if (horizontal > 0) {
+        _sendMovementCommand('x'); // Para trás
+        log.info('Movendo para trás: x');
+      }
+      // Alterando aqui para que o joystick vertical controle a rotação
+      if (vertical < 0) {
+        _sendMovementCommand('a'); // Para esquerda
+        log.info('Virando para esquerda: a');
+      } else if (vertical > 0) {
+        _sendMovementCommand('d'); // Para direita
+        log.info('Virando para direita: d');
+      }
+    } else {
+      log.warning('Nenhuma rotina selecionada.');
     }
-    // Alterando aqui para que o joystick vertical controle a rotação
-    if (vertical < 0) {
-      _sendMovementCommand('a'); // Para esquerda
-      log.info('Virando para esquerda: a');
-    } else if (vertical > 0) {
-      _sendMovementCommand('d'); // Para direita
-      log.info('Virando para direita: d');
-    }
-  } else {
-    log.warning('Nenhuma rotina selecionada.');
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -315,7 +314,6 @@ class ControlePageState extends State<ControlePage> {
   }
 }
 
-
 class JoystickHorizontal extends StatefulWidget {
   final Function(double) moveRobot;
 
@@ -366,6 +364,7 @@ class JoystickHorizontalState extends State<JoystickHorizontal> {
     );
   }
 }
+
 class JoystickVertical extends StatefulWidget {
   final Function(double) moveRobot;
 
@@ -388,7 +387,6 @@ class JoystickVerticalState extends State<JoystickVertical> {
           if (_xOffset > 40) _xOffset = 40;
           if (_xOffset < -40) _xOffset = -40;
 
-          
           widget.moveRobot(_xOffset / 40);
         });
       },
@@ -415,4 +413,3 @@ class JoystickVerticalState extends State<JoystickVertical> {
     );
   }
 }
-
