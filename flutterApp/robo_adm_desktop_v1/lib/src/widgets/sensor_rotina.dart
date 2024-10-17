@@ -15,6 +15,8 @@ class SensorRotina extends StatefulWidget {
 class _SensorRotinaState extends State<SensorRotina> {
   fui.AutoSuggestBoxItem<String>? selected;
   String rotinaNoPlaceholder = '';
+  int distanciaMinima = 0;
+  bool disabled = false;
 
   @override
   void initState() {
@@ -25,11 +27,14 @@ class _SensorRotinaState extends State<SensorRotina> {
   Future<void> carregaInfo() async {
     rotinaNoPlaceholder =
         await carregaInfoJson('sensores', widget.objetoSensor, 'diretorio');
+    distanciaMinima = await carregaInfoJson(
+        'sensores', widget.objetoSensor, 'distancia_minima');
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
     return FutureBuilder<List<String>>(
       future: objetoListaDeRotinas,
       builder: (context, snapshot) {
@@ -40,24 +45,68 @@ class _SensorRotinaState extends State<SensorRotina> {
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Text('No data available');
         } else {
-          return fui.AutoSuggestBox<String>(
-            placeholder: rotinaNoPlaceholder,
-            items: snapshot.data!.map((lista) {
-              return fui.AutoSuggestBoxItem<String>(
-                value: lista,
-                label: lista,
-                onFocusChange: (focused) {
-                  if (focused) {
-                    debugPrint('Focused $lista');
-                  }
-                },
-              );
-            }).toList(),
-            onSelected: (item) async {
-              setState(() => selected = item);
-              await atualizaJson(
-                  'sensores', widget.objetoSensor, 'diretorio', item.value);
-            },
+          return Wrap(
+            alignment: WrapAlignment.start,
+            runAlignment: WrapAlignment.center,
+            spacing: screenWidth * 0.05, // Espaçamento horizontal
+            runSpacing: screenWidth * 0.02, // Espaçamento vertical
+            children: [
+              Container(
+                width: screenWidth * 0.35,
+                child: Row(
+                  children: [
+                    Text(widget.objetoSensor),
+                    Container(
+                      width: screenWidth * 0.30,
+                      child: fui.AutoSuggestBox<String>(
+                        placeholder: rotinaNoPlaceholder,
+                        items: snapshot.data!.map((lista) {
+                          return fui.AutoSuggestBoxItem<String>(
+                            value: lista,
+                            label: lista,
+                            onFocusChange: (focused) {
+                              if (focused) {
+                                debugPrint('Focused $lista');
+                              }
+                            },
+                          );
+                        }).toList(),
+                        onSelected: (item) async {
+                          setState(() => selected = item);
+                          await atualizaJson('sensores', widget.objetoSensor,
+                              'diretorio', item.value);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                width: screenWidth * 0.20,
+                child: Row(
+                  children: [
+                    const Text('Distância Mínima'),
+                    Container(
+                      width: screenWidth * 0.10,
+                      child: fui.NumberBox(
+                        value: distanciaMinima,
+                        min: 0,
+                        max: 200,
+                        onChanged: disabled
+                            ? null
+                            : (value) async {
+                                await atualizaJson(
+                                    'sensores',
+                                    widget.objetoSensor,
+                                    'distancia_minima',
+                                    value);
+                              },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           );
         }
       },

@@ -37,6 +37,7 @@ class _SensoresPageState extends State<SensoresPage> {
 
   @override
   Widget build(BuildContext context) {
+    //double screenWidth = MediaQuery.of(context).size.width;
     return FutureBuilder<List<String>>(
       future: rotinasNoDiretorio,
       builder: (context, snapshot) {
