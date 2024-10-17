@@ -51,12 +51,12 @@ class _SensorRotinaState extends State<SensorRotina> {
             spacing: screenWidth * 0.05, // Espaçamento horizontal
             runSpacing: screenWidth * 0.02, // Espaçamento vertical
             children: [
-              Container(
+              SizedBox(
                 width: screenWidth * 0.35,
                 child: Row(
                   children: [
                     Text(widget.objetoSensor),
-                    Container(
+                    SizedBox(
                       width: screenWidth * 0.30,
                       child: fui.AutoSuggestBox<String>(
                         placeholder: rotinaNoPlaceholder,
@@ -81,12 +81,12 @@ class _SensorRotinaState extends State<SensorRotina> {
                   ],
                 ),
               ),
-              Container(
+              SizedBox(
                 width: screenWidth * 0.20,
                 child: Row(
                   children: [
                     const Text('Distância Mínima'),
-                    Container(
+                    SizedBox(
                       width: screenWidth * 0.10,
                       child: fui.NumberBox(
                         value: distanciaMinima,
