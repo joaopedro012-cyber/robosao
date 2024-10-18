@@ -90,6 +90,18 @@ class CriadorConfig {
     {
       "arduino": "Motores Vertical",
       "porta": "COM3"
+    },
+    {
+      "arduino": "Botão Roda Dianteira",
+      "porta": "COM4"
+    },
+    {
+      "arduino": "Plataforma",
+      "porta": "COM5"
+    },
+    {
+      "arduino": "Botões da Plataforma",
+      "porta": "COM6"
     }
   ]
 }
