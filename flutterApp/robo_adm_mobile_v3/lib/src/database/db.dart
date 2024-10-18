@@ -3,13 +3,11 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class DB {
-  // Construtor privado para Singleton
   DB._();
   static final DB instance = DB._();
 
   static Database? _database;
 
-  // Acesso ao banco de dados
   Future<Database> get database async {
     _database ??= await _initDatabase();
     return _database!;
@@ -19,9 +17,9 @@ class DB {
     final path = join(await getDatabasesPath(), 'AplicativoRobo.db');
     return await openDatabase(
       path,
-      version: 2, // Atualiza a versão para 2
+      version: 2,
       onCreate: _onCreate,
-      onUpgrade: _onUpgrade, 
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -64,14 +62,41 @@ class DB {
         DT_EXCLUSAO_UNIX_MICROSSEGUNDOS INTEGER
       )
     ''');
+ 
+    await db.execute('''
+      INSERT INTO ADM_ACAO_ROBO (ACAO, NOME)
+      VALUES ('w', 'Frente'), ('x', 'Trás'), ('a', 'Esquerda'), ('d', 'Direita');
+    ''');
+
+    await insertInitialData(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    // Remova essa parte do código
+    if (oldVersion < 2) {
+      // Exemplo de atualização: adicionar uma nova coluna
+      await db.execute('ALTER TABLE rotinas ADD COLUMN ATIVO TEXT DEFAULT "S"');
+    }
+   
   }
 
-  // Métodos para manipulação das tabelas
+  Future<void> insertInitialData(Database db) async {
+    await db.execute('''
+      INSERT INTO ADM_ROTINAS (NOME, ATIVO , EDITAVEL)
+      VALUES ('TESTE1 DE ROTINA', 'S', 'S'),
+             ('TESTE2 DE ROTINA', 'S', 'S'),
+             ('TESTE3 DE ROTINA', 'S', 'S');
+    ''');
 
+    await db.execute('''
+      INSERT INTO ADM_EXECUCAO_ROTINAS (ID_ROTINA, QTD_SINAIS, ACAO, DT_EXECUCAO_UNIX_MICROSSEGUNDOS)
+      VALUES (1, 20, 'w', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000)),
+             (1, 30, 'w', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000)),
+             (3, 50, 's', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000));
+    ''');
+  }
+  Future<void> onUpgrade(Database db, int oldVersion, int newVersion) async {
+    
+  }
   Future<void> insertRotina(String nome, String descricao) async {
     final db = await instance.database;
     if (nome.isEmpty || descricao.isEmpty) {
@@ -125,7 +150,7 @@ class DB {
   }) async {
     final db = await instance.database;
 
-    // Verificações de nulos e valores válidos
+    
     if (idRotina <= 0 || acaoHorizontal.isEmpty || acaoVertical.isEmpty || 
         acaoPlataforma.isEmpty || qtdHorizontal < 0 || qtdVertical < 0 || 
         qtdPlataforma < 0 || qtdBotao1 < 0 || qtdBotao2 < 0 || qtdBotao3 < 0) {
@@ -167,7 +192,7 @@ class DB {
   }) async {
     final db = await instance.database;
 
-    // Verificações de nulos e valores válidos
+    
     if (idExecucao <= 0 || acaoHorizontal.isEmpty || acaoVertical.isEmpty || 
         acaoPlataforma.isEmpty || qtdHorizontal < 0 || qtdVertical < 0 || 
         qtdPlataforma < 0 || qtdBotao1 < 0 || qtdBotao2 < 0 || qtdBotao3 < 0) {
@@ -203,7 +228,7 @@ class DB {
   }
 
   Future<void> deleteAcao(int idAcao) async {
-    await deleteExecucao(idAcao); // Usar a mesma função
+    await deleteExecucao(idAcao); 
   }
 
   Future<List<Map<String, dynamic>>> getRotinas() async {
@@ -216,7 +241,7 @@ class DB {
     return await db.query('ADM_EXECUCAO_ROTINAS', where: 'ID_ROTINA = ?', whereArgs: [idRotina]);
   }
 
-  // Inserção de ação na tabela ADM_ACAO_ROBO
+  
   Future <void> insertAcao({ 
     required int idRotina,
     required String acaoHorizontal,
