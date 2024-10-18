@@ -1,55 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fui;
+import 'package:robo_adm_desktop_v1/src/utils/json_config.dart';
+import 'package:libserialport/libserialport.dart';
 
-class AutomacaoCampo extends StatelessWidget {
-  final String campo;
-  final String placeholder;
-  final List<String> portasArduino;
-  final Function(String) onPortasChanged;
+late List<fui.AutoSuggestBoxItem<String>> objetoListaDePortas;
 
-  const AutomacaoCampo({
-    super.key,
-    required this.campo,
-    required this.placeholder,
-    required this.portasArduino,
-    required this.onPortasChanged,
-  });
+class AutomacaoCampo extends StatefulWidget {
+  final String objetoAutomacao;
+  const AutomacaoCampo({super.key, required this.objetoAutomacao});
+
+  @override
+  State<AutomacaoCampo> createState() => _AutomacaoCampoState();
+}
+
+class _AutomacaoCampoState extends State<AutomacaoCampo> {
+  fui.AutoSuggestBoxItem<String>? selected;
+  String porta = '';
+  bool disabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    objetoListaDePortas = SerialPort.availablePorts
+        .map((port) => fui.AutoSuggestBoxItem(value: port, label: port))
+        .toList();
+
+    carregaInfo();
+  }
+
+  Future<void> carregaInfo() async {
+    porta = await carregaInfoJson('automacao', 'Sensores', 'porta');
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-
     return Wrap(
-      children: [
-        Text(campo),
-        SizedBox(
-          width: screenWidth * 0.35,
-          child: Wrap(
-            children: [
-              SizedBox(
-                width: screenWidth * 0.27,
-                child: fui.AutoSuggestBox<String>(
-                  placeholder: placeholder,
-                  items: portasArduino.map((arduino) {
-                    return fui.AutoSuggestBoxItem<String>(
-                      value: arduino,
-                      label: arduino,
-                      onFocusChange: (focused) {
-                        if (focused) {
-                          debugPrint('Focused $arduino');
-                        }
-                      },
-                    );
-                  }).toList(),
-                  onSelected: (item) {
-                    onPortasChanged(item.value!);
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
+        alignment: WrapAlignment.start,
+        runAlignment: WrapAlignment.center,
+        spacing: screenWidth * 0.05,
+        runSpacing: screenWidth * 0.02,
+        children: [
+          SizedBox(
+            width: screenWidth * 0.35,
+            child: Row(
+              children: [
+                Text(widget.objetoAutomacao),
+                SizedBox(
+                  width: screenWidth * 0.30,
+                  child: fui.AutoSuggestBox<String>(
+                      placeholder: porta,
+                      items: objetoListaDePortas,
+                      onSelected: (item) async {
+                        setState(() => selected = item);
+                        await atualizaJson('automacao', widget.objetoAutomacao,
+                            'porta', item.value);
+                      }),
+                )
+              ],
+            ),
+          )
+        ]);
   }
 }

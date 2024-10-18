@@ -19,8 +19,8 @@ class CriadorConfig {
     "sensores": [
         {
             "nome": "sensor1",
-            "diretorio": "123teste4.json",
-            "distancia_minima": 145
+            "diretorio": "teste.json",
+            "distancia_minima": 87
         },
         {
             "nome": "sensor2",
@@ -81,27 +81,33 @@ class CriadorConfig {
     "automacao": [
         {
             "nome": "Sensores",
-            "porta": "com1234561"
+            "porta": "com1234561",
+            "ativo": true
         },
         {
             "nome": "Motores Horizontal",
-            "porta": "COM999"
+            "porta": "COM999",
+            "ativo": true
         },
         {
             "nome": "Motores Vertical",
-            "porta": "COM3"
+            "porta": "COM3",
+            "ativo": true
         },
         {
             "nome": "Plataforma",
-            "porta": "COM3"
+            "porta": "COM3",
+            "ativo": true
         },
         {
             "nome": "Botões Plataforma",
-            "porta": "COM3"
+            "porta": "COM3",
+            "ativo": true
         },
         {
             "nome": "Botão Roda Dianteira",
-            "porta": "COM3"
+            "porta": "COM3",
+            "ativo": true
         }
     ]
 }

@@ -33,16 +33,16 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
   Widget build(BuildContext context) {
     if (kDebugMode) {
       print('Portas sendo utilizadas: $portasDisponiveis');
-      atualizaJson('automacao', 'Sensores', 'porta', 'abc123');
     }
 
-    return AutomacaoCampo(
-      campo: 'Sensores',
-      placeholder: conexao1Porta ?? 'vazio',
-      portasArduino: portasDisponiveis,
-      onPortasChanged: (String novaPorta) {
-        atualizaJson('automacao', 'Sensores', 'porta', '123456');
-      },
+    return const AutomacaoCampo(
+      objetoAutomacao: 'Sensores',
+      // campo: 'Sensores',
+      // placeholder: conexao1Porta ?? 'vazio',
+      // portasArduino: portasDisponiveis,
+      // onPortasChanged: (String novaPorta) {
+      //   atualizaJson('automacao', 'Sensores', 'porta', '123456');
+      // },
     );
   }
 }

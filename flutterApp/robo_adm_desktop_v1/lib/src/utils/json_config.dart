@@ -51,7 +51,7 @@ Future<void> atualizaJson(
           break;
         }
       }
-    } else if (secao == 'sensores' && propriedade == 'diretorio') {
+    } else {
       for (var secaoJson in json[secao]) {
         if (secaoJson['nome'] == objeto) {
           if (novoValor == null) {
