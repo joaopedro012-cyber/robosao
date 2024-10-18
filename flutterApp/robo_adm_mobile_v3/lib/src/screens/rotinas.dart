@@ -14,7 +14,6 @@ class _RotinasPageState extends State<RotinasPage> {
   final TextEditingController nomeController = TextEditingController();
   final TextEditingController editNomeController = TextEditingController();
   final Map<int, bool> _isExpanded = {};
-  List<Map<String, dynamic>> acoesRobo = []; // Lista de ações do robô
 
   Future<void> _loadRotinas() async {
     final db = await DB.instance.database;
@@ -35,33 +34,6 @@ class _RotinasPageState extends State<RotinasPage> {
         _acoesPorRotina = acoesPorRotina;
       });
     }
-  }
-
-  // Função para carregar as ações do robô
-  Future<void> _loadAcoesRobo() async {
-    final db = await DB.instance.database;
-    List<Map<String, dynamic>> acoes = await db.query('ADM_EXECUCAO_ROTINAS', orderBy: 'ID_EXECUCAO DESC', limit: 10);
-    
-    if (mounted) {
-      setState(() {
-        acoesRobo = acoes; // Atualiza a lista de ações do rob ô
-      });
-    }
-  }
-
-  // Função para inserir uma ação do robô
-  Future<void> _insertAcao(String acao, {int acaoVertical = 0, int acaoPlataforma = 0}) async {
-    final db = await DB.instance.database;
-    await db.insert('ADM_EXECUCAO_ROTINAS', {
-      'ACAO_VERTICAL': acaoVertical,
-      'ACAO_HORIZONTAL': 0, // Adicione o valor correto para a ação horizontal, se necessário
-      'ACAO_PLATAFORMA': acaoPlataforma,
-      'ACAO_BOTAO1': acao == 'Apertar botão 1' ? 1 : 0,
-      'ACAO_BOTAO2': acao == 'Apertar botão 2' ? 1 : 0,
-      'ACAO_BOTAO3': acao == 'Apertar botão 3' ? 1 : 0,
-      'DATA_EXECUCAO': DateTime.now().toIso8601String(),
-    });
-    await _loadAcoesRobo(); // Atualiza a lista de ações após a inserção
   }
 
   Future<void> _insertRotina(String nome) async {
@@ -106,32 +78,10 @@ class _RotinasPageState extends State<RotinasPage> {
     }
   }
 
-  // Funções para movimentar o robô
-  void moverParaFrente() {
-    // Lógica para mover o robô para frente
-    _insertAcao('Mover para frente', acaoVertical: 13);
-  }
-
-  void moverParaTras() {
-    // Lógica para mover o robô para trás
-    _insertAcao('Mover para trás', acaoVertical: 13);
-  }
-
-  void subirPlataforma() {
-    // Lógica para subir a plataforma
-    _insertAcao('Subir plataforma', acaoPlataforma: 13);
-  }
-
-  void descerPlataforma() {
-    // Lógica para descer a plataforma
-    _insertAcao('Descer plataforma', acaoPlataforma: 13);
-  }
-
   @override
   void initState() {
     super.initState();
     _loadRotinas();
-    _loadAcoesRobo(); // Carregar as ações do robô ao iniciar
   }
 
   @override
@@ -179,7 +129,7 @@ class _RotinasPageState extends State<RotinasPage> {
                     ),
                   ],
                 ),
- ),
+              ),
               ..._rotinas.map((rotina) {
                 final acoes = _acoesPorRotina[rotina['ID_ROTINA']] ?? [];
                 return Card(
@@ -247,52 +197,32 @@ class _RotinasPageState extends State<RotinasPage> {
                             const Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
                                 children: [
-                                  Text("VERT.", style: TextStyle(fontWeight: FontWeight.bold)),
-                                  Text("HORIZ.", style: TextStyle(fontWeight: FontWeight.bold)),
-                                  Text("PLAT.", style: TextStyle(fontWeight: FontWeight.bold)),
-                                  Text("BT1", style: TextStyle(fontWeight: FontWeight.bold)),
-                                  Text("BT2", style: TextStyle(fontWeight: FontWeight.bold)),
-                                  Text("BT3", style: TextStyle(fontWeight: FontWeight.bold)),
+                                  Text('VERT.', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  Text('HORIZ.', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  Text('PLAT.', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  Text('BT1', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  Text('BT2', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  Text('BT3', style: TextStyle(fontWeight: FontWeight.bold)),
                                 ],
                               ),
                             ),
-                            Column(
-                              children: acoes.isNotEmpty
-                                  ? acoes.map((acao) {
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(acao['ACAO_VERTICAL']?.toString() ?? ''),
-                                            Text(acao['ACAO_HORIZONTAL']?.toString() ?? ''),
-                                            Text(acao['ACAO_PLATAFORMA']?.toString() ?? ''),
-                                            Text(acao['ACAO_BOTAO1']?.toString() ?? ''),
-                                            Text(acao['ACAO_BOTAO2']?.toString() ?? ''),
-                                            Text(acao['ACAO_BOTAO3']?.toString() ?? ''),
-                                          ],
-                                        ),
-                                      );
-                                    }).toList()
-                                  : [
-                                      const Padding(
-                                        padding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(''), // Valor vazio para VERT.
-                                            Text(''), // Valor vazio para HORIZ.
-                                            Text(''), // Valor vazio para PLAT.
-                                            Text(''), // Valor vazio para BT1
-                                            Text(''), // Valor vazio para BT2
-                                            Text(''), // Valor vazio para BT3
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                            ),
+                            for (var acao in acoes)
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  children: [
+                                    Text(acao['ACAO_VERTICAL'].toString()),
+                                    Text(acao['ACAO_HORIZONTAL'].toString()),
+                                    Text(acao['ACAO_PLATAFORMA'].toString()),
+                                    Text(acao['ACAO_BOTAO1'].toString()),
+                                    Text(acao['ACAO_BOTAO2'].toString()),
+                                    Text(acao['ACAO_BOTAO3'].toString()),
+                                  ],
+                                ),
+                              ),
                           ],
                         ),
                     ],
@@ -306,27 +236,31 @@ class _RotinasPageState extends State<RotinasPage> {
     );
   }
 
-  Future<void> _showEditDialog(int idRotina) async {
+  void _showEditDialog(int idRotina) {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Editar Rotina'),
           content: TextField(
             controller: editNomeController,
-            decoration: const InputDecoration(hintText: 'Novo nome...'),
+            decoration: const InputDecoration(
+              hintText: 'Novo nome da rotina...',
+            ),
           ),
           actions: [
             TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
               child: const Text('Cancelar'),
-              onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: const Text ('Salvar'),
               onPressed: () {
                 _editRotina(idRotina);
                 Navigator.of(context).pop();
               },
+              child: const Text('Salvar'),
             ),
           ],
         );
