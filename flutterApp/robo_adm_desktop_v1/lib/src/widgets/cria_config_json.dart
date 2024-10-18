@@ -16,94 +16,94 @@ class CriadorConfig {
     if (!await configFile.exists()) {
       await configFile.writeAsString('''
         {
-  "sensores": [
-    {
-      "sensor": "sensor1",
-      "diretorio": "caminho/para/sensor1",
-      "distancia_minima": 10
-    },
-    {
-      "sensor": "sensor2",
-      "diretorio": "caminho/para/sensor2",
-      "distancia_minima": 10
-    },
-    {
-      "sensor": "sensor3",
-      "diretorio": "caminho/para/sensor3",
-      "distancia_minima": 10
-    },
-    {
-      "sensor": "sensor4",
-      "diretorio": "caminho/para/sensor4",
-      "distancia_minima": 10
-    },
-    {
-      "sensor": "sensor5",
-      "diretorio": "caminho/para/sensor5",
-      "distancia_minima": 10
-    },
-    {
-      "sensor": "sensor6",
-      "diretorio": "caminho/para/sensor6",
-      "distancia_minima": 10
-    },
-    {
-      "sensor": "sensor7",
-      "diretorio": "caminho/para/sensor7",
-      "distancia_minima": 10
-    },
-    {
-      "sensor": "sensor8",
-      "diretorio": "caminho/para/sensor8",
-      "distancia_minima": 10
-    },
-    {
-      "sensor": "sensor9",
-      "diretorio": "caminho/para/sensor9",
-      "distancia_minima": 10
-    },
-    {
-      "sensor": "sensor10",
-      "diretorio": "caminho/para/sensor10",
-      "distancia_minima": 10
-    },
-    {
-      "sensor": "sensor11",
-      "diretorio": "caminho/para/sensor11",
-      "distancia_minima": 10
-    },
-    {
-      "sensor": "sensor12",
-      "diretorio": "caminho/para/sensor12",
-      "distancia_minima": 10
-    }
-  ],
-  "automacao": [
-    {
-      "arduino": "Sensores",
-      "porta": "COM1"
-    },
-    {
-      "arduino": "Motores Horizontal",
-      "porta": "COM2"
-    },
-    {
-      "arduino": "Motores Vertical",
-      "porta": "COM3"
-    },
-    {
-      "arduino": "Botão Roda Dianteira",
-      "porta": "COM4"
-    },
-    {
-      "arduino": "Plataforma",
-      "porta": "COM5"
-    },
-    {
-      "arduino": "Botões da Plataforma",
-      "porta": "COM6"
-    }
-  ]
+    "sensores": [
+        {
+            "nome": "sensor1",
+            "diretorio": "123teste4.json",
+            "distancia_minima": 145
+        },
+        {
+            "nome": "sensor2",
+            "diretorio": "123teste4.json",
+            "distancia_minima": 145
+        },
+        {
+            "nome": "sensor3",
+            "diretorio": "123teste4.json",
+            "distancia_minima": 145
+        },
+        {
+            "nome": "sensor4",
+            "diretorio": "123teste4.json",
+            "distancia_minima": 145
+        },
+        {
+            "nome": "sensor5",
+            "diretorio": "123teste4.json",
+            "distancia_minima": 145
+        },
+        {
+            "nome": "sensor6",
+            "diretorio": "123teste4.json",
+            "distancia_minima": 145
+        },
+        {
+            "nome": "sensor7",
+            "diretorio": "123teste4.json",
+            "distancia_minima": 145
+        },
+        {
+            "nome": "sensor8",
+            "diretorio": "123teste4.json",
+            "distancia_minima": 145
+        },
+        {
+            "nome": "sensor9",
+            "diretorio": "123teste4.json",
+            "distancia_minima": 145
+        },
+        {
+            "nome": "sensor10",
+            "diretorio": "123teste4.json",
+            "distancia_minima": 145
+        },
+        {
+            "nome": "sensor11",
+            "diretorio": "123teste4.json",
+            "distancia_minima": 145
+        },
+        {
+            "nome": "sensor12",
+            "diretorio": "123teste4.json",
+            "distancia_minima": 145
+        }
+    ],
+    "automacao": [
+        {
+            "nome": "Sensores",
+            "porta": "com1234561"
+        },
+        {
+            "nome": "Motores Horizontal",
+            "porta": "COM999"
+        },
+        {
+            "nome": "Motores Vertical",
+            "porta": "COM3"
+        },
+        {
+            "nome": "Plataforma",
+            "porta": "COM3"
+        },
+        {
+            "nome": "Botões Plataforma",
+            "porta": "COM3"
+        },
+        {
+            "nome": "Botão Roda Dianteira",
+            "porta": "COM3"
+        }
+    ]
 }
 ''');
     }
