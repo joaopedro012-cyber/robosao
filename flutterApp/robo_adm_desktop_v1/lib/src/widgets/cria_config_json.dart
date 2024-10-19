@@ -108,9 +108,7 @@ class CriadorConfig {
             "nome": "Botão Roda Dianteira",
             "porta": "COM3",
             "ativo": true
-        }
-    ]
-}
+        },{"nome":"Monitor Serial Padrao","porta":"COM4","ativo":true}]}
 ''');
     }
   }

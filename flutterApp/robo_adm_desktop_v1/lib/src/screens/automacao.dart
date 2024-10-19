@@ -1,5 +1,4 @@
 import 'package:robo_adm_desktop_v1/src/widgets/automacao_campo.dart';
-import 'package:robo_adm_desktop_v1/src/utils/json_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:libserialport/libserialport.dart';
 import 'package:flutter/material.dart';
@@ -12,37 +11,34 @@ class AutomacaoPage extends StatefulWidget {
 }
 
 class _AutomacaoPageState extends State<AutomacaoPage> {
-  late List<String> portasDisponiveis;
-  dynamic conexao1Porta;
-
-  @override
-  void initState() {
-    super.initState();
-    portasDisponiveis = SerialPort.availablePorts;
-    carregaInfoJson('automacao', 'Sensores', 'porta').then((value) {
-      setState(() {
-        conexao1Porta = value as String?;
-      });
-      if (kDebugMode) {
-        print(conexao1Porta);
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (kDebugMode) {
-      print('Portas sendo utilizadas: $portasDisponiveis');
-    }
-
-    return const AutomacaoCampo(
-      objetoAutomacao: 'Sensores',
-      // campo: 'Sensores',
-      // placeholder: conexao1Porta ?? 'vazio',
-      // portasArduino: portasDisponiveis,
-      // onPortasChanged: (String novaPorta) {
-      //   atualizaJson('automacao', 'Sensores', 'porta', '123456');
-      // },
-    );
+    double screenWidth = MediaQuery.of(context).size.width;
+    return Column(
+        verticalDirection: VerticalDirection.down,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            width: screenWidth * 1,
+            alignment: Alignment.topLeft,
+            child: const AutomacaoCampo(
+              objetoAutomacao: 'Sensores',
+            ),
+          ),
+          Container(
+            width: screenWidth,
+            height: screenWidth * 0.15,
+            child: Wrap(children: <Widget>[
+              const AutomacaoCampo(
+                objetoAutomacao: 'Monitor Serial Padrao',
+              ),
+              Container(
+                color: Colors.black,
+                width: screenWidth,
+                child: Text('teste'),
+              )
+            ]),
+          ),
+        ]);
   }
 }

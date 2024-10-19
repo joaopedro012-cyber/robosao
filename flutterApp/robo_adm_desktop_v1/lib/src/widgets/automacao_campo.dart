@@ -29,7 +29,7 @@ class _AutomacaoCampoState extends State<AutomacaoCampo> {
   }
 
   Future<void> carregaInfo() async {
-    porta = await carregaInfoJson('automacao', 'Sensores', 'porta');
+    porta = await carregaInfoJson('automacao', widget.objetoAutomacao, 'porta');
     setState(() {});
   }
 
@@ -44,7 +44,8 @@ class _AutomacaoCampoState extends State<AutomacaoCampo> {
         children: [
           SizedBox(
             width: screenWidth * 0.35,
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(widget.objetoAutomacao),
                 SizedBox(

@@ -53,7 +53,8 @@ class _SensorRotinaState extends State<SensorRotina> {
             children: [
               SizedBox(
                 width: screenWidth * 0.35,
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(widget.objetoSensor),
                     SizedBox(
@@ -83,7 +84,8 @@ class _SensorRotinaState extends State<SensorRotina> {
               ),
               SizedBox(
                 width: screenWidth * 0.20,
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('Distância Mínima'),
                     SizedBox(
