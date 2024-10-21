@@ -146,28 +146,28 @@ class ControlePageState extends State<ControlePage> {
     }
     sendBluetoothCommand(command);
   }
-
-  void moveRobot(double horizontal, double vertical) async {
-    if (_selectedRoutine != null) {
-      if (horizontal < 0) {
-        _sendMovementCommand('w'); // Para frente
-        log.info('Movendo para frente: w');
-      } else if (horizontal > 0) {
-        _sendMovementCommand('x'); // Para trás
-        log.info('Movendo para trás: x');
-      }
-      // Alterando aqui para que o joystick vertical controle a rotação
-      if (vertical < 0) {
-        _sendMovementCommand('a'); // Para esquerda
-        log.info('Virando para esquerda: a');
-      } else if (vertical > 0) {
-        _sendMovementCommand('d'); // Para direita
-        log.info('Virando para direita: d');
-      }
-    } else {
-      log.warning('Nenhuma rotina selecionada.');
+void moveRobot(double horizontal, double vertical) async {
+  if (_selectedRoutine != null) {
+    if (horizontal < 0) {
+      _sendMovementCommand('w'); // Para frente
+      log.info('Movendo para frente: w');
+    } else if (horizontal > 0) {
+      _sendMovementCommand('x'); // Para trás
+      log.info('Movendo para trás: x');
     }
+
+    if (vertical < 0) {
+      _sendMovementCommand('a'); // Para esquerda
+      log.info('Virando para esquerda: a');
+    } else if (vertical > 0) {
+      _sendMovementCommand('d'); // Para direita
+      log.info('Virando para direita: d');
+    }
+  } else {
+    log.warning('Nenhuma rotina selecionada.');
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

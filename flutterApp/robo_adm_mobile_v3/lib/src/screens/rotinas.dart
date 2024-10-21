@@ -49,7 +49,14 @@ class _RotinasPageState extends State<RotinasPage> {
 
     final db = await DB.instance.database;
     await db.insert('rotinas', {'NOME': nome});
+    
+    // Atualizar lista de rotinas após inserção
     await _loadRotinas();
+    
+    // Atualizar o estado para limpar o campo de texto
+    setState(() {
+      nomeController.clear();
+    });
   }
 
   Future<void> _editRotina(int idRotina) async {
@@ -123,7 +130,6 @@ class _RotinasPageState extends State<RotinasPage> {
                         onPressed: () {
                           final nome = nomeController.text;
                           _insertRotina(nome);
-                          nomeController.clear();
                         },
                       ),
                     ),

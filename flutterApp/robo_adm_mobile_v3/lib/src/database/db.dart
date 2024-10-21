@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart'; 
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -73,30 +73,41 @@ class DB {
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
-      // Exemplo de atualização: adicionar uma nova coluna
       await db.execute('ALTER TABLE rotinas ADD COLUMN ATIVO TEXT DEFAULT "S"');
     }
-   
   }
 
   Future<void> insertInitialData(Database db) async {
-    await db.execute('''
-      INSERT INTO ADM_ROTINAS (NOME, ATIVO , EDITAVEL)
-      VALUES ('TESTE1 DE ROTINA', 'S', 'S'),
-             ('TESTE2 DE ROTINA', 'S', 'S'),
-             ('TESTE3 DE ROTINA', 'S', 'S');
-    ''');
+    // Verifica se já existem rotinas para evitar duplicação
+    final List<Map<String, dynamic>> existingRotinas = await db.query('rotinas');
+    if (existingRotinas.isEmpty) {
+      await db.execute('''
+        INSERT INTO rotinas (NOME, DESCRICAO)
+        VALUES ('TESTE1 DE ROTINA', 'Descrição da rotina 1'),
+               ('TESTE2 DE ROTINA', 'Descrição da rotina 2'),
+               ('TESTE3 DE ROTINA', 'Descrição da rotina 3');
+      ''');
+    }
 
-    await db.execute('''
-      INSERT INTO ADM_EXECUCAO_ROTINAS (ID_ROTINA, QTD_SINAIS, ACAO, DT_EXECUCAO_UNIX_MICROSSEGUNDOS)
-      VALUES (1, 20, 'w', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000)),
-             (1, 30, 'w', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000)),
-             (3, 50, 's', (CAST((julianday('now') - 2440587.5) * 86400.0 * 1000 AS INTEGER)*1000));
-    ''');
+    // Verifica se já existem execuções para evitar duplicação
+    final List<Map<String, dynamic>> existingExecucoes = await db.query('ADM_EXECUCAO_ROTINAS');
+    if (existingExecucoes.isEmpty) {
+      List<Map<String, dynamic>> execucoesIniciais = [
+        {'ID_ROTINA': 1, 'QTD_SINAIS': 20, 'ACAO': 'w'},
+        {'ID_ROTINA': 1, 'QTD_SINAIS': 30, 'ACAO': 'w'},
+        {'ID_ROTINA': 3, 'QTD_SINAIS': 50, 'ACAO': 's'},
+      ];
+
+      for (var execucao in execucoesIniciais) {
+  await db.execute('''
+    INSERT INTO ADM_EXECUCAO_ROTINAS (ID_ROTINA, QTD_HORIZONTAL, ACAO_HORIZONTAL, DT_EXECUCAO_UNIX_MICROSSEGUNDOS)
+    VALUES (${execucao['ID_ROTINA']}, ${execucao['QTD_SINAIS']}, '${execucao['ACAO']}', 
+      (strftime('%s', 'now') * 1000000));
+  ''');
   }
-  Future<void> onUpgrade(Database db, int oldVersion, int newVersion) async {
-    
+    }
   }
+
   Future<void> insertRotina(String nome, String descricao) async {
     final db = await instance.database;
     if (nome.isEmpty || descricao.isEmpty) {
@@ -150,7 +161,6 @@ class DB {
   }) async {
     final db = await instance.database;
 
-    
     if (idRotina <= 0 || acaoHorizontal.isEmpty || acaoVertical.isEmpty || 
         acaoPlataforma.isEmpty || qtdHorizontal < 0 || qtdVertical < 0 || 
         qtdPlataforma < 0 || qtdBotao1 < 0 || qtdBotao2 < 0 || qtdBotao3 < 0) {
@@ -192,7 +202,6 @@ class DB {
   }) async {
     final db = await instance.database;
 
-    
     if (idExecucao <= 0 || acaoHorizontal.isEmpty || acaoVertical.isEmpty || 
         acaoPlataforma.isEmpty || qtdHorizontal < 0 || qtdVertical < 0 || 
         qtdPlataforma < 0 || qtdBotao1 < 0 || qtdBotao2 < 0 || qtdBotao3 < 0) {
@@ -220,16 +229,17 @@ class DB {
     );
   }
 
-  Future<void> deleteExecucao(int idExecucao) async {
-    if (idExecucao <= 0) throw Exception("ID da execução deve ser maior que zero.");
-    
+  Future<void> deleteExecucaoRotina(int idExecucao) async {
     final db = await instance.database;
+    if (idExecucao <= 0) {
+      throw Exception("ID da execução deve ser maior que zero.");
+    }
     await db.delete('ADM_EXECUCAO_ROTINAS', where: 'ID_EXECUCAO = ?', whereArgs: [idExecucao]);
   }
 
-  Future<void> deleteAcao(int idAcao) async {
-    await deleteExecucao(idAcao); 
-  }
+ Future<void> deleteAcao(int idAcao) async {
+  await deleteExecucaoRotina(idAcao); 
+}
 
   Future<List<Map<String, dynamic>>> getRotinas() async {
     final db = await instance.database;
