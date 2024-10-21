@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'controle.dart';
 
 class MainScreen extends StatefulWidget {
@@ -28,6 +29,7 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     initPlatformState();
+    _loadConnectedDevices(); // Carregar dispositivos conectados ao iniciar
   }
 
   Future<void> initPlatformState() async {
@@ -55,6 +57,28 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  Future<void> _saveConnectedDevices() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> connectedAddresses = _connectedDevices.keys.toList();
+    await prefs.setStringList('connectedDevices', connectedAddresses);
+  }
+
+  Future<void> _loadConnectedDevices() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? connectedAddresses = prefs.getStringList('connectedDevices');
+
+    if (connectedAddresses != null) {
+      for (String address in connectedAddresses) {
+        try {
+          final device = _scanResults.firstWhere((d) => d.address == address);
+          await _connectToDevice(device);
+        } catch (e) {
+          if (kDebugMode) print('Erro ao carregar dispositivo salvo: $e');
+        }
+      }
+    }
+  }
+
   @override
   void dispose() {
     _adapterStateSubscription?.cancel();
@@ -71,6 +95,7 @@ class _MainScreenState extends State<MainScreen> {
           _connectedDevices[device.address] = connection;
           _selectedDevices[device.address] = true;
         });
+        await _saveConnectedDevices(); // Salvar dispositivos conectados
       }
     } catch (e) {
       if (kDebugMode) print('Erro ao conectar: $e');
@@ -92,7 +117,6 @@ class _MainScreenState extends State<MainScreen> {
 
       await Future.wait(connectionFutures);
 
-      // Após tentar conectar a todos os dispositivos, navegue para a tela de controle
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Conexão bem-sucedida!')));
         Navigator.push(
@@ -100,7 +124,7 @@ class _MainScreenState extends State<MainScreen> {
           MaterialPageRoute(
             builder: (context) => ControlePage(
               connectedDevices: _scanResults.where((d) => _connectedDevices.containsKey(d.address)).toList(),
-              connections: _connectedDevices.values.whereType<BluetoothConnection>().toList(), // Mantenha as conexões
+              connections: _connectedDevices.values.whereType<BluetoothConnection>().toList(),
             ),
           ),
         );
@@ -210,6 +234,7 @@ class _MainScreenState extends State<MainScreen> {
             _connectedDevices.remove(device.address);
             _selectedDevices[device.address] = false;
           });
+          await _saveConnectedDevices(); // Atualizar dispositivos salvos após desconexão
         }
       }
     } catch (e) {

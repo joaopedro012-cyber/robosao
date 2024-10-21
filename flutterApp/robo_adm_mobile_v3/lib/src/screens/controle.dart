@@ -8,8 +8,7 @@ import 'dart:convert';
 final log = Logger('JoystickLogger');
 
 void main() {
-  // Configurar o nível de log para exibir informações no console
-  Logger.root.level = Level.ALL; // Capturar todas as mensagens de log
+  Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
     if (kDebugMode) {
       print('${record.level.name}: ${record.time}: ${record.message}');
@@ -30,8 +29,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.purple,
       ),
       home: const ControlePage(
-        connectedDevices: [], // Preencha com os dispositivos Bluetooth conectados
-        connections: [], // Preencha com as conexões Bluetooth
+        connectedDevices: [], 
+        connections: [],
       ),
     );
   }
@@ -57,23 +56,22 @@ class ControlePageState extends State<ControlePage> {
   @override
   void initState() {
     super.initState();
-    _loadRotinas(); // Carrega as rotinas ao iniciar
+    _loadRotinas();
   }
 
   Future<void> _loadRotinas() async {
     final db = await DB.instance.database;
-    final List<Map<String, dynamic >> rotinas = await db.query('rotinas');
+    final List<Map<String, dynamic>> rotinas = await db.query('rotinas');
     setState(() {
-      _rotinas = rotinas; // Atualiza a lista de rotinas
+      _rotinas = rotinas;
     });
   }
 
   void sendBluetoothCommand(String command) {
     for (var connection in widget.connections) {
-      List<int> bytes = utf8.encode(command); // Converte o comando em bytes
-      connection.output.add(Uint8List.fromList(bytes)); // Envia o comando
+      List<int> bytes = utf8.encode(command);
+      connection.output.add(Uint8List.fromList(bytes));
       log.info('Comando enviado: $command');
-      // Imprimir no debug console
       if (kDebugMode) {
         print('Comando Bluetooth enviado: $command');
       }
@@ -130,44 +128,64 @@ class ControlePageState extends State<ControlePage> {
       bluetoothCommand: 'Desligar Tomada $deviceNumber',
     );
   }
+  
+double _previousSliderValue = 0.0; // Armazena o valor anterior do slider
+String _currentDirection = 'para cima'; // Armazena a direção atual
 
-  void movePlatform(double position) async {
-    log.info('Movendo a plataforma para: $position');
+void movePlatform(double position) async {
+  setState(() {
+    _currentSliderValue = position * 100; // Atualiza o valor do slider
+  });
+
+  // Determina a direção com base no valor do slider
+  String newDirection = position > _previousSliderValue ? "para cima" : "para baixo";
+
+  // Verifica se a direção mudou
+  if (newDirection != _currentDirection) {
+    _currentDirection = newDirection;
+
+    // Exibe a direção do movimento
+    log.info('Movendo a plataforma $_currentDirection');
+
     await registerActionAndSendCommand(
-      actionDescription: 'Movendo Plataforma para ${position * 100}%',
-      quantidade: (position * 100).toInt(),
-      bluetoothCommand: 'Movendo Plataforma para ${position * 100}%',
+      actionDescription: 'Movendo Plataforma $_currentDirection',
+      quantidade: _currentSliderValue.toInt(),
+      bluetoothCommand: 'Movendo Plataforma $_currentDirection',
     );
   }
 
-  void _sendMovementCommand(String command) {
-    if (kDebugMode) {
-      print('Comando enviado: $command');
-    }
-    sendBluetoothCommand(command);
-  }
-void moveRobot(double horizontal, double vertical) async {
-  if (_selectedRoutine != null) {
-    if (horizontal < 0) {
-      _sendMovementCommand('w'); // Para frente
-      log.info('Movendo para frente: w');
-    } else if (horizontal > 0) {
-      _sendMovementCommand('x'); // Para trás
-      log.info('Movendo para trás: x');
-    }
-
-    if (vertical < 0) {
-      _sendMovementCommand('a'); // Para esquerda
-      log.info('Virando para esquerda: a');
-    } else if (vertical > 0) {
-      _sendMovementCommand('d'); // Para direita
-      log.info('Virando para direita: d');
-    }
-  } else {
-    log.warning('Nenhuma rotina selecionada.');
-  }
+  // Atualiza o valor anterior do slider
+  _previousSliderValue = position;
 }
 
+void _sendMovementCommand(String command) {
+  if (kDebugMode) {
+    print('Comando enviado: $command');
+  }
+  sendBluetoothCommand(command);
+}
+
+  void moveRobot(double horizontal, double vertical) async {
+    if (_selectedRoutine != null) {
+      if (horizontal < 0) {
+        _sendMovementCommand('w');
+        log.info('Movendo para frente: w');
+      } else if (horizontal > 0) {
+        _sendMovementCommand('x');
+        log.info('Movendo para trás: x');
+      }
+
+      if (vertical < 0) {
+        _sendMovementCommand('a');
+        log.info('Virando para esquerda: a');
+      } else if (vertical > 0) {
+        _sendMovementCommand('d');
+        log.info('Virando para direita: d');
+      }
+    } else {
+      log.warning('Nenhuma rotina selecionada.');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -213,17 +231,15 @@ void moveRobot(double horizontal, double vertical) async {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Container para o joystick esquerdo
                     SizedBox(
                       width: tamanhoTela * 0.17,
                       height: tamanhoTela * 0.17,
                       child: JoystickHorizontal(
                         moveRobot: (double horizontal) {
-                          moveRobot(horizontal, 0); // Motor horizontal
+                          moveRobot(horizontal, 0);
                         },
                       ),
                     ),
-                    // Container para o slider
                     RotatedBox(
                       quarterTurns: 3,
                       child: SizedBox(
@@ -238,12 +254,11 @@ void moveRobot(double horizontal, double vertical) async {
                             setState(() {
                               _currentSliderValue = value;
                             });
-                            movePlatform(value / 100); // Mova a plataforma conforme o slider
+                            movePlatform(value / 100);
                           },
                         ),
                       ),
                     ),
-                    // Container para os botões de controle
                     SizedBox(
                       width: tamanhoTela * 0.30,
                       child: Column(
@@ -257,13 +272,12 @@ void moveRobot(double horizontal, double vertical) async {
                         ],
                       ),
                     ),
-                    // Container para o joystick direito
                     SizedBox(
                       width: tamanhoTela * 0.17,
                       height: tamanhoTela * 0.17,
                       child: JoystickVertical(
                         moveRobot: (double vertical) {
-                          moveRobot(0, vertical); // Motor vertical
+                          moveRobot(0, vertical);
                         },
                       ),
                     ),
