@@ -1,6 +1,5 @@
 import 'package:robo_adm_desktop_v1/src/widgets/automacao_campo.dart';
-import 'package:flutter/foundation.dart';
-import 'package:libserialport/libserialport.dart';
+import 'package:robo_adm_desktop_v1/src/widgets/monitor_serial.dart';
 import 'package:flutter/material.dart';
 
 class AutomacaoPage extends StatefulWidget {
@@ -25,7 +24,7 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
               objetoAutomacao: 'Sensores',
             ),
           ),
-          Container(
+          SizedBox(
             width: screenWidth,
             height: screenWidth * 0.15,
             child: Wrap(children: <Widget>[
@@ -35,7 +34,7 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
               Container(
                 color: Colors.black,
                 width: screenWidth,
-                child: Text('teste'),
+                child: const MonitorSerial(portaConexao: 'COM4'),
               )
             ]),
           ),

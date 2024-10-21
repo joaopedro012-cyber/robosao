@@ -81,9 +81,6 @@ Future<dynamic> carregaInfoJson(
 
     for (var secaoJson in json[secao]) {
       if (secaoJson['nome'] == objeto) {
-        if (kDebugMode) {
-          print('testeL ${secaoJson[propriedade]}');
-        }
         return (secaoJson[propriedade]);
       }
     }

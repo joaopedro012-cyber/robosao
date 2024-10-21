@@ -12,6 +12,15 @@ class MonitorSerial extends StatefulWidget {
 class _MonitorSerialState extends State<MonitorSerial> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Container(
+      child: Column(
+        children: [
+          Text(
+            exibeConsole(widget.portaConexao),
+            style: TextStyle(color: Colors.white),
+          )
+        ],
+      ),
+    );
   }
 }
