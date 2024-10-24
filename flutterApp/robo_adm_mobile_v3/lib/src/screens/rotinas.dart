@@ -49,10 +49,10 @@ class _RotinasPageState extends State<RotinasPage> {
 
     final db = await DB.instance.database;
     await db.insert('rotinas', {'NOME': nome});
-    
+
     // Atualizar lista de rotinas após inserção
     await _loadRotinas();
-    
+
     // Atualizar o estado para limpar o campo de texto
     setState(() {
       nomeController.clear();
@@ -201,31 +201,79 @@ class _RotinasPageState extends State<RotinasPage> {
                         Column(
                           children: [
                             const Padding(
-                              padding: EdgeInsets.all(8.0),
+                              padding: EdgeInsets.symmetric(vertical: 8.0),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                                 children: [
-                                  Text('VERT.', style: TextStyle(fontWeight: FontWeight.bold)),
-                                  Text('HORIZ.', style: TextStyle(fontWeight: FontWeight.bold)),
-                                  Text('PLAT.', style: TextStyle(fontWeight: FontWeight.bold)),
-                                  Text('BT1', style: TextStyle(fontWeight: FontWeight.bold)),
-                                  Text('BT2', style: TextStyle(fontWeight: FontWeight.bold)),
-                                  Text('BT3', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  Expanded(
+                                    child: Center(
+                                      child: Text('VERT.', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Center(
+                                      child: Text('HORIZ.', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Center(
+                                      child: Text('PLAT.', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Center(
+                                      child: Text('BT1', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Center(
+                                      child: Text('BT2', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Center(
+                                      child: Text('BT3', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
                             for (var acao in acoes)
                               Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding: const EdgeInsets.symmetric(vertical: 4.0),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                                   children: [
-                                    Text(acao['ACAO_VERTICAL'].toString()),
-                                    Text(acao['ACAO_HORIZONTAL'].toString()),
-                                    Text(acao['ACAO_PLATAFORMA'].toString()),
-                                    Text(acao['ACAO_BOTAO1'].toString()),
-                                    Text(acao['ACAO_BOTAO2'].toString()),
-                                    Text(acao['ACAO_BOTAO3'].toString()),
+                                    Expanded(
+                                      child: Center(
+                                        child: Text(acao['ACAO_VERTICAL'].toString()),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Center(
+                                        child: Text(acao['ACAO_HORIZONTAL'].toString()),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Center(
+                                        child: Text(acao['ACAO_PLATAFORMA'].toString()),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Center(
+                                        child: Text(acao['ACAO_BOTAO1'].toString()),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Center(
+                                        child: Text(acao['ACAO_BOTAO2'].toString()),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Center(
+                                        child: Text(acao['ACAO_BOTAO3'].toString()),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -257,16 +305,16 @@ class _RotinasPageState extends State<RotinasPage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
                 _editRotina(idRotina);
                 Navigator.of(context).pop();
               },
               child: const Text('Salvar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancelar'),
             ),
           ],
         );

@@ -251,6 +251,10 @@ class DB {
     return await db.query('ADM_EXECUCAO_ROTINAS', where: 'ID_ROTINA = ?', whereArgs: [idRotina]);
   }
 
+  Future<List<Map<String, dynamic>>> getAcoesRobos() async {
+    final db = await instance.database;
+    return await db.query('ADM_ACAO_ROBO');
+  }
   
   Future <void> insertAcao({ 
     required int idRotina,

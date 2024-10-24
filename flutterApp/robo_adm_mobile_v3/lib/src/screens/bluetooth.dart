@@ -113,7 +113,7 @@ class _MainScreenState extends State<MainScreen> {
         if (!_connectedDevices.containsKey(address)) {
           connectionFutures.add(_connectToDevice(device));
         }
-      }
+      } 
 
       await Future.wait(connectionFutures);
 
