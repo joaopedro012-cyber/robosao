@@ -186,14 +186,7 @@ void _sendMovementCommand(String command) {
         }
 
         if (vertical < 0) {
-            _sendMovementCommand('a');
-            log.info('Virando para esquerda: a');
-            await registerActionAndSendCommand(
-                actionDescription: 'Virando para esquerda',
-                quantidade: 1,
-                bluetoothCommand: 'a',
-            );
-        } else if (vertical > 0) {
+            // Inverte os comandos para o movimento correto
             _sendMovementCommand('d');
             log.info('Virando para direita: d');
             await registerActionAndSendCommand(
@@ -201,11 +194,20 @@ void _sendMovementCommand(String command) {
                 quantidade: 1,
                 bluetoothCommand: 'd',
             );
+        } else if (vertical > 0) {
+            _sendMovementCommand('a');
+            log.info('Virando para esquerda: a');
+            await registerActionAndSendCommand(
+                actionDescription: 'Virando para esquerda',
+                quantidade: 1,
+                bluetoothCommand: 'a',
+            );
         }
     } else {
         log.warning('Nenhuma rotina selecionada.');
     }
 }
+
 
   @override
   Widget build(BuildContext context) {
