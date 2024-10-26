@@ -30,6 +30,6 @@ class _MonitorSerialState extends State<MonitorSerial> {
 
   @override
   Widget build(BuildContext context) {
-    return Text("Verifica no console");
+    return const Text("Verifica no console");
   }
 }

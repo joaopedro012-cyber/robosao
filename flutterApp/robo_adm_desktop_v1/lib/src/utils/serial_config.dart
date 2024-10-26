@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
-import 'package:robo_adm_desktop_v1/src/screens/home.dart';
+//import 'package:robo_adm_desktop_v1/src/screens/home.dart';
 import 'dart:async';
 
 void inicializadorSerialPort(final SerialPort portaConexao) {
@@ -36,7 +36,9 @@ Future<String> exibeDadosSerialPort(final SerialPort portaConexao) async {
       print('Exibido $received');
     }
   }, onError: (error) {
-    print(error);
+    if (kDebugMode) {
+      print(error);
+    }
     completer.completeError(error);
   });
 
