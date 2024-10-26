@@ -25,7 +25,6 @@ NewPing sensor12(45, 44, MAX_DISTANCE);
 void setup()
 {
   Serial.begin(9600);
-  Serial1.begin(9600);
 }
 
 void sensorUltrassom(int portaSensorUltrassom)
@@ -52,6 +51,15 @@ void sensorFisico(int portaSensorFisico)
 
 void loop()
 {
+  if (Serial.available() > 0)
+  {
+    String input = Serial.readStringUntil('\n');
+
+    if (input == "identify")
+    {
+      Serial.println("sensor_fisico_ultrassom");
+    }
+  }
   sensorFisico(2);
   sensorFisico(3);
   sensorFisico(4);

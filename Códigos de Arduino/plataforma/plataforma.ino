@@ -1,30 +1,18 @@
-// Inclui a Biblioteca AccelStepper
-#include <AccelStepper.h>
- 
-// Define os pinos de conexão
-const int DIR = 2;
-const int STEP = 3;
- 
-// Defina o tipo de interface do motor
-#define InterfaceMotor 1
- 
-// Cria uma instância
-AccelStepper Stepper(InterfaceMotor, STEP, DIR);
- 
 void setup() {
-  // Define a velocidade máxima, fator de aceleração,
-  // velocidade inicial e a posição desejada
-  Stepper.setMaxSpeed(1000);   // Velocidade máxima
-  Stepper.setAcceleration(50);   // Aceleração
-  Stepper.setSpeed(200);   // Velocidade regular
-  Stepper.moveTo(200);    // Passos que serão movidos
+  // Inicializa a comunicação serial a 9600 bps
+  Serial.begin(9600);
 }
- 
+
 void loop() {
-  // Muda a direção assim que o motor atingir a posição desejada
-  if (Stepper.distanceToGo() == 0)
-    Stepper.moveTo(-Stepper.currentPosition());
- 
-  // Mova o motor um passo
-  Stepper.run();
+  // Verifica se há dados disponíveis na porta serial
+  if (Serial.available() > 0) {
+    // Lê os dados recebidos
+    String received = Serial.readStringUntil('\n');
+    
+    // Verifica se o dado recebido é "ola"
+    if (received == "ola") {
+      // Envia a resposta "teste recebido"
+      Serial.println("teste recebido");
+    }
+  }
 }

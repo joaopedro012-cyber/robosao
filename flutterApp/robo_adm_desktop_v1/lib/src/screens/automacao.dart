@@ -1,6 +1,7 @@
 import 'package:robo_adm_desktop_v1/src/widgets/automacao_campo.dart';
 import 'package:robo_adm_desktop_v1/src/widgets/monitor_serial.dart';
 import 'package:flutter/material.dart';
+import 'package:libserialport/libserialport.dart';
 
 class AutomacaoPage extends StatefulWidget {
   const AutomacaoPage({super.key});
@@ -13,6 +14,7 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+    SerialPort porta = SerialPort("COM4");
     return Column(
         verticalDirection: VerticalDirection.down,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -32,10 +34,11 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
                 objetoAutomacao: 'Monitor Serial Padrao',
               ),
               Container(
-                color: Colors.black,
-                width: screenWidth,
-                child: const MonitorSerial(portaConexao: 'COM4'),
-              )
+                  color: Colors.black,
+                  width: screenWidth,
+                  child: MonitorSerial(
+                    portaConexao: porta,
+                  ))
             ]),
           ),
         ]);

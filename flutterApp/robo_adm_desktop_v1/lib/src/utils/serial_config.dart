@@ -1,14 +1,49 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
+import 'dart:async';
 
-String exibeConsole(String porta) {
-  SerialPort port = SerialPort(porta); // Escolha a porta adequada
-  if (!port.openReadWrite()) {
-    return 'Não foi possivel abrir a porta ${porta}';
-  } else {
-    return 'Porta ${porta} aberta.';
+void inicializadorSerialPort(final SerialPort portaConexao) {
+  portaConexao.openReadWrite();
+  portaConexao.config = SerialPortConfig()
+    ..baudRate = 9600
+    ..bits = 8
+    ..stopBits = 1
+    ..parity = SerialPortParity.none
+    ..setFlowControl(SerialPortFlowControl.none);
+  if (kDebugMode) {
+    print('INICIALIZOU A PORTA');
   }
-  // final reader = SerialPortReader(port);
-  // reader.stream.listen((data) {
-  //   return 'Dados Recebidos: ${String.fromCharCodes(data)}';
-  // });
+}
+
+void enviaDadosSerialPort(
+    final SerialPort portaConexao, String textoParaEnviar) {
+  portaConexao.write(Uint8List.fromList(textoParaEnviar.codeUnits));
+  if (kDebugMode) {
+    print('ENVIOU DADO');
+  }
+}
+
+Future<String> exibeDadosSerialPort(final SerialPort portaConexao) async {
+  SerialPortReader reader = SerialPortReader(portaConexao);
+  Completer<String> completer = Completer<String>();
+  reader.stream.listen((data) {
+    String received = String.fromCharCodes(data);
+    if (!completer.isCompleted) {
+      completer.complete(received);
+    }
+  }, onError: (error) {
+    if (!completer.isCompleted) {
+      completer.completeError(error);
+    }
+  });
+  if (kDebugMode) {
+    print('Exibido ${await completer.future}');
+  }
+  return completer.future;
+}
+
+void finalizacaoSerialPort(final SerialPort portaConexao, Timer temporizador) {
+  portaConexao.close();
+  portaConexao.dispose();
+  temporizador.cancel();
 }
