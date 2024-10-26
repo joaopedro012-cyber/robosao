@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart'; 
+ import 'package:flutter/foundation.dart'; 
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
@@ -310,6 +310,8 @@ void _sendMovementCommand(String command) {
       ),
     );
   }
+
+
   Widget _buildTomadaButton(int deviceNumber) {
     bool isSelected = _tomadaSelecionada[deviceNumber - 1];
 
