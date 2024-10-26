@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
+import 'package:robo_adm_desktop_v1/src/screens/home.dart';
 import 'dart:async';
 
 void inicializadorSerialPort(final SerialPort portaConexao) {
@@ -24,26 +25,27 @@ void enviaDadosSerialPort(
 }
 
 Future<String> exibeDadosSerialPort(final SerialPort portaConexao) async {
-  SerialPortReader reader = SerialPortReader(portaConexao);
-  Completer<String> completer = Completer<String>();
+  final Completer<String> completer = Completer<String>();
+  final reader = SerialPortReader(portaConexao);
+  String received = "por hora nada";
+
   reader.stream.listen((data) {
-    String received = String.fromCharCodes(data);
-    if (!completer.isCompleted) {
-      completer.complete(received);
+    received = String.fromCharCodes(data);
+    completer.complete(received);
+    if (kDebugMode) {
+      print('Exibido $received');
     }
   }, onError: (error) {
-    if (!completer.isCompleted) {
-      completer.completeError(error);
-    }
+    print(error);
+    completer.completeError(error);
   });
-  if (kDebugMode) {
-    print('Exibido ${await completer.future}');
-  }
+
   return completer.future;
 }
 
-void finalizacaoSerialPort(final SerialPort portaConexao, Timer temporizador) {
+void finalizacaoSerialPort(final SerialPort portaConexao //, Timer temporizador
+    ) {
   portaConexao.close();
   portaConexao.dispose();
-  temporizador.cancel();
+  //temporizador.cancel();
 }

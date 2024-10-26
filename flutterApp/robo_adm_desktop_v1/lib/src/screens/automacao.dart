@@ -1,7 +1,8 @@
+import 'package:robo_adm_desktop_v1/src/utils/serial_config.dart';
 import 'package:robo_adm_desktop_v1/src/widgets/automacao_campo.dart';
 import 'package:robo_adm_desktop_v1/src/widgets/monitor_serial.dart';
 import 'package:flutter/material.dart';
-import 'package:libserialport/libserialport.dart';
+import 'package:flutter_libserialport/flutter_libserialport.dart';
 
 class AutomacaoPage extends StatefulWidget {
   const AutomacaoPage({super.key});
@@ -32,6 +33,10 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
             child: Wrap(children: <Widget>[
               const AutomacaoCampo(
                 objetoAutomacao: 'Monitor Serial Padrao',
+              ),
+              FilledButton(
+                child: const Text('Filled Button'),
+                onPressed: () => finalizacaoSerialPort(porta),
               ),
               Container(
                   color: Colors.black,
