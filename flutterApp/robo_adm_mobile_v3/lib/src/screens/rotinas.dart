@@ -22,7 +22,7 @@ class _RotinasPageState extends State<RotinasPage> {
 
     for (var rotina in rotinas) {
       final int idRotina = rotina['ID_ROTINA'] as int? ?? 0;
-      final List<Map<String, dynamic>> acoes = await DB.instance.getExecucoesRotina(idRotina);
+      final List<Map<String, dynamic>> acoes = await DB.instance.getExecucoesRotina (idRotina);
       acoesPorRotina[idRotina] = acoes;
 
       _isExpanded.putIfAbsent(idRotina, () => false);

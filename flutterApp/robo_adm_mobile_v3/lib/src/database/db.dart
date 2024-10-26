@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart'; 
+import 'package:flutter/foundation.dart';   
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -62,8 +62,8 @@ class DB {
         DT_EXCLUSAO_UNIX_MICROSSEGUNDOS INTEGER
       )
     ''');
- 
-    await db.execute('''
+
+    await db.execute(''' 
       INSERT INTO ADM_ACAO_ROBO (ACAO, NOME)
       VALUES ('w', 'Frente'), ('x', 'Trás'), ('a', 'Esquerda'), ('d', 'Direita');
     ''');
@@ -77,34 +77,58 @@ class DB {
     }
   }
 
+  
+  int obterValorAcao(String acao) {
+    switch (acao) {
+      case 'w':
+        return 40; 
+      case 'x':
+        return 30; 
+      case 'a':
+        return 20; 
+      case 's':
+        return 10; 
+      default:
+        return 0;
+    }
+  }
+
   Future<void> insertInitialData(Database db) async {
-    // Verifica se já existem rotinas para evitar duplicação
     final List<Map<String, dynamic>> existingRotinas = await db.query('rotinas');
     if (existingRotinas.isEmpty) {
-      await db.execute('''
+      await db.execute(''' 
         INSERT INTO rotinas (NOME, DESCRICAO)
         VALUES ('TESTE1 DE ROTINA', 'Descrição da rotina 1'),
                ('TESTE2 DE ROTINA', 'Descrição da rotina 2'),
                ('TESTE3 DE ROTINA', 'Descrição da rotina 3');
       ''');
+
+      // Inserir ações iniciais para mover o robô
+      await db.execute(''' 
+        INSERT INTO ADM_EXECUCAO_ROTINAS (ID_ROTINA, QTD_HORIZONTAL, ACAO_HORIZONTAL, DT_EXECUCAO_UNIX_MICROSSEGUNDOS)
+        VALUES (1, 1, 'w', (strftime('%s', 'now') * 1000000)),
+               (1, 1, 'x', (strftime('%s', 'now') * 1000000)),
+               (1, 1, 'a', (strftime('%s', 'now') * 1000000)),
+               (1, 1, 'd', (strftime('%s', 'now') * 1000000));
+      ''');
+
     }
 
-    // Verifica se já existem execuções para evitar duplicação
     final List<Map<String, dynamic>> existingExecucoes = await db.query('ADM_EXECUCAO_ROTINAS');
     if (existingExecucoes.isEmpty) {
       List<Map<String, dynamic>> execucoesIniciais = [
-        {'ID_ROTINA': 1, 'QTD_SINAIS': 20, 'ACAO': 'w'},
-        {'ID_ROTINA': 1, 'QTD_SINAIS': 30, 'ACAO': 'w'},
-        {'ID_ROTINA': 3, 'QTD_SINAIS': 50, 'ACAO': 's'},
+        {'ID_ROTINA': 1, 'QTD_HORIZONTAL': 20, 'ACAO_HORIZONTAL': 'w'},
+        {'ID_ROTINA': 1, 'QTD_HORIZONTAL': 30, 'ACAO_HORIZONTAL': 'w'},
+        {'ID_ROTINA': 3, 'QTD_HORIZONTAL': 50, 'ACAO_HORIZONTAL': 's'},
       ];
 
       for (var execucao in execucoesIniciais) {
-  await db.execute('''
-    INSERT INTO ADM_EXECUCAO_ROTINAS (ID_ROTINA, QTD_HORIZONTAL, ACAO_HORIZONTAL, DT_EXECUCAO_UNIX_MICROSSEGUNDOS)
-    VALUES (${execucao['ID_ROTINA']}, ${execucao['QTD_SINAIS']}, '${execucao['ACAO']}', 
-      (strftime('%s', 'now') * 1000000));
-  ''');
-  }
+        await db.execute(''' 
+          INSERT INTO ADM_EXECUCAO_ROTINAS (ID_ROTINA, QTD_HORIZONTAL, ACAO_HORIZONTAL, DT_EXECUCAO_UNIX_MICROSSEGUNDOS)
+          VALUES (${execucao['ID_ROTINA']}, ${execucao['QTD_HORIZONTAL']}, '${execucao['ACAO_HORIZONTAL']}', 
+          (strftime('%s', 'now') * 1000000));
+        ''');
+      }
     }
   }
 
@@ -229,18 +253,6 @@ class DB {
     );
   }
 
-  Future<void> deleteExecucaoRotina(int idExecucao) async {
-    final db = await instance.database;
-    if (idExecucao <= 0) {
-      throw Exception("ID da execução deve ser maior que zero.");
-    }
-    await db.delete('ADM_EXECUCAO_ROTINAS', where: 'ID_EXECUCAO = ?', whereArgs: [idExecucao]);
-  }
-
- Future<void> deleteAcao(int idAcao) async {
-  await deleteExecucaoRotina(idAcao); 
-}
-
   Future<List<Map<String, dynamic>>> getRotinas() async {
     final db = await instance.database;
     return await db.query('rotinas');
@@ -248,8 +260,19 @@ class DB {
 
   Future<List<Map<String, dynamic>>> getExecucoesRotina(int idRotina) async {
     final db = await instance.database;
-    return await db.query('ADM_EXECUCAO_ROTINAS', where: 'ID_ROTINA = ?', whereArgs: [idRotina]);
+    return await db.query(
+      'ADM_EXECUCAO_ROTINAS',
+      where: 'ID_ROTINA = ?',
+      whereArgs: [idRotina],
+    );
   }
+
+  Future<void> deleteExecucaoRotina(int idExecucao) async {
+    final db = await instance.database;
+    await db.delete('ADM_EXECUCAO_ROTINAS', where: 'ID_EXECUCAO = ?', whereArgs: [idExecucao]);
+  }
+
+
 
   Future<List<Map<String, dynamic>>> getAcoesRobos() async {
     final db = await instance.database;

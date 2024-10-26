@@ -53,6 +53,10 @@ class ControlePageState extends State<ControlePage> {
   List<Map<String, dynamic>> _rotinas = [];
   final List<bool> _tomadaSelecionada = [false, false, false];
 
+  // Variáveis para controle de movimento
+  double _previousSliderValue = 0.0; // Armazena o valor anterior do slider
+  String _currentDirection = 'para cima'; // Armazena a direção atual
+
   @override
   void initState() {
     super.initState();
@@ -128,86 +132,81 @@ class ControlePageState extends State<ControlePage> {
       bluetoothCommand: 'Desligar Tomada $deviceNumber',
     );
   }
-  
-double _previousSliderValue = 0.0; // Armazena o valor anterior do slider
-String _currentDirection = 'para cima'; // Armazena a direção atual
 
-void movePlatform(double position) async {
-  setState(() {
-    _currentSliderValue = position * 100; // Atualiza o valor do slider
-  });
+  void movePlatform(double position) async {
+    setState(() {
+      _currentSliderValue = position * 100; // Atualiza o valor do slider
+    });
 
-  // Determina a direção com base no valor do slider
-  String newDirection = position > _previousSliderValue ? "para cima" : "para baixo";
+    // Determina a direção com base no valor do slider
+    String newDirection = position > _previousSliderValue ? "para cima" : "para baixo";
 
-  // Verifica se a direção mudou
-  if (newDirection != _currentDirection) {
-    _currentDirection = newDirection;
+    // Verifica se a direção mudou
+    if (newDirection != _currentDirection) {
+      _currentDirection = newDirection;
 
-    // Exibe a direção do movimento
-    log.info('Movendo a plataforma $_currentDirection');
+      // Exibe a direção do movimento
+      log.info('Movendo a plataforma $_currentDirection');
 
-    await registerActionAndSendCommand(
-      actionDescription: 'Movendo Plataforma $_currentDirection',
-      quantidade: _currentSliderValue.toInt(),
-      bluetoothCommand: 'Movendo Plataforma $_currentDirection',
-    );
+      await registerActionAndSendCommand(
+        actionDescription: 'Movendo Plataforma $_currentDirection',
+        quantidade: _currentSliderValue.toInt(),
+        bluetoothCommand: 'Movendo Plataforma $_currentDirection',
+      );
+    }
+
+    // Atualiza o valor anterior do slider
+    _previousSliderValue = position;
   }
 
-  // Atualiza o valor anterior do slider
-  _previousSliderValue = position;
-}
-
-void _sendMovementCommand(String command) {
-  if (kDebugMode) {
-    print('Comando enviado: $command');
+  void _sendMovementCommand(String command) {
+    if (kDebugMode) {
+      print('Comando enviado: $command');
+    }
+    sendBluetoothCommand(command);
   }
-  sendBluetoothCommand(command);
-}
 
   void moveRobot(double horizontal, double vertical) async {
     if (_selectedRoutine != null) {
-        if (horizontal < 0) {
-            _sendMovementCommand('w');
-            log.info('Movendo para frente: w');
-            await registerActionAndSendCommand(
-                actionDescription: 'Movendo para frente',
-                quantidade: 1,
-                bluetoothCommand: 'w',
-            );
-        } else if (horizontal > 0) {
-            _sendMovementCommand('x');
-            log.info('Movendo para trás: x');
-            await registerActionAndSendCommand(
-                actionDescription: 'Movendo para trás',
-                quantidade: 1,
-                bluetoothCommand: 'x',
-            );
-        }
+      if (horizontal < 0) {
+        _sendMovementCommand('w');
+        log.info('Movendo para frente: w');
+        await registerActionAndSendCommand(
+          actionDescription: 'Movendo para frente',
+          quantidade: 1,
+          bluetoothCommand: 'w',
+        );
+      } else if (horizontal > 0) {
+        _sendMovementCommand('x');
+        log.info('Movendo para trás: x');
+        await registerActionAndSendCommand(
+          actionDescription: 'Movendo para trás',
+          quantidade: 1,
+          bluetoothCommand: 'x',
+        );
+      }
 
-        if (vertical < 0) {
-            // Inverte os comandos para o movimento correto
-            _sendMovementCommand('d');
-            log.info('Virando para direita: d');
-            await registerActionAndSendCommand(
-                actionDescription: 'Virando para direita',
-                quantidade: 1,
-                bluetoothCommand: 'd',
-            );
-        } else if (vertical > 0) {
-            _sendMovementCommand('a');
-            log.info('Virando para esquerda: a');
-            await registerActionAndSendCommand(
-                actionDescription: 'Virando para esquerda',
-                quantidade: 1,
-                bluetoothCommand: 'a',
-            );
-        }
+      if (vertical < 0) {
+        _sendMovementCommand('d');
+        log.info('Virando para direita: d');
+        await registerActionAndSendCommand(
+          actionDescription: 'Virando para direita',
+          quantidade: 1,
+          bluetoothCommand: 'd',
+        );
+      } else if (vertical > 0) {
+        _sendMovementCommand('a');
+        log.info('Virando para esquerda: a');
+        await registerActionAndSendCommand(
+          actionDescription: 'Virando para esquerda',
+          quantidade: 1,
+          bluetoothCommand: 'a',
+        );
+      }
     } else {
-        log.warning('Nenhuma rotina selecionada.');
+      log.warning('Nenhuma rotina selecionada.');
     }
-}
-
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -312,7 +311,6 @@ void _sendMovementCommand(String command) {
       ),
     );
   }
-
   Widget _buildTomadaButton(int deviceNumber) {
     bool isSelected = _tomadaSelecionada[deviceNumber - 1];
 
