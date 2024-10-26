@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart'; 
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
@@ -52,10 +52,6 @@ class ControlePageState extends State<ControlePage> {
   double _currentSliderValue = 50;
   List<Map<String, dynamic>> _rotinas = [];
   final List<bool> _tomadaSelecionada = [false, false, false];
-
-  // Variáveis para controle de movimento
-  double _previousSliderValue = 0.0; // Armazena o valor anterior do slider
-  String _currentDirection = 'para cima'; // Armazena a direção atual
 
   @override
   void initState() {
@@ -132,41 +128,37 @@ class ControlePageState extends State<ControlePage> {
       bluetoothCommand: 'Desligar Tomada $deviceNumber',
     );
   }
+  
+double _previousSliderValue = 0.0; // Armazena o valor anterior do slider
+String _currentDirection = 'para cima'; // Armazena a direção atual
 
-  void movePlatform(double position) async {
-    setState(() {
-      _currentSliderValue = position * 100; // Atualiza o valor do slider
-    });
+void movePlatform(double position) async {
+  setState(() {
+    _currentSliderValue = position * 100; // Atualiza o valor do slider
+  });
 
-    // Determina a direção com base no valor do slider
-    String newDirection = position > _previousSliderValue ? "para cima" : "para baixo";
+  // Determina a direção com base no valor do slider
+  String newDirection = position > _previousSliderValue ? "para cima" : "para baixo";
 
-    // Verifica se a direção mudou
-    if (newDirection != _currentDirection) {
-      _currentDirection = newDirection;
+  // Verifica se a direção mudou
+  if (newDirection != _currentDirection) {
+    _currentDirection = newDirection;
 
-      // Exibe a direção do movimento
-      log.info('Movendo a plataforma $_currentDirection');
+    // Exibe a direção do movimento
+    log.info('Movendo a plataforma $_currentDirection');
 
-      await registerActionAndSendCommand(
-        actionDescription: 'Movendo Plataforma $_currentDirection',
-        quantidade: _currentSliderValue.toInt(),
-        bluetoothCommand: 'Movendo Plataforma $_currentDirection',
-      );
-    }
-
-    // Atualiza o valor anterior do slider
-    _previousSliderValue = position;
+    await registerActionAndSendCommand(
+      actionDescription: 'Movendo Plataforma $_currentDirection',
+      quantidade: _currentSliderValue.toInt(),
+      bluetoothCommand: 'Movendo Plataforma $_currentDirection',
+    );
   }
 
-  void _sendMovementCommand(String command) {
-    if (kDebugMode) {
-      print('Comando enviado: $command');
-    }
-    sendBluetoothCommand(command);
-  }
+  // Atualiza o valor anterior do slider
+  _previousSliderValue = position;
+}
 
-  void sendMovementCommand(String command) { 
+void _sendMovementCommand(String command) {
   if (kDebugMode) {
     print('Comando enviado: $command');
   }
@@ -194,21 +186,20 @@ class ControlePageState extends State<ControlePage> {
         }
 
         if (vertical < 0) {
-            // Inverte os comandos para o movimento correto
-            _sendMovementCommand('d');
-            log.info('Virando para direita: d');
-            await registerActionAndSendCommand(
-                actionDescription: 'Virando para direita',
-                quantidade: 1,
-                bluetoothCommand: 'd',
-            );
-        } else if (vertical > 0) {
             _sendMovementCommand('a');
             log.info('Virando para esquerda: a');
             await registerActionAndSendCommand(
                 actionDescription: 'Virando para esquerda',
                 quantidade: 1,
                 bluetoothCommand: 'a',
+            );
+        } else if (vertical > 0) {
+            _sendMovementCommand('d');
+            log.info('Virando para direita: d');
+            await registerActionAndSendCommand(
+                actionDescription: 'Virando para direita',
+                quantidade: 1,
+                bluetoothCommand: 'd',
             );
         }
     } else {
