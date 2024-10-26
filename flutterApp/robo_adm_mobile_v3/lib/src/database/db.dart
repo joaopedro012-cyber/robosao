@@ -83,22 +83,6 @@ class DB {
     }
   }
 
-  // Map action commands to numeric values
-  int obterValorAcao(String acao) {
-    switch (acao) {
-      case 'w':
-        return 40; 
-      case 'x':
-        return 30; 
-      case 'a':
-        return 20; 
-      case 's':
-        return 10; 
-      default:
-        return 0;
-    }
-  }
-
   // Insert initial data if the tables are empty
   Future<void> insertInitialData(Database db) async {
     final List<Map<String, dynamic>> existingRotinas = await db.query('rotinas');
