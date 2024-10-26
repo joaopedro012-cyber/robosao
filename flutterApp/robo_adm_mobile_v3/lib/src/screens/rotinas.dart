@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';  
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
 
 class RotinasPage extends StatefulWidget {
@@ -233,7 +233,7 @@ class _RotinasPageState extends State<RotinasPage> {
                                 ],
                               ),
                             ),
-                            StreamBuilder<List<Map<String, dynamic>>>(
+                            StreamBuilder<List<Map<String, dynamic>>>( 
                               stream: DB.instance.streamAcoesPorRotina(rotina['ID_ROTINA']),
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -266,16 +266,16 @@ class _RotinasPageState extends State<RotinasPage> {
                             ),
                             ElevatedButton(
                               onPressed: () async {
-                                // Aqui você pode adicionar lógica para registrar uma ação.
                                 final acao = {
-                                  'ACAO_VERTICAL': 32, // Substitua por valores reais
-                                  'ACAO_HORIZONTAL': 32, // Substitua por valores reais
-                                  'PLATAFORMA': 50, // Substitua por valores reais
-                                  'BT1': 4, // Substitua por valores reais
-                                  'BT2': 4, // Substitua por valores reais
-                                  'BT3': 4, // Substitua por valores reais
+                                  'ACAO_VERTICAL': 32,
+                                  'ACAO_HORIZONTAL': 32,
+                                  'PLATAFORMA': 50,
+                                  'BT1': 4,
+                                  'BT2': 4,
+                                  'BT3': 4,
                                 };
                                 await registerAction(rotina['ID_ROTINA'], acao);
+                                _showSnackBar('Ação registrada com sucesso!'); // Feedback ao usuário
                               },
                               child: const Text('Registrar Ação'),
                             ),
@@ -300,23 +300,21 @@ class _RotinasPageState extends State<RotinasPage> {
           title: const Text('Editar Rotina'),
           content: TextField(
             controller: editNomeController,
-            decoration: const InputDecoration(
-              hintText: 'Nome da rotina...',
-            ),
+            decoration: const InputDecoration(hintText: 'Novo nome...'),
           ),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
+                _editRotina(idRotina);
+                Navigator.of(context).pop();
               },
-              child: const Text('Cancelar'),
+              child: const Text('Salvar'),
             ),
             TextButton(
               onPressed: () {
-                _editRotina(idRotina);
-                Navigator.pop(context);
+                Navigator.of(context).pop();
               },
-              child: const Text('Salvar'),
+              child: const Text('Cancelar'),
             ),
           ],
         );
