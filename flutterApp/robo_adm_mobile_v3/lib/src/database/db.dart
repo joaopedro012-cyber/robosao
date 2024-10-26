@@ -1,22 +1,18 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';   
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'dart:async';
 
 class DB {
-  // Singleton pattern
   DB._();
   static final DB instance = DB._();
 
   static Database? _database;
 
-  // Getter for the database instance
   Future<Database> get database async {
     _database ??= await _initDatabase();
     return _database!;
   }
 
-  // Initialize the database
   Future<Database> _initDatabase() async {
     final path = join(await getDatabasesPath(), 'AplicativoRobo.db');
     return await openDatabase(
@@ -27,9 +23,8 @@ class DB {
     );
   }
 
-  // Create tables and initial data on database creation
   Future<void> _onCreate(Database db, int version) async {
-    await db.execute('''
+    await db.execute(''' 
       CREATE TABLE rotinas (
         ID_ROTINA INTEGER PRIMARY KEY AUTOINCREMENT,
         NOME TEXT,
@@ -37,7 +32,7 @@ class DB {
       )
     ''');
 
-    await db.execute('''
+    await db.execute(''' 
       CREATE TABLE ADM_EXECUCAO_ROTINAS (
         ID_EXECUCAO INTEGER PRIMARY KEY AUTOINCREMENT,
         ID_ROTINA INTEGER,
@@ -59,7 +54,7 @@ class DB {
       )
     ''');
 
-    await db.execute('''
+    await db.execute(''' 
       CREATE TABLE ADM_ACAO_ROBO (
         ID_ACAO INTEGER PRIMARY KEY AUTOINCREMENT,
         ACAO TEXT,
@@ -68,7 +63,7 @@ class DB {
       )
     ''');
 
-    await db.execute('''
+    await db.execute(''' 
       INSERT INTO ADM_ACAO_ROBO (ACAO, NOME)
       VALUES ('w', 'Frente'), ('x', 'Trás'), ('a', 'Esquerda'), ('d', 'Direita');
     ''');
@@ -76,31 +71,31 @@ class DB {
     await insertInitialData(db);
   }
 
-  // Handle database upgrades
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('ALTER TABLE rotinas ADD COLUMN ATIVO TEXT DEFAULT "S"');
     }
   }
 
-  // Insert initial data if the tables are empty
   Future<void> insertInitialData(Database db) async {
     final List<Map<String, dynamic>> existingRotinas = await db.query('rotinas');
     if (existingRotinas.isEmpty) {
-      await db.execute('''
+      await db.execute(''' 
         INSERT INTO rotinas (NOME, DESCRICAO)
         VALUES ('TESTE1 DE ROTINA', 'Descrição da rotina 1'),
                ('TESTE2 DE ROTINA', 'Descrição da rotina 2'),
                ('TESTE3 DE ROTINA', 'Descrição da rotina 3');
       ''');
 
-      await db.execute('''
+      // Inserir ações iniciais para mover o robô
+      await db.execute(''' 
         INSERT INTO ADM_EXECUCAO_ROTINAS (ID_ROTINA, QTD_HORIZONTAL, ACAO_HORIZONTAL, DT_EXECUCAO_UNIX_MICROSSEGUNDOS)
         VALUES (1, 1, 'w', (strftime('%s', 'now') * 1000000)),
                (1, 1, 'x', (strftime('%s', 'now') * 1000000)),
                (1, 1, 'a', (strftime('%s', 'now') * 1000000)),
                (1, 1, 'd', (strftime('%s', 'now') * 1000000));
       ''');
+
     }
 
     final List<Map<String, dynamic>> existingExecucoes = await db.query('ADM_EXECUCAO_ROTINAS');
@@ -112,7 +107,7 @@ class DB {
       ];
 
       for (var execucao in execucoesIniciais) {
-        await db.execute('''
+        await db.execute(''' 
           INSERT INTO ADM_EXECUCAO_ROTINAS (ID_ROTINA, QTD_HORIZONTAL, ACAO_HORIZONTAL, DT_EXECUCAO_UNIX_MICROSSEGUNDOS)
           VALUES (${execucao['ID_ROTINA']}, ${execucao['QTD_HORIZONTAL']}, '${execucao['ACAO_HORIZONTAL']}', 
           (strftime('%s', 'now') * 1000000));
@@ -121,7 +116,6 @@ class DB {
     }
   }
 
-  // Insert a new routine
   Future<void> insertRotina(String nome, String descricao) async {
     final db = await instance.database;
     if (nome.isEmpty || descricao.isEmpty) {
@@ -133,17 +127,19 @@ class DB {
     });
   }
 
-  // Get executions of a specific routine
-  Future<List<Map<String, dynamic>>> getExecucoesRotina(int idRotina) async {
+  Future<void> updateRotina(int idRotina, String nome, String descricao) async {
     final db = await instance.database;
-    return await db.query(
-      'ADM_EXECUCAO_ROTINAS',
+    if (idRotina <= 0 || nome.isEmpty || descricao.isEmpty) {
+      throw Exception("ID da rotina deve ser maior que zero e nome/descrição não podem ser vazios.");
+    }
+    await db.update(
+      'rotinas',
+      {'NOME': nome, 'DESCRICAO': descricao},
       where: 'ID_ROTINA = ?',
       whereArgs: [idRotina],
     );
   }
 
-  // Delete a routine and its executions
   Future<void> deleteRotina(int idRotina) async {
     if (idRotina <= 0) throw Exception("ID da rotina deve ser maior que zero.");
 
@@ -154,7 +150,6 @@ class DB {
     });
   }
 
-  // Insert an execution for a routine
   Future<void> insertExecucaoRotina({
     required int idRotina,
     required String acaoHorizontal,
@@ -199,7 +194,6 @@ class DB {
     });
   }
 
-  // Update an execution of a routine
   Future<void> updateExecucaoRotina(int idExecucao, {
     required String acaoHorizontal,
     required int qtdHorizontal,
@@ -213,7 +207,6 @@ class DB {
     required int qtdBotao2,
     required String acaoBotao3,
     required int qtdBotao3,
-    int? dtExclusao,
   }) async {
     final db = await instance.database;
 
@@ -238,10 +231,23 @@ class DB {
         'QTD_BOTAO2': qtdBotao2,
         'ACAO_BOTAO3': acaoBotao3,
         'QTD_BOTAO3': qtdBotao3,
-        'DT_EXCLUSAO_UNIX_MICROSSEGUNDOS': dtExclusao ?? 0,
       },
       where: 'ID_EXECUCAO = ?',
       whereArgs: [idExecucao],
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> getRotinas() async {
+    final db = await instance.database;
+    return await db.query('rotinas');
+  }
+
+  Future<List<Map<String, dynamic>>> getExecucoesRotina(int idRotina) async {
+    final db = await instance.database;
+    return await db.query(
+      'ADM_EXECUCAO_ROTINAS',
+      where: 'ID_ROTINA = ?',
+      whereArgs: [idRotina],
     );
   }
 
@@ -249,16 +255,6 @@ class DB {
     final db = await instance.database;
     await db.delete('ADM_EXECUCAO_ROTINAS', where: 'ID_EXECUCAO = ?', whereArgs: [idExecucao]);
   }
-
-  // Novo método para criar um stream que fornece ações de uma rotina específica
-  Stream<List<Map<String, dynamic>>> streamAcoesPorRotina(int idRotina) async* {
-    final db = await instance.database;
-    yield* Stream.periodic(const Duration(seconds: 1)).asyncMap((_) async {
-      return await db.query('ADM_EXECUCAO_ROTINAS', where: 'ID_ROTINA = ?', whereArgs: [idRotina]);
-    });
-  }
-
-
 
   Future<List<Map<String, dynamic>>> getAcoesRobos() async {
     final db = await instance.database;

@@ -166,47 +166,55 @@ class ControlePageState extends State<ControlePage> {
     sendBluetoothCommand(command);
   }
 
+  void sendMovementCommand(String command) { 
+  if (kDebugMode) {
+    print('Comando enviado: $command');
+  }
+  sendBluetoothCommand(command);
+}
+
   void moveRobot(double horizontal, double vertical) async {
     if (_selectedRoutine != null) {
-      if (horizontal < 0) {
-        _sendMovementCommand('w');
-        log.info('Movendo para frente: w');
-        await registerActionAndSendCommand(
-          actionDescription: 'Movendo para frente',
-          quantidade: 1,
-          bluetoothCommand: 'w',
-        );
-      } else if (horizontal > 0) {
-        _sendMovementCommand('x');
-        log.info('Movendo para trás: x');
-        await registerActionAndSendCommand(
-          actionDescription: 'Movendo para trás',
-          quantidade: 1,
-          bluetoothCommand: 'x',
-        );
-      }
+        if (horizontal < 0) {
+            _sendMovementCommand('w');
+            log.info('Movendo para frente: w');
+            await registerActionAndSendCommand(
+                actionDescription: 'Movendo para frente',
+                quantidade: 1,
+                bluetoothCommand: 'w',
+            );
+        } else if (horizontal > 0) {
+            _sendMovementCommand('x');
+            log.info('Movendo para trás: x');
+            await registerActionAndSendCommand(
+                actionDescription: 'Movendo para trás',
+                quantidade: 1,
+                bluetoothCommand: 'x',
+            );
+        }
 
-      if (vertical < 0) {
-        _sendMovementCommand('d');
-        log.info('Virando para direita: d');
-        await registerActionAndSendCommand(
-          actionDescription: 'Virando para direita',
-          quantidade: 1,
-          bluetoothCommand: 'd',
-        );
-      } else if (vertical > 0) {
-        _sendMovementCommand('a');
-        log.info('Virando para esquerda: a');
-        await registerActionAndSendCommand(
-          actionDescription: 'Virando para esquerda',
-          quantidade: 1,
-          bluetoothCommand: 'a',
-        );
-      }
+        if (vertical < 0) {
+            // Inverte os comandos para o movimento correto
+            _sendMovementCommand('d');
+            log.info('Virando para direita: d');
+            await registerActionAndSendCommand(
+                actionDescription: 'Virando para direita',
+                quantidade: 1,
+                bluetoothCommand: 'd',
+            );
+        } else if (vertical > 0) {
+            _sendMovementCommand('a');
+            log.info('Virando para esquerda: a');
+            await registerActionAndSendCommand(
+                actionDescription: 'Virando para esquerda',
+                quantidade: 1,
+                bluetoothCommand: 'a',
+            );
+        }
     } else {
-      log.warning('Nenhuma rotina selecionada.');
+        log.warning('Nenhuma rotina selecionada.');
     }
-  }
+}
 
   @override
   Widget build(BuildContext context) {
