@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; 
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
 
 class RotinasPage extends StatefulWidget {
@@ -10,30 +10,35 @@ class RotinasPage extends StatefulWidget {
 
 class _RotinasPageState extends State<RotinasPage> {
   List<Map<String, dynamic>> _rotinas = [];
-  Map<int, List<Map<String, dynamic>>> _acoesPorRotina = {};
   final TextEditingController nomeController = TextEditingController();
   final TextEditingController editNomeController = TextEditingController();
   final Map<int, bool> _isExpanded = {};
 
+  @override
+  void initState() {
+    super.initState();
+    _loadRotinas();
+  }
+
+  // Método para carregar rotinas e suas ações
   Future<void> _loadRotinas() async {
     final db = await DB.instance.database;
     final List<Map<String, dynamic>> rotinas = await db.query('rotinas');
-    final Map<int, List<Map<String, dynamic>>> acoesPorRotina = {};
-
     for (var rotina in rotinas) {
-      final int idRotina = rotina['ID_ROTINA'] as int? ?? 0;
-      final List<Map<String, dynamic>> acoes = await DB.instance.getExecucoesRotina (idRotina);
-      acoesPorRotina[idRotina] = acoes;
-
-      _isExpanded.putIfAbsent(idRotina, () => false);
+      _isExpanded.putIfAbsent(rotina['ID_ROTINA'], () => false);
     }
 
     if (mounted) {
       setState(() {
         _rotinas = rotinas;
-        _acoesPorRotina = acoesPorRotina;
       });
     }
+  }
+
+  Future<void> registerAction(int idRotina, Map<String, dynamic> acao) async {
+    final db = await DB.instance.database;
+    await db.insert('acoes', {...acao, 'ID_ROTINA': idRotina});
+    await _loadRotinas();
   }
 
   Future<void> _insertRotina(String nome) async {
@@ -49,11 +54,8 @@ class _RotinasPageState extends State<RotinasPage> {
 
     final db = await DB.instance.database;
     await db.insert('rotinas', {'NOME': nome});
-
-    // Atualizar lista de rotinas após inserção
     await _loadRotinas();
 
-    // Atualizar o estado para limpar o campo de texto
     setState(() {
       nomeController.clear();
     });
@@ -83,12 +85,6 @@ class _RotinasPageState extends State<RotinasPage> {
         SnackBar(content: Text(message)),
       );
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _loadRotinas();
   }
 
   @override
@@ -137,7 +133,6 @@ class _RotinasPageState extends State<RotinasPage> {
                 ),
               ),
               ..._rotinas.map((rotina) {
-                final acoes = _acoesPorRotina[rotina['ID_ROTINA']] ?? [];
                 return Card(
                   margin: const EdgeInsets.all(8.0),
                   shape: RoundedRectangleBorder(
@@ -238,45 +233,52 @@ class _RotinasPageState extends State<RotinasPage> {
                                 ],
                               ),
                             ),
-                            for (var acao in acoes)
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            StreamBuilder<List<Map<String, dynamic>>>(
+                              stream: DB.instance.streamAcoesPorRotina(rotina['ID_ROTINA']),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return const Center(child: CircularProgressIndicator());
+                                }
+                                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                  return const Text('Nenhuma ação registrada.');
+                                }
+                                final acoes = snapshot.data!;
+                                return Column(
                                   children: [
-                                    Expanded(
-                                      child: Center(
-                                        child: Text(acao['ACAO_VERTICAL'].toString()),
+                                    for (var acao in acoes)
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                          children: [
+                                            Expanded(child: Center(child: Text(acao['ACAO_VERTICAL'].toString()))),
+                                            Expanded(child: Center(child: Text(acao['ACAO_HORIZONTAL'].toString()))),
+                                            Expanded(child: Center(child: Text(acao['PLATAFORMA'].toString()))),
+                                            Expanded(child: Center(child: Text(acao['BT1'].toString()))),
+                                            Expanded(child: Center(child: Text(acao['BT2'].toString()))),
+                                            Expanded(child: Center(child: Text(acao['BT3'].toString()))),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    Expanded(
-                                      child: Center(
-                                        child: Text(acao['ACAO_HORIZONTAL'].toString()),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Center(
-                                        child: Text(acao['ACAO_PLATAFORMA'].toString()),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Center(
-                                        child: Text(acao['ACAO_BOTAO1'].toString()),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Center(
-                                        child: Text(acao['ACAO_BOTAO2'].toString()),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Center(
-                                        child: Text(acao['ACAO_BOTAO3'].toString()),
-                                      ),
-                                    ),
                                   ],
-                                ),
-                              ),
+                                );
+                              },
+                            ),
+                            ElevatedButton(
+                              onPressed: () async {
+                                // Aqui você pode adicionar lógica para registrar uma ação.
+                                final acao = {
+                                  'ACAO_VERTICAL': 32, // Substitua por valores reais
+                                  'ACAO_HORIZONTAL': 32, // Substitua por valores reais
+                                  'PLATAFORMA': 50, // Substitua por valores reais
+                                  'BT1': 4, // Substitua por valores reais
+                                  'BT2': 4, // Substitua por valores reais
+                                  'BT3': 4, // Substitua por valores reais
+                                };
+                                await registerAction(rotina['ID_ROTINA'], acao);
+                              },
+                              child: const Text('Registrar Ação'),
+                            ),
                           ],
                         ),
                     ],
@@ -290,31 +292,31 @@ class _RotinasPageState extends State<RotinasPage> {
     );
   }
 
-  void _showEditDialog(int idRotina) {
-    showDialog(
+  Future<void> _showEditDialog(int idRotina) {
+    return showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         return AlertDialog(
           title: const Text('Editar Rotina'),
           content: TextField(
             controller: editNomeController,
             decoration: const InputDecoration(
-              hintText: 'Novo nome da rotina...',
+              hintText: 'Nome da rotina...',
             ),
           ),
           actions: [
             TextButton(
               onPressed: () {
-                _editRotina(idRotina);
-                Navigator.of(context).pop();
+                Navigator.pop(context);
               },
-              child: const Text('Salvar'),
+              child: const Text('Cancelar'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                _editRotina(idRotina);
+                Navigator.pop(context);
               },
-              child: const Text('Cancelar'),
+              child: const Text('Salvar'),
             ),
           ],
         );

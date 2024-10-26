@@ -1,6 +1,7 @@
-import 'package:flutter/foundation.dart';   
+import 'package:flutter/foundation.dart';    
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'dart:async';
 
 class DB {
   DB._();
@@ -77,7 +78,6 @@ class DB {
     }
   }
 
-  
   int obterValorAcao(String acao) {
     switch (acao) {
       case 'w':
@@ -103,7 +103,6 @@ class DB {
                ('TESTE3 DE ROTINA', 'Descrição da rotina 3');
       ''');
 
-      // Inserir ações iniciais para mover o robô
       await db.execute(''' 
         INSERT INTO ADM_EXECUCAO_ROTINAS (ID_ROTINA, QTD_HORIZONTAL, ACAO_HORIZONTAL, DT_EXECUCAO_UNIX_MICROSSEGUNDOS)
         VALUES (1, 1, 'w', (strftime('%s', 'now') * 1000000)),
@@ -111,7 +110,6 @@ class DB {
                (1, 1, 'a', (strftime('%s', 'now') * 1000000)),
                (1, 1, 'd', (strftime('%s', 'now') * 1000000));
       ''');
-
     }
 
     final List<Map<String, dynamic>> existingExecucoes = await db.query('ADM_EXECUCAO_ROTINAS');
@@ -143,18 +141,15 @@ class DB {
     });
   }
 
-  Future<void> updateRotina(int idRotina, String nome, String descricao) async {
-    final db = await instance.database;
-    if (idRotina <= 0 || nome.isEmpty || descricao.isEmpty) {
-      throw Exception("ID da rotina deve ser maior que zero e nome/descrição não podem ser vazios.");
-    }
-    await db.update(
-      'rotinas',
-      {'NOME': nome, 'DESCRICAO': descricao},
-      where: 'ID_ROTINA = ?',
-      whereArgs: [idRotina],
-    );
-  }
+  Future<List<Map<String, dynamic>>> getExecucoesRotina(int idRotina) async {
+  final db = await instance.database;
+  return await db.query(
+    'ADM_EXECUCAO_ROTINAS',
+    where: 'ID_ROTINA = ?',
+    whereArgs: [idRotina],
+  );
+}
+
 
   Future<void> deleteRotina(int idRotina) async {
     if (idRotina <= 0) throw Exception("ID da rotina deve ser maior que zero.");
@@ -226,12 +221,6 @@ class DB {
   }) async {
     final db = await instance.database;
 
-    if (idExecucao <= 0 || acaoHorizontal.isEmpty || acaoVertical.isEmpty || 
-        acaoPlataforma.isEmpty || qtdHorizontal < 0 || qtdVertical < 0 || 
-        qtdPlataforma < 0 || qtdBotao1 < 0 || qtdBotao2 < 0 || qtdBotao3 < 0) {
-      throw Exception("Dados inválidos para atualização.");
-    }
-
     await db.update(
       'ADM_EXECUCAO_ROTINAS',
       {
@@ -253,23 +242,17 @@ class DB {
     );
   }
 
-  Future<List<Map<String, dynamic>>> getRotinas() async {
-    final db = await instance.database;
-    return await db.query('rotinas');
-  }
-
-  Future<List<Map<String, dynamic>>> getExecucoesRotina(int idRotina) async {
-    final db = await instance.database;
-    return await db.query(
-      'ADM_EXECUCAO_ROTINAS',
-      where: 'ID_ROTINA = ?',
-      whereArgs: [idRotina],
-    );
-  }
-
   Future<void> deleteExecucaoRotina(int idExecucao) async {
     final db = await instance.database;
     await db.delete('ADM_EXECUCAO_ROTINAS', where: 'ID_EXECUCAO = ?', whereArgs: [idExecucao]);
+  }
+
+  // Novo método para criar um stream que fornece ações de uma rotina específica
+  Stream<List<Map<String, dynamic>>> streamAcoesPorRotina(int idRotina) async* {
+    final db = await instance.database;
+    yield* Stream.periodic(const Duration(seconds: 1)).asyncMap((_) async {
+      return await db.query('ADM_EXECUCAO_ROTINAS', where: 'ID_ROTINA = ?', whereArgs: [idRotina]);
+    });
   }
 
 
