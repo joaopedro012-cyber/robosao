@@ -1,18 +1,21 @@
+const int relePin = 7; // Pino digital conectado ao módulo relé
+
 void setup() {
-  // Inicializa a comunicação serial a 9600 bps
-  Serial.begin(9600);
+  pinMode(relePin, OUTPUT); // Define o pino do relé como saída
+  Serial.begin(9600); // Inicia a comunicação serial
+  digitalWrite(relePin, LOW); // Inicialmente, desliga o relé
 }
 
 void loop() {
-  // Verifica se há dados disponíveis na porta serial
   if (Serial.available() > 0) {
-    // Lê os dados recebidos
-    String received = Serial.readStringUntil('\n');
-    
-    // Verifica se o dado recebido é "ola"
-    if (received == "ola") {
-      // Envia a resposta "teste recebido"
-      Serial.println("teste recebido");
+    char comando = Serial.read(); // Lê o comando recebido via serial
+
+    if (comando == 'M') {
+      digitalWrite(relePin, HIGH); // Liga o relé
+      Serial.println("Relé ligado");
+    } else if (comando == 'N') {
+      digitalWrite(relePin, LOW); // Desliga o relé
+      Serial.println("Relé desligado");
     }
   }
 }

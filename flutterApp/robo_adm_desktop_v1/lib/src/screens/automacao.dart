@@ -16,15 +16,50 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     SerialPort porta = SerialPort("COM4");
-    return Column(
+    return Wrap(
         verticalDirection: VerticalDirection.down,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-            width: screenWidth * 1,
+            width: screenWidth * 0.35,
             alignment: Alignment.topLeft,
             child: const AutomacaoCampo(
               objetoAutomacao: 'Sensores',
+            ),
+          ),
+          Container(
+            width: screenWidth * 0.35,
+            alignment: Alignment.topLeft,
+            child: const AutomacaoCampo(
+              objetoAutomacao: 'Motores Horizontal',
+            ),
+          ),
+          Container(
+            width: screenWidth * 0.35,
+            alignment: Alignment.topLeft,
+            child: const AutomacaoCampo(
+              objetoAutomacao: 'Motores Vertical',
+            ),
+          ),
+          Container(
+            width: screenWidth * 0.35,
+            alignment: Alignment.topLeft,
+            child: const AutomacaoCampo(
+              objetoAutomacao: 'Plataforma',
+            ),
+          ),
+          Container(
+            width: screenWidth * 0.35,
+            alignment: Alignment.topLeft,
+            child: const AutomacaoCampo(
+              objetoAutomacao: 'Botões Plataforma',
+            ),
+          ),
+          Container(
+            width: screenWidth * 0.35,
+            alignment: Alignment.topLeft,
+            child: const AutomacaoCampo(
+              objetoAutomacao: 'Botão Roda Dianteira',
             ),
           ),
           SizedBox(
@@ -35,7 +70,7 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
                 objetoAutomacao: 'Monitor Serial Padrao',
               ),
               FilledButton(
-                child: const Text('Filled Button'),
+                child: const Text('FECHA A CONEXÃO'),
                 onPressed: () => finalizacaoSerialPort(porta),
               ),
               Container(
