@@ -1,5 +1,7 @@
- import 'package:flutter/material.dart'; 
+import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
+import 'package:flutter/foundation.dart';
 
 class RotinasPage extends StatefulWidget {
   const RotinasPage({super.key});
@@ -22,7 +24,7 @@ class _RotinasPageState extends State<RotinasPage> {
 
     for (var rotina in rotinas) {
       final int idRotina = rotina['ID_ROTINA'] as int? ?? 0;
-      final List<Map<String, dynamic>> acoes = await DB.instance.getExecucoesRotina (idRotina);
+      final List<Map<String, dynamic>> acoes = await DB.instance.getExecucoesRotina(idRotina);
       acoesPorRotina[idRotina] = acoes;
 
       _isExpanded.putIfAbsent(idRotina, () => false);
@@ -49,11 +51,7 @@ class _RotinasPageState extends State<RotinasPage> {
 
     final db = await DB.instance.database;
     await db.insert('rotinas', {'NOME': nome});
-
-    // Atualizar lista de rotinas após inserção
     await _loadRotinas();
-
-    // Atualizar o estado para limpar o campo de texto
     setState(() {
       nomeController.clear();
     });
@@ -75,6 +73,22 @@ class _RotinasPageState extends State<RotinasPage> {
   Future<void> _deleteRotina(int idRotina) async {
     await DB.instance.deleteRotina(idRotina);
     await _loadRotinas();
+  }
+
+  Future<void> _exportRotina(int idRotina) async {
+    final rotina = _rotinas.firstWhere((r) => r['ID_ROTINA'] == idRotina);
+    final List<Map<String, dynamic>> acoes = _acoesPorRotina[idRotina] ?? [];
+    final Map<String, dynamic> rotinaExport = {
+      'rotina': rotina,
+      'acoes': acoes,
+    };
+
+    final String rotinaJson = jsonEncode(rotinaExport);
+    if (kDebugMode) {
+      print(rotinaJson);
+    } // Exibe o JSON no console para verificação
+
+    _showSnackBar('Rotina exportada para o console (JSON)');
   }
 
   void _showSnackBar(String message) {
@@ -127,10 +141,7 @@ class _RotinasPageState extends State<RotinasPage> {
                       ),
                       child: IconButton(
                         icon: const Icon(Icons.add, color: Colors.white),
-                        onPressed: () {
-                          final nome = nomeController.text;
-                          _insertRotina(nome);
-                        },
+                        onPressed: () => _insertRotina(nomeController.text),
                       ),
                     ),
                   ],
@@ -176,9 +187,11 @@ class _RotinasPageState extends State<RotinasPage> {
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete_forever, color: Color.fromARGB(255, 56, 44, 219)),
-                                onPressed: () {
-                                  _deleteRotina(rotina['ID_ROTINA']);
-                                },
+                                onPressed: () => _deleteRotina(rotina['ID_ROTINA']),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.download, color: Color.fromARGB(255, 82, 48, 238)),
+                                onPressed: () => _exportRotina(rotina['ID_ROTINA']),
                               ),
                               IconButton(
                                 icon: Icon(
@@ -205,36 +218,12 @@ class _RotinasPageState extends State<RotinasPage> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                                 children: [
-                                  Expanded(
-                                    child: Center(
-                                      child: Text('VERT.', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: Text('HORIZ.', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: Text('PLAT.', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: Text('BT1', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: Text('BT2', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: Text('BT3', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    ),
-                                  ),
+                                  Expanded(child: Center(child: Text('VERT.', style: TextStyle(fontWeight: FontWeight.bold)))),
+                                  Expanded(child: Center(child: Text('HORIZ.', style: TextStyle(fontWeight: FontWeight.bold)))),
+                                  Expanded(child: Center(child: Text('PLAT.', style: TextStyle(fontWeight: FontWeight.bold)))),
+                                  Expanded(child: Center(child: Text('BT1', style: TextStyle(fontWeight: FontWeight.bold)))),
+                                  Expanded(child: Center(child: Text('BT2', style: TextStyle(fontWeight: FontWeight.bold)))),
+                                  Expanded(child: Center(child: Text('BT3', style: TextStyle(fontWeight: FontWeight.bold)))),
                                 ],
                               ),
                             ),
@@ -244,36 +233,12 @@ class _RotinasPageState extends State<RotinasPage> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                                   children: [
-                                    Expanded(
-                                      child: Center(
-                                        child: Text(acao['ACAO_VERTICAL'].toString()),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Center(
-                                        child: Text(acao['ACAO_HORIZONTAL'].toString()),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Center(
-                                        child: Text(acao['ACAO_PLATAFORMA'].toString()),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Center(
-                                        child: Text(acao['ACAO_BOTAO1'].toString()),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Center(
-                                        child: Text(acao['ACAO_BOTAO2'].toString()),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Center(
-                                        child: Text(acao['ACAO_BOTAO3'].toString()),
-                                      ),
-                                    ),
+                                    Expanded(child: Center(child: Text(acao['ACAO_VERTICAL'].toString()))),
+                                    Expanded(child: Center(child: Text(acao['ACAO_HORIZONTAL'].toString()))),
+                                    Expanded(child: Center(child: Text(acao['ACAO_PLATAFORMA'].toString()))),
+                                    Expanded(child: Center(child: Text(acao['ACAO_BOTAO1'].toString()))),
+                                    Expanded(child: Center(child: Text(acao['ACAO_BOTAO2'].toString()))),
+                                    Expanded(child: Center(child: Text(acao['ACAO_BOTAO3'].toString()))),
                                   ],
                                 ),
                               ),
@@ -293,28 +258,30 @@ class _RotinasPageState extends State<RotinasPage> {
   void _showEditDialog(int idRotina) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         return AlertDialog(
           title: const Text('Editar Rotina'),
           content: TextField(
             controller: editNomeController,
             decoration: const InputDecoration(
-              hintText: 'Novo nome da rotina...',
+              hintText: 'Novo nome...',
             ),
           ),
           actions: [
             TextButton(
+              child: const Text('Cancelar'),
               onPressed: () {
-                _editRotina(idRotina);
+                editNomeController.clear();
                 Navigator.of(context).pop();
               },
-              child: const Text('Salvar'),
             ),
             TextButton(
+              child: const Text('Salvar'),
               onPressed: () {
+                _editRotina(idRotina);
+                editNomeController.clear();
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancelar'),
             ),
           ],
         );

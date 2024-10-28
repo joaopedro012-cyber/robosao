@@ -1,4 +1,4 @@
-name: robo_adm_mobile_v2
+name: robo_adm_mobile_v2 
 description: "A new Flutter project."
 publish_to: 'none'
 
@@ -27,6 +27,10 @@ dependencies:
   # Dependências adicionais
   shared_preferences: ^2.3.2
   uuid: ^4.5.1
+
+  # Dependência para exportar arquivos CSV
+  csv: ^5.0.0  # Adicionando a biblioteca para manipulação de CSV
+  path_provider: ^2.1.4
 
 dev_dependencies:
   flutter_test:
