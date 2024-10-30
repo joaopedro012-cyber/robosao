@@ -8,12 +8,12 @@ void main() {
 }
 
 class bluetoothPage extends StatefulWidget {
-  const bluetoothPage({Key? key}) : super(key: key);
+  const bluetoothPage({super.key});
   @override
-  _bluetoothPageState createState() => _bluetoothPageState();
+  bluetoothPageState createState() => bluetoothPageState();
 }
 
-class _bluetoothPageState extends State<bluetoothPage> {
+class bluetoothPageState extends State<bluetoothPage> {
   final FlutterBlue flutterBlue = FlutterBlue.instance;
   List<BluetoothDevice> availableDevices = [];
 
@@ -24,7 +24,7 @@ class _bluetoothPageState extends State<bluetoothPage> {
   }
 
   void startScanning() {
-    flutterBlue.startScan(timeout: Duration(seconds: 60));
+    flutterBlue.startScan(timeout: const Duration(seconds: 60));
     flutterBlue.scanResults.listen((results) {
       setState(() {
         availableDevices = results.map((result) => result.device).toList();
@@ -37,8 +37,8 @@ class _bluetoothPageState extends State<bluetoothPage> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          backgroundColor: Color(0xFF7171d5),
-          title: Text(
+          backgroundColor: const Color(0xFF7171d5),
+          title: const Text(
             'Conexões Bluetooth',
             style: TextStyle(
                 color: Colors.white,
@@ -46,7 +46,7 @@ class _bluetoothPageState extends State<bluetoothPage> {
                 fontWeight: FontWeight.bold),
           ),
           leading: IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back,
               color: Colors.white,
               size: 32,
@@ -57,11 +57,11 @@ class _bluetoothPageState extends State<bluetoothPage> {
           ),
         ),
         body: Container(
-          margin: EdgeInsets.only(top: 14, left: 14),
+          margin: const EdgeInsets.only(top: 14, left: 14),
           child: Wrap(
             spacing: 16,
             children: [
-              Expanded(
+              const Expanded(
                 child: Text(
                   'DISPOSITIVOS CONECTADOS:',
                   style: TextStyle(
@@ -70,7 +70,7 @@ class _bluetoothPageState extends State<bluetoothPage> {
                       fontWeight: FontWeight.bold),
                 ),
               ),
-              Expanded(
+              const Expanded(
                 child: Text(
                   'DISPOSITIVOS DISPONÍVEIS:',
                   style: TextStyle(

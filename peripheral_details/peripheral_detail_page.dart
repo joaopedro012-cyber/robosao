@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print, depend_on_referenced_packages
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
 import 'package:expandable/expandable.dart';
@@ -35,7 +36,7 @@ class _PeripheralDetailPageState extends State<PeripheralDetailPage> {
 
   ({
     BleService service,
-    BleCharacteristic characteristic
+    BleCharacteristic characteristic,
   })? selectedCharacteristic;
 
   @override
@@ -243,7 +244,6 @@ class _PeripheralDetailPageState extends State<PeripheralDetailPage> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      // Top buttons
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
@@ -267,202 +267,44 @@ class _PeripheralDetailPageState extends State<PeripheralDetailPage> {
                                 UniversalBle.disconnect(widget.deviceId);
                               },
                             ),
-                          ],
-                        ),
-                      ),
-                      selectedCharacteristic == null
-                          ? Text(discoveredServices.isEmpty
-                              ? "Please discover services"
-                              : "Please select a characteristic")
-                          : Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                              ),
-                              child: Card(
-                                child: ListTile(
-                                  title: SelectableText(
-                                    "Characteristic: ${selectedCharacteristic!.characteristic.uuid}",
-                                  ),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SelectableText(
-                                        "Service: ${selectedCharacteristic!.service.uuid}",
-                                      ),
-                                      Text(
-                                        "Properties: ${selectedCharacteristic!.characteristic.properties.map((e) => e.name)}",
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                      if (isValidProperty([
-                        CharacteristicProperty.write,
-                        CharacteristicProperty.writeWithoutResponse
-                      ]))
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Form(
-                            key: valueFormKey,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextFormField(
-                                controller: binaryCode,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter a value';
-                                  }
-                                  try {
-                                    hex.decode(binaryCode.text);
-                                    return null;
-                                  } catch (e) {
-                                    return 'Please enter a valid hex value ( without spaces or 0x (e.g. F0BB) )';
-                                  }
-                                },
-                                decoration: const InputDecoration(
-                                  hintText:
-                                      "Enter Hex values without spaces or 0x (e.g. F0BB)",
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      const Divider(),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ResponsiveButtonsGrid(
-                          children: [
                             PlatformButton(
+                              text: 'Pair',
+                              enabled: !isConnected,
                               onPressed: () async {
-                                _discoverServices();
-                              },
-                              enabled: isConnected,
-                              text: 'Discover Services',
-                            ),
-                            PlatformButton(
-                              onPressed: () async {
-                                _addLog(
-                                  'ConnectionState',
-                                  await UniversalBle.getConnectionState(
-                                    widget.deviceId,
-                                  ),
-                                );
-                              },
-                              text: 'Connection State',
-                            ),
-                            if (Capabilities.supportsRequestMtuApi)
-                              PlatformButton(
-                                enabled: isConnected,
-                                onPressed: () async {
-                                  int mtu = await UniversalBle.requestMtu(
-                                      widget.deviceId, 247);
-                                  _addLog('MTU', mtu);
-                                },
-                                text: 'Request Mtu',
-                              ),
-                            PlatformButton(
-                              enabled: isConnected &&
-                                  discoveredServices.isNotEmpty &&
-                                  isValidProperty([
-                                    CharacteristicProperty.read,
-                                  ]),
-                              onPressed: _readValue,
-                              text: 'Read',
-                            ),
-                            PlatformButton(
-                              enabled: isConnected &&
-                                  discoveredServices.isNotEmpty &&
-                                  isValidProperty([
-                                    CharacteristicProperty.write,
-                                    CharacteristicProperty.writeWithoutResponse
-                                  ]),
-                              onPressed: _writeValue,
-                              text: 'Write',
-                            ),
-                            PlatformButton(
-                              enabled: isConnected &&
-                                  discoveredServices.isNotEmpty &&
-                                  isValidProperty([
-                                    CharacteristicProperty.notify,
-                                    CharacteristicProperty.indicate
-                                  ]),
-                              onPressed: () => _setBleInputProperty(
-                                  BleInputProperty.notification),
-                              text: 'Subscribe',
-                            ),
-                            PlatformButton(
-                              enabled: isConnected &&
-                                  discoveredServices.isNotEmpty &&
-                                  isValidProperty([
-                                    CharacteristicProperty.notify,
-                                    CharacteristicProperty.indicate
-                                  ]),
-                              onPressed: () => _setBleInputProperty(
-                                  BleInputProperty.disabled),
-                              text: 'Unsubscribe',
-                            ),
-                            if (Capabilities.supportsPairingApi)
-                              PlatformButton(
-                                onPressed: () async {
+                                try {
                                   await UniversalBle.pair(widget.deviceId);
-                                },
-                                text: 'Pair',
-                              ),
-                            if (Capabilities.supportsPairingApi)
-                              PlatformButton(
-                                onPressed: () async {
-                                  bool? isPaired = await UniversalBle.isPaired(
-                                      widget.deviceId);
-                                  _addLog('IsPaired', isPaired);
-                                },
-                                text: 'IsPaired',
-                              ),
-                            if (Capabilities.supportsPairingApi)
-                              PlatformButton(
-                                onPressed: () async {
-                                  await UniversalBle.unPair(widget.deviceId);
-                                },
-                                text: 'UnPair',
-                              ),
+                                } catch (e) {
+                                  _addLog('PairError', e);
+                                }
+                              },
+                            ),
                           ],
                         ),
                       ),
-                      // Services
-                      if (deviceType != DeviceType.desktop)
-                        ServicesListWidget(
-                          discoveredServices: discoveredServices,
-                          onTap: (BleService service,
-                              BleCharacteristic characteristic) {
-                            setState(() {
-                              selectedCharacteristic = (
-                                service: service,
-                                characteristic: characteristic
-                              );
-                            });
-                          },
-                        ),
                       const Divider(),
-                      ResultWidget(
-                          results: _logs,
-                          onClearTap: (int? index) {
-                            setState(() {
-                              if (index != null) {
-                                _logs.removeAt(index);
-                              } else {
-                                _logs.clear();
-                              }
-                            });
+                      ValueListenableBuilder(
+                          valueListenable: expandableController,
+                          builder: (_, isExpanded, __) {
+                            return isExpanded
+                                ? const ResultWidget()
+                                : ServicesListWidget(
+                                    discoveredServices: discoveredServices,
+                                    onTap: (BleService service,
+                                        BleCharacteristic characteristic) {
+                                      setState(() {
+                                        selectedCharacteristic = (
+                                          service: service,
+                                          characteristic: characteristic
+                                        );
+                                      });
+                                    },
+                                  );
                           }),
-                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
               ),
-            ),
+            )
           ],
         );
       }),

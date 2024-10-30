@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
-
 import 'screens/home.dart';
 import 'screens/bluetooth.dart';
 
 void main() {
-  runApp(const roboApp());
+  runApp(const RoboApp());
 }
 
-class roboApp extends StatelessWidget {
-  const roboApp({super.key});
+class RoboApp extends StatelessWidget {
+  const RoboApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.deepPurple),
-      home: const homePage(),
+      home: const HomePage(),
       routes: {
-        '/homepage': (context) => const homePage(),
+        '/homepage': (context) => const HomePage(),
         '/bluetoothpage': (context) => const bluetoothPage(),
       },
     );

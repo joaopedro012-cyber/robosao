@@ -7,13 +7,13 @@ void main() {
 }
 
 class homePage extends StatefulWidget {
-  const homePage({Key? key}) : super(key: key);
+  const homePage({super.key});
 
   @override
-  _homePageState createState() => _homePageState();
+  homePageState createState() => homePageState();
 }
 
-class _homePageState extends State<homePage> {
+class homePageState extends State<homePage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -23,7 +23,7 @@ class _homePageState extends State<homePage> {
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.blue,
-          title: Text(
+          title: const Text(
             'Administração Robo',
             style: TextStyle(
                 color: Colors.white,
@@ -38,7 +38,7 @@ class _homePageState extends State<homePage> {
               BotaoComIcone(
                 icone: Icons.bluetooth,
                 textoIcone: 'BLUETOOTH',
-                corDeFundo: Color(0xFF7171d5),
+                corDeFundo: const Color(0xFF7171d5),
                 onPressed: () {
                   Navigator.pushNamed(context, '/BluetoothPage');
                 },
@@ -46,7 +46,7 @@ class _homePageState extends State<homePage> {
               BotaoComIcone(
                 icone: Icons.computer_outlined,
                 textoIcone: 'COMPUTADOR',
-                corDeFundo: Color(0xFF8d40b7),
+                corDeFundo: const Color(0xFF8d40b7),
                 onPressed: () {
                   Navigator.pushNamed(context, '/BluetoothPage');
                 },
@@ -54,28 +54,28 @@ class _homePageState extends State<homePage> {
               BotaoComIcone(
                   icone: Icons.sports_esports,
                   textoIcone: 'CONTROLE',
-                  corDeFundo: Color.fromARGB(255, 78, 78, 78),
+                  corDeFundo: const Color.fromARGB(255, 78, 78, 78),
                   onPressed: () {
                     Navigator.pushNamed(context, '/ControlePage');
                   }),
               BotaoComIcone(
                   icone: Icons.build,
                   textoIcone: 'MANUTENÇÃO',
-                  corDeFundo: Color(0xFFd5ac4d),
+                  corDeFundo: const Color(0xFFd5ac4d),
                   onPressed: () {
                     Navigator.pushNamed(context, '/BluetoothPage');
                   }),
               BotaoComIcone(
                   icone: Icons.list,
                   textoIcone: 'ROTINAS',
-                  corDeFundo: Color(0xFFd57171),
+                  corDeFundo: const Color(0xFFd57171),
                   onPressed: () {
                     Navigator.pushNamed(context, '/BluetoothPage');
                   }),
               BotaoComIcone(
                   icone: Icons.radar,
                   textoIcone: 'SENSORES',
-                  corDeFundo: Color(0xFF9ac847),
+                  corDeFundo: const Color(0xFF9ac847),
                   onPressed: () {
                     Navigator.pushNamed(context, '/BluetoothPage');
                   })

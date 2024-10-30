@@ -9,10 +9,10 @@ class SensorRotina extends StatefulWidget {
   const SensorRotina({super.key, required this.objetoSensor});
 
   @override
-  _SensorRotinaState createState() => _SensorRotinaState();
+  SensorRotinaState createState() => SensorRotinaState();
 }
 
-class _SensorRotinaState extends State<SensorRotina> {
+class SensorRotinaState extends State<SensorRotina> {
   fui.AutoSuggestBoxItem<String>? selected;
   String rotinaNoPlaceholder = '';
   int distanciaMinima = 0;
