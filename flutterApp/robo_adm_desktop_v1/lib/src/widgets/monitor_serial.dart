@@ -3,7 +3,6 @@ import 'package:robo_adm_desktop_v1/src/utils/serial_config.dart';
 import 'dart:async';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 
-//MANDAR "OLA" PARA TESTAR
 class MonitorSerial extends StatefulWidget {
   final SerialPort portaConexao;
   const MonitorSerial({super.key, required this.portaConexao});
@@ -15,21 +14,40 @@ class MonitorSerial extends StatefulWidget {
 class _MonitorSerialState extends State<MonitorSerial> {
   Future<String>? valorRecebido;
   SerialPortReader? reader;
-  late Timer timer;
 
   @override
   void initState() {
     super.initState();
-    timer = Timer(const Duration(milliseconds: 500),
+    inicializarComunicacao();
+  }
+
+  Future<void> inicializarComunicacao() async {
+    await Future.delayed(const Duration(milliseconds: 500), 
         () => inicializadorSerialPort(widget.portaConexao));
-    timer = Timer(const Duration(milliseconds: 600),
+
+    await Future.delayed(const Duration(milliseconds: 100), 
         () => enviaDadosSerialPort(widget.portaConexao, "ola\n"));
-    timer = Timer(const Duration(milliseconds: 700),
-        () => valorRecebido = exibeDadosSerialPort(widget.portaConexao));
+
+    setState(() {
+      valorRecebido = exibeDadosSerialPort(widget.portaConexao);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Text("Verifica no console");
+    return FutureBuilder<String>(
+      future: valorRecebido,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Erro: ${snapshot.error}');
+        } else if (snapshot.hasData) {
+          return Text('Resposta: ${snapshot.data}');
+        } else {
+          return const Text("Nenhum dado recebido.");
+        }
+      },
+    );
   }
 }

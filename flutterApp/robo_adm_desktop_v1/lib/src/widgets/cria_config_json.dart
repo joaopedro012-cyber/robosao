@@ -3,8 +3,7 @@ import 'package:path_provider/path_provider.dart';
 
 class CriadorConfig {
   Future<void> criarConfigJson() async {
-    final Directory documentsDirectory =
-        await getApplicationDocumentsDirectory();
+    final Directory documentsDirectory = await getApplicationDocumentsDirectory();
     final String novoCaminho = '${documentsDirectory.path}/Rotinas Robo';
     final Directory novoDiretorio = Directory(novoCaminho);
 
@@ -14,8 +13,8 @@ class CriadorConfig {
 
     final File configFile = File('${novoDiretorio.path}/config.json');
     if (!await configFile.exists()) {
-      await configFile.writeAsString('''
-        {
+      await configFile.writeAsString(r'''
+{
     "sensores": [
         {
             "nome": "sensor1",
@@ -108,8 +107,18 @@ class CriadorConfig {
             "nome": "Botão Roda Dianteira",
             "porta": "COM3",
             "ativo": true
-        },{"nome":"Monitor Serial Padrao","porta":"COM4","ativo":true}]}
+        },
+        {
+            "nome": "Monitor Serial Padrao",
+            "porta": "COM4",
+            "ativo": true
+        }
+    ]
+}
 ''');
+      print('Arquivo config.json criado com sucesso!');
+    } else {
+      print('O arquivo config.json já existe.');
     }
   }
 }

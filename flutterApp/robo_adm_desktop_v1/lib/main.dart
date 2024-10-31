@@ -17,11 +17,7 @@ Future<void> criarPastaDeRotinas() async {
 
   final File configFile = File('${novoDiretorio.path}/config.json');
   if (!await configFile.exists()) {
-    CriadorConfig();
-//     await configFile.writeAsString('''
-// PUXOU O ERRADO, CONVERTE PARA O CRIA_CONFIG_JSON.DART
-
-// ''');
+    CriadorConfig(); // Criação da configuração inicial, sem necessidade de comentários
   }
 }
 
@@ -31,14 +27,14 @@ void main() async {
   await flutter_acrylic.Window.initialize();
   await WindowManager.instance.ensureInitialized();
   await criarPastaDeRotinas();
-  windowManager.waitUntilReadyToShow().then(
-    (_) async {
-      await windowManager.setMinimumSize(const Size(657, 300));
-      await windowManager.show();
-      await windowManager.setPreventClose(false);
-      await windowManager.setSkipTaskbar(false);
-    },
-  );
+
+  windowManager.waitUntilReadyToShow().then((_) async {
+    await windowManager.setMinimumSize(const Size(657, 300));
+    await windowManager.show();
+    await windowManager.setPreventClose(false);
+    await windowManager.setSkipTaskbar(false);
+  });
+
   runApp(const MyApp());
 }
 

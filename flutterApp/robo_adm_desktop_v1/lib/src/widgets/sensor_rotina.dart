@@ -25,10 +25,8 @@ class SensorRotinaState extends State<SensorRotina> {
   }
 
   Future<void> carregaInfo() async {
-    rotinaNoPlaceholder =
-        await carregaInfoJson('sensores', widget.objetoSensor, 'diretorio');
-    distanciaMinima = await carregaInfoJson(
-        'sensores', widget.objetoSensor, 'distancia_minima');
+    rotinaNoPlaceholder = await carregaInfoJson('sensores', widget.objetoSensor, 'diretorio');
+    distanciaMinima = (await carregaInfoJson('sensores', widget.objetoSensor, 'distancia_minima')) as int;
     setState(() {});
   }
 
@@ -39,8 +37,13 @@ class SensorRotinaState extends State<SensorRotina> {
       future: objetoListaDeRotinas,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
+          return const SizedBox(
+            width: 24.0,
+            height: 24.0,
+            child: CircularProgressIndicator(),
+          );
         } else if (snapshot.hasError) {
+          debugPrint('Error loading data: ${snapshot.error}');
           return Text('Error: ${snapshot.error}');
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Text('No data available');
@@ -74,8 +77,7 @@ class SensorRotinaState extends State<SensorRotina> {
                         }).toList(),
                         onSelected: (item) async {
                           setState(() => selected = item);
-                          await atualizaJson('sensores', widget.objetoSensor,
-                              'diretorio', item.value);
+                          await atualizaJson('sensores', widget.objetoSensor, 'diretorio', item.value);
                         },
                       ),
                     ),
@@ -98,10 +100,13 @@ class SensorRotinaState extends State<SensorRotina> {
                             ? null
                             : (value) async {
                                 await atualizaJson(
-                                    'sensores',
-                                    widget.objetoSensor,
-                                    'distancia_minima',
-                                    value);
+                                  'sensores',
+                                  widget.objetoSensor,
+                                  'distancia_minima',
+                                  value,
+                                );
+                                setState(() => distanciaMinima = value as int);
+
                               },
                       ),
                     ),
