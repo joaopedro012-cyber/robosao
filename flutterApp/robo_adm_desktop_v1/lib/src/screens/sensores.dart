@@ -32,18 +32,18 @@ class SensorUltrassonico {
   }
 }
 
-// Classe do robô que utiliza sensores ultrassônicos
+// Classe do robô que utiliza 12 sensores ultrassônicos em posições específicas
 class RoboTriangular {
   static const double distanciaMinimaDefault = 25.0;
-  final SensorUltrassonico sensorFrente;
-  final SensorUltrassonico sensorEsquerda;
-  final SensorUltrassonico sensorDireita;
 
-  RoboTriangular(this.sensorFrente, this.sensorEsquerda, this.sensorDireita);
+  // Lista de sensores, com 12 sensores ultrassônicos em posições diferentes
+  final List<SensorUltrassonico> sensores;
+
+  RoboTriangular(this.sensores);
 
   void parar() {
     if (kDebugMode) {
-      print("Robo parado.");
+      print("Robô parado.");
     }
   }
 
@@ -70,24 +70,29 @@ class RoboTriangular {
       // Carrega distância mínima de desvio do JSON
       double distanciaMinima = await carregaDistanciaMinima();
 
-      double distanciaFrente = await sensorFrente.medirDistancia();
-      double distanciaEsquerda = await sensorEsquerda.medirDistancia();
-      double distanciaDireita = await sensorDireita.medirDistancia();
+      // Medir a distância em cada sensor e armazenar em uma lista
+      List<double> distancias = await Future.wait(
+          sensores.map((sensor) => sensor.medirDistancia()).toList());
 
       if (kDebugMode) {
-        print(
-            "Distâncias: Frente: $distanciaFrente cm, Esquerda: $distanciaEsquerda cm, Direita: $distanciaDireita cm");
+        for (int i = 0; i < distancias.length; i++) {
+          print("Distância do Sensor $i: ${distancias[i]} cm");
+        }
       }
 
-      if (distanciaFrente < distanciaMinima) {
+      // Exemplo de lógica simples baseada em distâncias dos sensores
+      if (distancias[0] < distanciaMinima || distancias[1] < distanciaMinima) {
+        // Sensores na frente detectam obstáculo
         parar();
         darRe();
         girarDireita();
-      } else if (distanciaEsquerda < distanciaMinima) {
+      } else if (distancias[3] < distanciaMinima || distancias[4] < distanciaMinima) {
+        // Sensores da esquerda detectam obstáculo
         parar();
         darRe();
         girarDireita();
-      } else if (distanciaDireita < distanciaMinima) {
+      } else if (distancias[8] < distanciaMinima || distancias[9] < distanciaMinima) {
+        // Sensores da direita detectam obstáculo
         parar();
         darRe();
         girarEsquerda();
@@ -161,10 +166,22 @@ class _SensoresPageState extends State<SensoresPage> {
 }
 
 void main() {
-  var sensorFrente = SensorUltrassonico(17, 18);
-  var sensorEsquerda = SensorUltrassonico(22, 23);
-  var sensorDireita = SensorUltrassonico(24, 25);
+  // Criação de 12 sensores simulando as posições da imagem
+  var sensores = [
+    SensorUltrassonico(17, 18), // Sensor 0: Frente
+    SensorUltrassonico(19, 20), // Sensor 1: Frente-Direita
+    SensorUltrassonico(21, 22), // Sensor 2: Direita
+    SensorUltrassonico(23, 24), // Sensor 3: Direita-Traseira
+    SensorUltrassonico(25, 26), // Sensor 4: Traseira
+    SensorUltrassonico(27, 28), // Sensor 5: Traseira-Esquerda
+    SensorUltrassonico(29, 30), // Sensor 6: Esquerda
+    SensorUltrassonico(31, 32), // Sensor 7: Esquerda-Frente
+    SensorUltrassonico(33, 34), // Sensor 8: Centro-Frente
+    SensorUltrassonico(35, 36), // Sensor 9: Centro-Direita
+    SensorUltrassonico(37, 38), // Sensor 10: Centro-Esquerda
+    SensorUltrassonico(39, 40), // Sensor 11: Centro-Traseira
+  ];
 
-  var robo = RoboTriangular(sensorFrente, sensorEsquerda, sensorDireita);
+  var robo = RoboTriangular(sensores);
   robo.monitorarSensores();
 }
