@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart'; 
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -26,45 +26,46 @@ class DB {
   Future<void> _onCreate(Database db, int version) async {
     await db.execute(''' 
       CREATE TABLE rotinas (
-        ID_ROTINA INTEGER PRIMARY KEY AUTOINCREMENT,
-        NOME TEXT,
-        DESCRICAO TEXT
+        id_rotina INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT,
+        descricao TEXT,
+        ativo TEXT DEFAULT "S"
       )
     ''');
 
     await db.execute(''' 
-      CREATE TABLE ADM_EXECUCAO_ROTINAS (
-        ID_EXECUCAO INTEGER PRIMARY KEY AUTOINCREMENT,
-        ID_ROTINA INTEGER,
-        ACAO_HORIZONTAL TEXT,
-        QTD_HORIZONTAL INTEGER,
-        ACAO_VERTICAL TEXT,
-        QTD_VERTICAL INTEGER,
-        ACAO_PLATAFORMA TEXT,
-        QTD_PLATAFORMA INTEGER,
-        ACAO_BOTAO1 TEXT,
-        QTD_BOTAO1 INTEGER,
-        ACAO_BOTAO2 TEXT,
-        QTD_BOTAO2 INTEGER,
-        ACAO_BOTAO3 TEXT,
-        QTD_BOTAO3 INTEGER,
-        DT_EXECUCAO_UNIX_MICROSSEGUNDOS INTEGER,
-        DT_EXCLUSAO_UNIX_MICROSSEGUNDOS INTEGER,
-        FOREIGN KEY(ID_ROTINA) REFERENCES rotinas(ID_ROTINA)
+      CREATE TABLE adm_execucao_rotinas (
+        id_execucao INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_rotina INTEGER,
+        acao_horizontal TEXT,
+        qtd_horizontal INTEGER,
+        acao_vertical TEXT,
+        qtd_vertical INTEGER,
+        acao_plataforma TEXT,
+        qtd_plataforma INTEGER,
+        acao_botao1 TEXT,
+        qtd_botao1 INTEGER,
+        acao_botao2 TEXT,
+        qtd_botao2 INTEGER,
+        acao_botao3 TEXT,
+        qtd_botao3 INTEGER,
+        dt_execucao_unix_microssegundos INTEGER,
+        dt_exclusao_unix_microssegundos INTEGER,
+        FOREIGN KEY(id_rotina) REFERENCES rotinas(id_rotina)
       )
     ''');
 
     await db.execute(''' 
-      CREATE TABLE ADM_ACAO_ROBO (
-        ID_ACAO INTEGER PRIMARY KEY AUTOINCREMENT,
-        ACAO TEXT,
-        NOME TEXT,
-        DT_EXCLUSAO_UNIX_MICROSSEGUNDOS INTEGER
+      CREATE TABLE adm_acao_robo (
+        id_acao INTEGER PRIMARY KEY AUTOINCREMENT,
+        acao TEXT,
+        nome TEXT,
+        dt_exclusao_unix_microssegundos INTEGER
       )
     ''');
- 
-    await db.execute('''
-      INSERT INTO ADM_ACAO_ROBO (ACAO, NOME)
+
+    await db.execute(''' 
+      INSERT INTO adm_acao_robo (acao, nome)
       VALUES ('w', 'Frente'), ('x', 'Trás'), ('a', 'Esquerda'), ('d', 'Direita');
     ''');
 
@@ -73,38 +74,36 @@ class DB {
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
-      await db.execute('ALTER TABLE rotinas ADD COLUMN ATIVO TEXT DEFAULT "S"');
+      await db.execute('ALTER TABLE rotinas ADD COLUMN ativo TEXT DEFAULT "S"');
     }
   }
 
   Future<void> insertInitialData(Database db) async {
-    // Verifica se já existem rotinas para evitar duplicação
     final List<Map<String, dynamic>> existingRotinas = await db.query('rotinas');
     if (existingRotinas.isEmpty) {
-      await db.execute('''
-        INSERT INTO rotinas (NOME, DESCRICAO)
+      await db.execute(''' 
+        INSERT INTO rotinas (nome, descricao)
         VALUES ('TESTE1 DE ROTINA', 'Descrição da rotina 1'),
                ('TESTE2 DE ROTINA', 'Descrição da rotina 2'),
                ('TESTE3 DE ROTINA', 'Descrição da rotina 3');
       ''');
     }
 
-    // Verifica se já existem execuções para evitar duplicação
-    final List<Map<String, dynamic>> existingExecucoes = await db.query('ADM_EXECUCAO_ROTINAS');
+    final List<Map<String, dynamic>> existingExecucoes = await db.query('adm_execucao_rotinas');
     if (existingExecucoes.isEmpty) {
       List<Map<String, dynamic>> execucoesIniciais = [
-        {'ID_ROTINA': 1, 'QTD_SINAIS': 20, 'ACAO': 'w'},
-        {'ID_ROTINA': 1, 'QTD_SINAIS': 30, 'ACAO': 'w'},
-        {'ID_ROTINA': 3, 'QTD_SINAIS': 50, 'ACAO': 's'},
+        {'id_rotina': 1, 'qtd_horizontal': 20, 'acao_horizontal': 'w'},
+        {'id_rotina': 1, 'qtd_horizontal': 30, 'acao_horizontal': 'w'},
+        {'id_rotina': 3, 'qtd_horizontal': 50, 'acao_horizontal': 's'},
       ];
 
       for (var execucao in execucoesIniciais) {
-  await db.execute('''
-    INSERT INTO ADM_EXECUCAO_ROTINAS (ID_ROTINA, QTD_HORIZONTAL, ACAO_HORIZONTAL, DT_EXECUCAO_UNIX_MICROSSEGUNDOS)
-    VALUES (${execucao['ID_ROTINA']}, ${execucao['QTD_SINAIS']}, '${execucao['ACAO']}', 
-      (strftime('%s', 'now') * 1000000));
-  ''');
-  }
+        await db.execute(''' 
+          INSERT INTO adm_execucao_rotinas (id_rotina, qtd_horizontal, acao_horizontal, dt_execucao_unix_microssegundos)
+          VALUES (${execucao['id_rotina']}, ${execucao['qtd_horizontal']}, '${execucao['acao_horizontal']}', 
+          (strftime('%s', 'now') * 1000000));
+        ''');
+      }
     }
   }
 
@@ -114,8 +113,8 @@ class DB {
       throw Exception("Nome e descrição não podem ser vazios.");
     }
     await db.insert('rotinas', {
-      'NOME': nome,
-      'DESCRICAO': descricao,
+      'nome': nome,
+      'descricao': descricao,
     });
   }
 
@@ -126,8 +125,8 @@ class DB {
     }
     await db.update(
       'rotinas',
-      {'NOME': nome, 'DESCRICAO': descricao},
-      where: 'ID_ROTINA = ?',
+      {'nome': nome, 'descricao': descricao},
+      where: 'id_rotina = ?',
       whereArgs: [idRotina],
     );
   }
@@ -137,8 +136,8 @@ class DB {
 
     final db = await instance.database;
     await db.transaction((txn) async {
-      await txn.delete('ADM_EXECUCAO_ROTINAS', where: 'ID_ROTINA = ?', whereArgs: [idRotina]);
-      await txn.delete('rotinas', where: 'ID_ROTINA = ?', whereArgs: [idRotina]);
+      await txn.delete('adm_execucao_rotinas', where: 'id_rotina = ?', whereArgs: [idRotina]);
+      await txn.delete('rotinas', where: 'id_rotina = ?', whereArgs: [idRotina]);
     });
   }
 
@@ -167,22 +166,22 @@ class DB {
       throw Exception("Dados inválidos para inserção.");
     }
 
-    await db.insert('ADM_EXECUCAO_ROTINAS', {
-      'ID_ROTINA': idRotina,
-      'ACAO_HORIZONTAL': acaoHorizontal,
-      'QTD_HORIZONTAL': qtdHorizontal,
-      'ACAO_VERTICAL': acaoVertical,
-      'QTD_VERTICAL': qtdVertical,
-      'ACAO_PLATAFORMA': acaoPlataforma,
-      'QTD_PLATAFORMA': qtdPlataforma,
-      'ACAO_BOTAO1': acaoBotao1,
-      'QTD_BOTAO1': qtdBotao1,
-      'ACAO_BOTAO2': acaoBotao2,
-      'QTD_BOTAO2': qtdBotao2,
-      'ACAO_BOTAO3': acaoBotao3,
-      'QTD_BOTAO3': qtdBotao3,
-      'DT_EXECUCAO_UNIX_MICROSSEGUNDOS': dtExecucao,
-      'DT_EXCLUSAO_UNIX_MICROSSEGUNDOS': dtExclusao ?? 0,
+    await db.insert('adm_execucao_rotinas', {
+      'id_rotina': idRotina,
+      'acao_horizontal': acaoHorizontal,
+      'qtd_horizontal': qtdHorizontal,
+      'acao_vertical': acaoVertical,
+      'qtd_vertical': qtdVertical,
+      'acao_plataforma': acaoPlataforma,
+      'qtd_plataforma': qtdPlataforma,
+      'acao_botao1': acaoBotao1,
+      'qtd_botao1': qtdBotao1,
+      'acao_botao2': acaoBotao2,
+      'qtd_botao2': qtdBotao2,
+      'acao_botao3': acaoBotao3,
+      'qtd_botao3': qtdBotao3,
+      'dt_execucao_unix_microssegundos': dtExecucao,
+      'dt_exclusao_unix_microssegundos': dtExclusao ?? 0,
     });
   }
 
@@ -209,22 +208,22 @@ class DB {
     }
 
     await db.update(
-      'ADM_EXECUCAO_ROTINAS',
+      'adm_execucao_rotinas',
       {
-        'ACAO_HORIZONTAL': acaoHorizontal,
-        'QTD_HORIZONTAL': qtdHorizontal,
-        'ACAO_VERTICAL': acaoVertical,
-        'QTD_VERTICAL': qtdVertical,
-        'ACAO_PLATAFORMA': acaoPlataforma,
-        'QTD_PLATAFORMA': qtdPlataforma,
-        'ACAO_BOTAO1': acaoBotao1,
-        'QTD_BOTAO1': qtdBotao1,
-        'ACAO_BOTAO2': acaoBotao2,
-        'QTD_BOTAO2': qtdBotao2,
-        'ACAO_BOTAO3': acaoBotao3,
-        'QTD_BOTAO3': qtdBotao3,
+        'acao_horizontal': acaoHorizontal,
+        'qtd_horizontal': qtdHorizontal,
+        'acao_vertical': acaoVertical,
+        'qtd_vertical': qtdVertical,
+        'acao_plataforma': acaoPlataforma,
+        'qtd_plataforma': qtdPlataforma,
+        'acao_botao1': acaoBotao1,
+        'qtd_botao1': qtdBotao1,
+        'acao_botao2': acaoBotao2,
+        'qtd_botao2': qtdBotao2,
+        'acao_botao3': acaoBotao3,
+        'qtd_botao3': qtdBotao3,
       },
-      where: 'ID_EXECUCAO = ?',
+      where: 'id_execucao = ?',
       whereArgs: [idExecucao],
     );
   }
@@ -234,12 +233,12 @@ class DB {
     if (idExecucao <= 0) {
       throw Exception("ID da execução deve ser maior que zero.");
     }
-    await db.delete('ADM_EXECUCAO_ROTINAS', where: 'ID_EXECUCAO = ?', whereArgs: [idExecucao]);
+    await db.delete('adm_execucao_rotinas', where: 'id_execucao = ?', whereArgs: [idExecucao]);
   }
 
- Future<void> deleteAcao(int idAcao) async {
-  await deleteExecucaoRotina(idAcao); 
-}
+  Future<void> deleteAcao(int idAcao) async {
+    await deleteExecucaoRotina(idAcao); 
+  }
 
   Future<List<Map<String, dynamic>>> getRotinas() async {
     final db = await instance.database;
@@ -248,15 +247,15 @@ class DB {
 
   Future<List<Map<String, dynamic>>> getExecucoesRotina(int idRotina) async {
     final db = await instance.database;
-    return await db.query('ADM_EXECUCAO_ROTINAS', where: 'ID_ROTINA = ?', whereArgs: [idRotina]);
+    return await db.query('adm_execucao_rotinas', where: 'id_rotina = ?', whereArgs: [idRotina]);
   }
 
   Future<List<Map<String, dynamic>>> getAcoesRobos() async {
     final db = await instance.database; 
-    return await db.query('ADM_ACAO_ROBO');
+    return await db.query('adm_acao_robo');
   }
   
-  Future <void> insertAcao({ 
+  Future<void> insertAcao({ 
     required int idRotina,
     required String acaoHorizontal,
     required String acaoVertical,

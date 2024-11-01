@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" 
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"  
     package="com.example.robo_adm_mobile_v3">
 
     <!-- Permissões de Bluetooth -->
@@ -12,6 +12,10 @@
     <!-- Permissões de localização (necessárias apenas em Android 11 e versões anteriores) -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="30"/>
+
+    <!-- Permissões de armazenamento para exportação de arquivos -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <!-- Definição da compatibilidade mínima de SDK (Bluetooth e BLE) -->
     <uses-feature android:name="android.hardware.bluetooth" android:required="true"/>

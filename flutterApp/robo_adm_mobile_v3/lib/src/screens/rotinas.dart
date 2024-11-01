@@ -1,7 +1,8 @@
 import 'dart:convert';
+import 'dart:io'; // Import necessário para manipulação de arquivos
 import 'package:flutter/material.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
-import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart'; // Import necessário para obter o diretório de Downloads
 
 class RotinasPage extends StatefulWidget {
   const RotinasPage({super.key});
@@ -23,7 +24,7 @@ class _RotinasPageState extends State<RotinasPage> {
     final Map<int, List<Map<String, dynamic>>> acoesPorRotina = {};
 
     for (var rotina in rotinas) {
-      final int idRotina = rotina['ID_ROTINA'] as int? ?? 0;
+      final int idRotina = rotina['id_rotina'] as int? ?? 0;
       final List<Map<String, dynamic>> acoes = await DB.instance.getExecucoesRotina(idRotina);
       acoesPorRotina[idRotina] = acoes;
 
@@ -44,13 +45,13 @@ class _RotinasPageState extends State<RotinasPage> {
       return;
     }
 
-    if (_rotinas.any((rotina) => rotina['NOME'] == nome)) {
+    if (_rotinas.any((rotina) => rotina['nome'] == nome)) {
       _showSnackBar('Rotina com este nome já existe');
       return;
     }
 
     final db = await DB.instance.database;
-    await db.insert('rotinas', {'NOME': nome});
+    await db.insert('rotinas', {'nome': nome});
     await _loadRotinas();
     setState(() {
       nomeController.clear();
@@ -66,7 +67,7 @@ class _RotinasPageState extends State<RotinasPage> {
     }
 
     final db = await DB.instance.database;
-    await db.update('rotinas', {'NOME': nome}, where: 'ID_ROTINA = ?', whereArgs: [idRotina]);
+    await db.update('rotinas', {'nome': nome}, where: 'id_rotina = ?', whereArgs: [idRotina]);
     await _loadRotinas();
   }
 
@@ -76,7 +77,7 @@ class _RotinasPageState extends State<RotinasPage> {
   }
 
   Future<void> _exportRotina(int idRotina) async {
-    final rotina = _rotinas.firstWhere((r) => r['ID_ROTINA'] == idRotina);
+    final rotina = _rotinas.firstWhere((r) => r['id_rotina'] == idRotina);
     final List<Map<String, dynamic>> acoes = _acoesPorRotina[idRotina] ?? [];
     final Map<String, dynamic> rotinaExport = {
       'rotina': rotina,
@@ -84,11 +85,22 @@ class _RotinasPageState extends State<RotinasPage> {
     };
 
     final String rotinaJson = jsonEncode(rotinaExport);
-    if (kDebugMode) {
-      print(rotinaJson);
-    } // Exibe o JSON no console para verificação
 
-    _showSnackBar('Rotina exportada para o console (JSON)');
+    try {
+      // Obter o diretório de Downloads do dispositivo
+      final Directory? downloadsDir = await getExternalStorageDirectory();
+      if (downloadsDir != null) {
+        // Caminho para o arquivo que será salvo no diretório de Downloads
+        final String filePath = '${downloadsDir.path}/Download/rotina_$idRotina.json'; // A pasta Download é acessível
+        final File file = File(filePath);
+        await file.writeAsString(rotinaJson);
+        _showSnackBar('Rotina exportada com sucesso para $filePath');
+      } else {
+        _showSnackBar('Erro: Diretório de downloads não encontrado.');
+      }
+    } catch (e) {
+      _showSnackBar('Erro ao exportar a rotina: $e');
+    }
   }
 
   void _showSnackBar(String message) {
@@ -148,7 +160,7 @@ class _RotinasPageState extends State<RotinasPage> {
                 ),
               ),
               ..._rotinas.map((rotina) {
-                final acoes = _acoesPorRotina[rotina['ID_ROTINA']] ?? [];
+                final acoes = _acoesPorRotina[rotina['id_rotina']] ?? [];
                 return Card(
                   margin: const EdgeInsets.all(8.0),
                   shape: RoundedRectangleBorder(
@@ -159,7 +171,7 @@ class _RotinasPageState extends State<RotinasPage> {
                     children: [
                       ListTile(
                         title: Text(
-                          rotina['NOME'],
+                          rotina['nome'],
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         trailing: Container(
@@ -181,28 +193,28 @@ class _RotinasPageState extends State<RotinasPage> {
                               IconButton(
                                 icon: const Icon(Icons.edit_note, color: Color.fromARGB(255, 53, 36, 204)),
                                 onPressed: () {
-                                  editNomeController.text = rotina['NOME'];
-                                  _showEditDialog(rotina['ID_ROTINA']);
+                                  editNomeController.text = rotina['nome'];
+                                  _showEditDialog(rotina['id_rotina']);
                                 },
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete_forever, color: Color.fromARGB(255, 56, 44, 219)),
-                                onPressed: () => _deleteRotina(rotina['ID_ROTINA']),
+                                onPressed: () => _deleteRotina(rotina['id_rotina']),
                               ),
                               IconButton(
                                 icon: const Icon(Icons.download, color: Color.fromARGB(255, 82, 48, 238)),
-                                onPressed: () => _exportRotina(rotina['ID_ROTINA']),
+                                onPressed: () => _exportRotina(rotina['id_rotina']),
                               ),
                               IconButton(
                                 icon: Icon(
-                                  _isExpanded[rotina['ID_ROTINA']] == true
+                                  _isExpanded[rotina['id_rotina']] == true
                                       ? Icons.arrow_drop_up
                                       : Icons.arrow_drop_down,
                                   color: const Color.fromARGB(255, 82, 48, 238),
                                 ),
                                 onPressed: () {
                                   setState(() {
-                                    _isExpanded[rotina['ID_ROTINA']] = !_isExpanded[rotina['ID_ROTINA']]!;
+                                    _isExpanded[rotina['id_rotina']] = !_isExpanded[rotina['id_rotina']]!;
                                   });
                                 },
                               ),
@@ -210,7 +222,7 @@ class _RotinasPageState extends State<RotinasPage> {
                           ),
                         ),
                       ),
-                      if (_isExpanded[rotina['ID_ROTINA']] == true)
+                      if (_isExpanded[rotina['id_rotina']] == true)
                         Column(
                           children: [
                             const Padding(
@@ -219,11 +231,17 @@ class _RotinasPageState extends State<RotinasPage> {
                                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                                 children: [
                                   Expanded(child: Center(child: Text('VERT.', style: TextStyle(fontWeight: FontWeight.bold)))),
+
                                   Expanded(child: Center(child: Text('HORIZ.', style: TextStyle(fontWeight: FontWeight.bold)))),
+
                                   Expanded(child: Center(child: Text('PLAT.', style: TextStyle(fontWeight: FontWeight.bold)))),
+
                                   Expanded(child: Center(child: Text('BT1', style: TextStyle(fontWeight: FontWeight.bold)))),
+
                                   Expanded(child: Center(child: Text('BT2', style: TextStyle(fontWeight: FontWeight.bold)))),
+
                                   Expanded(child: Center(child: Text('BT3', style: TextStyle(fontWeight: FontWeight.bold)))),
+
                                 ],
                               ),
                             ),
@@ -233,12 +251,12 @@ class _RotinasPageState extends State<RotinasPage> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                                   children: [
-                                    Expanded(child: Center(child: Text(acao['ACAO_VERTICAL'].toString()))),
-                                    Expanded(child: Center(child: Text(acao['ACAO_HORIZONTAL'].toString()))),
-                                    Expanded(child: Center(child: Text(acao['ACAO_PLATAFORMA'].toString()))),
-                                    Expanded(child: Center(child: Text(acao['ACAO_BOTAO1'].toString()))),
-                                    Expanded(child: Center(child: Text(acao['ACAO_BOTAO2'].toString()))),
-                                    Expanded(child: Center(child: Text(acao['ACAO_BOTAO3'].toString()))),
+                                    Expanded(child: Center(child: Text(acao['acao_vertical'].toString()))),
+                                    Expanded(child: Center(child: Text(acao['acao_horizontal'].toString()))),
+                                    Expanded(child: Center(child: Text(acao['acao_plataforma'].toString()))),
+                                    Expanded(child: Center(child: Text(acao['acao_botao1'].toString()))),
+                                    Expanded(child: Center(child: Text(acao['acao_botao2'].toString()))),
+                                    Expanded(child: Center(child: Text(acao['acao_botao3'].toString()))),
                                   ],
                                 ),
                               ),
