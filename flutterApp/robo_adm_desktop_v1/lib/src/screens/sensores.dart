@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart'; 
 import 'package:flutter/material.dart';
 import 'package:robo_adm_desktop_v1/src/utils/json_config.dart';
 import 'package:robo_adm_desktop_v1/src/widgets/sensor_rotina.dart';
@@ -18,12 +18,16 @@ class SensorUltrassonico {
     int startTime = 0;
     int endTime = 0;
 
+    // Lógica correta para medir o tempo de pulso
+    // Isso precisa ser ajustado para integrar com a lógica do seu hardware
     while (false == false) {
       startTime = DateTime.now().microsecondsSinceEpoch;
+      // Acionar o trigger aqui
     }
 
     while (false == true) {
       endTime = DateTime.now().microsecondsSinceEpoch;
+      // Ler o valor do echo aqui
     }
 
     int duracao = endTime - startTime;
@@ -47,9 +51,9 @@ class RoboTriangular {
     }
   }
 
-  void darRe() {
+  void moverParaTras() {
     if (kDebugMode) {
-      print("Dando ré...");
+      print("Movendo para trás...");
     }
   }
 
@@ -72,7 +76,8 @@ class RoboTriangular {
 
       // Medir a distância em cada sensor e armazenar em uma lista
       List<double> distancias = await Future.wait(
-          sensores.map((sensor) => sensor.medirDistancia()).toList());
+        sensores.map((sensor) => sensor.medirDistancia()).toList(),
+      );
 
       if (kDebugMode) {
         for (int i = 0; i < distancias.length; i++) {
@@ -80,29 +85,29 @@ class RoboTriangular {
         }
       }
 
-      // Exemplo de lógica simples baseada em distâncias dos sensores
-      if (distancias[0] < distanciaMinima || distancias[1] < distanciaMinima) {
-        // Sensores na frente detectam obstáculo
-        parar();
-        darRe();
-        girarDireita();
-      } else if (distancias[3] < distanciaMinima || distancias[4] < distanciaMinima) {
-        // Sensores da esquerda detectam obstáculo
-        parar();
-        darRe();
-        girarDireita();
-      } else if (distancias[8] < distanciaMinima || distancias[9] < distanciaMinima) {
-        // Sensores da direita detectam obstáculo
-        parar();
-        darRe();
-        girarEsquerda();
-      }
+      // Verifica se há obstáculos
+      _verificaObstaculos(distancias, distanciaMinima);
     });
   }
 
+  void _verificaObstaculos(List<double> distancias, double distanciaMinima) {
+    if (distancias[0] < distanciaMinima || distancias[1] < distanciaMinima) {
+      parar();
+      moverParaTras();
+      girarDireita();
+    } else if (distancias[3] < distanciaMinima || distancias[4] < distanciaMinima) {
+      parar();
+      moverParaTras();
+      girarDireita();
+    } else if (distancias[8] < distanciaMinima || distancias[9] < distanciaMinima) {
+      parar();
+      moverParaTras();
+      girarEsquerda();
+    }
+  }
+
   Future<double> carregaDistanciaMinima() async {
-    var distanciaMinima =
-        await carregaInfoJson('sensores', 'sensor1', 'distancia_minima');
+    var distanciaMinima = await carregaInfoJson('sensores', 'sensor1', 'distancia_minima');
     return distanciaMinima ?? distanciaMinimaDefault;
   }
 }
@@ -124,20 +129,22 @@ class _SensoresPageState extends State<SensoresPage> {
   void initState() {
     super.initState();
     rotinasNoDiretorio = listarArquivosJsonSensores();
-    carregaInfoJson('sensores', 'sensor1', 'diretorio').then((value) {
-      setState(() {
-        sensor1Diretorio = value as String?;
-      });
+    _carregarConfiguracoes();
+  }
+
+  Future<void> _carregarConfiguracoes() async {
+    final diretorio = await carregaInfoJson('sensores', 'sensor1', 'diretorio');
+    final distanciaMinima = await carregaInfoJson('sensores', 'sensor1', 'distancia_minima');
+
+    setState(() {
+      sensor1Diretorio = diretorio as String?;
+      sensor1DistanciaMinima = distanciaMinima as int?;
     });
-    carregaInfoJson('sensores', 'sensor1', 'distancia_minima').then((value) {
-      setState(() {
-        sensor1DistanciaMinima = value as int?;
-      });
-      if (kDebugMode) {
-        print(sensor1DistanciaMinima);
-        print(sensor1Diretorio);
-      }
-    });
+
+    if (kDebugMode) {
+      print(sensor1DistanciaMinima);
+      print(sensor1Diretorio);
+    }
   }
 
   @override
@@ -146,17 +153,16 @@ class _SensoresPageState extends State<SensoresPage> {
       future: rotinasNoDiretorio,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return const Text('Erro ao carregar arquivos');
+          return Center(child: Text('Erro ao carregar arquivos: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Text('Nenhum arquivo encontrado');
+          return const Center(child: Text('Nenhum arquivo encontrado'));
         } else {
           return const Column(
             children: [
-              SensorRotina(
-                objetoSensor: 'sensor1',
-              ),
+              SensorRotina(objetoSensor: 'sensor1'),
+              // Adicione aqui mais elementos que precisam ser exibidos
             ],
           );
         }
