@@ -27,8 +27,8 @@ class DB {
     await db.execute(''' 
       CREATE TABLE rotinas (
         id_rotina INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT,
-        descricao TEXT,
+        nome TEXT NOT NULL,
+        descricao TEXT NOT NULL,
         ativo TEXT DEFAULT "S"
       )
     ''');
@@ -64,11 +64,6 @@ class DB {
       )
     ''');
 
-    await db.execute(''' 
-      INSERT INTO adm_acao_robo (acao, nome)
-      VALUES ('w', 'Frente'), ('x', 'Trás'), ('a', 'Esquerda'), ('d', 'Direita');
-    ''');
-
     await insertInitialData(db);
   }
 
@@ -81,14 +76,13 @@ class DB {
   Future<void> insertInitialData(Database db) async {
     final List<Map<String, dynamic>> existingRotinas = await db.query('rotinas');
     if (existingRotinas.isEmpty) {
-      await db.execute(''' 
-        INSERT INTO rotinas (nome, descricao)
-        VALUES ('TESTE1 DE ROTINA', 'Descrição da rotina 1'),
-               ('TESTE2 DE ROTINA', 'Descrição da rotina 2'),
-               ('TESTE3 DE ROTINA', 'Descrição da rotina 3');
-      ''');
+      await db.transaction((txn) async {
+        await txn.insert('rotinas', {'nome': 'TESTE1 DE ROTINA', 'descricao': 'Descrição da rotina 1'});
+        await txn.insert('rotinas', {'nome': 'TESTE2 DE ROTINA', 'descricao': 'Descrição da rotina 2'});
+        await txn.insert('rotinas', {'nome': 'TESTE3 DE ROTINA', 'descricao': 'Descrição da rotina 3'});
+      });
     }
-
+    
     final List<Map<String, dynamic>> existingExecucoes = await db.query('adm_execucao_rotinas');
     if (existingExecucoes.isEmpty) {
       List<Map<String, dynamic>> execucoesIniciais = [
