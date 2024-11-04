@@ -12,75 +12,69 @@ class AutomacaoPage extends StatefulWidget {
 }
 
 class _AutomacaoPageState extends State<AutomacaoPage> {
+  late SerialPort porta;
+
+  @override
+  void initState() {
+    super.initState();
+    porta = SerialPort("COM4");
+  }
+
+  @override
+  void dispose() {
+    finalizacaoSerialPort(porta);
+    super.dispose();
+  }
+
+  Widget _buildAutomacaoCampo(String objetoAutomacao, double width) {
+    return Container(
+      width: width,
+      alignment: Alignment.topLeft,
+      child: AutomacaoCampo(
+        objetoAutomacao: objetoAutomacao,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    SerialPort porta = SerialPort("COM4");
-    return Wrap(
+    double itemWidth = screenWidth * 0.35;
+
+    return SingleChildScrollView(
+      child: Wrap(
         verticalDirection: VerticalDirection.down,
-        //mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            width: screenWidth * 0.35,
-            alignment: Alignment.topLeft,
-            child: const AutomacaoCampo(
-              objetoAutomacao: 'Sensores',
-            ),
-          ),
-          Container(
-            width: screenWidth * 0.35,
-            alignment: Alignment.topLeft,
-            child: const AutomacaoCampo(
-              objetoAutomacao: 'Motores Horizontal',
-            ),
-          ),
-          Container(
-            width: screenWidth * 0.35,
-            alignment: Alignment.topLeft,
-            child: const AutomacaoCampo(
-              objetoAutomacao: 'Motores Vertical',
-            ),
-          ),
-          Container(
-            width: screenWidth * 0.35,
-            alignment: Alignment.topLeft,
-            child: const AutomacaoCampo(
-              objetoAutomacao: 'Plataforma',
-            ),
-          ),
-          Container(
-            width: screenWidth * 0.35,
-            alignment: Alignment.topLeft,
-            child: const AutomacaoCampo(
-              objetoAutomacao: 'Botões Plataforma',
-            ),
-          ),
-          Container(
-            width: screenWidth * 0.35,
-            alignment: Alignment.topLeft,
-            child: const AutomacaoCampo(
-              objetoAutomacao: 'Botão Roda Dianteira',
-            ),
-          ),
+          _buildAutomacaoCampo('Sensores', itemWidth),
+          _buildAutomacaoCampo('Motores Horizontal', itemWidth),
+          _buildAutomacaoCampo('Motores Vertical', itemWidth),
+          _buildAutomacaoCampo('Plataforma', itemWidth),
+          _buildAutomacaoCampo('Botões Plataforma', itemWidth),
+          _buildAutomacaoCampo('Botão Roda Dianteira', itemWidth),
           SizedBox(
             width: screenWidth,
             height: screenWidth * 0.15,
-            child: Wrap(children: <Widget>[
-              const AutomacaoCampo(
-                objetoAutomacao: 'Monitor Serial Padrao',
-              ),
-              FilledButton(
-                child: const Text('FECHA A CONEXÃO'),
-                onPressed: () => finalizacaoSerialPort(porta),
-              ),
-              Container(
+            child: Column(
+              children: [
+                const AutomacaoCampo(
+                  objetoAutomacao: 'Monitor Serial Padrao',
+                ),
+                FilledButton(
+                  child: const Text('FECHA A CONEXÃO'),
+                  onPressed: () => finalizacaoSerialPort(porta),
+                ),
+                Container(
                   color: Colors.black,
                   width: screenWidth,
                   child: MonitorSerial(
                     portaConexao: porta,
-                  ))
-            ]),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ]);
+        ],
+      ),
+    );
   }
 }

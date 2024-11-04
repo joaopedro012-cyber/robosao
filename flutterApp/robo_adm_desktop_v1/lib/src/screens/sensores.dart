@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart'; 
+import 'package:flutter/foundation.dart';  
 import 'package:flutter/material.dart';
 import 'package:robo_adm_desktop_v1/src/utils/json_config.dart';
 import 'package:robo_adm_desktop_v1/src/widgets/sensor_rotina.dart';

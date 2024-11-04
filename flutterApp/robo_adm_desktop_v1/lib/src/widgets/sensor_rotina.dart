@@ -21,13 +21,29 @@ class SensorRotinaState extends State<SensorRotina> {
   @override
   void initState() {
     super.initState();
-    carregaInfo();
+    _carregaInfo();
   }
 
-  Future<void> carregaInfo() async {
-    rotinaNoPlaceholder = await carregaInfoJson('sensores', widget.objetoSensor, 'diretorio');
-    distanciaMinima = (await carregaInfoJson('sensores', widget.objetoSensor, 'distancia_minima')) as int;
-    setState(() {});
+  Future<void> _carregaInfo() async {
+    try {
+      rotinaNoPlaceholder = await carregaInfoJson('sensores', widget.objetoSensor, 'diretorio') ?? '';
+      distanciaMinima = (await carregaInfoJson('sensores', widget.objetoSensor, 'distancia_minima') ?? 0) as int;
+      setState(() {});
+    } catch (e) {
+      debugPrint('Erro ao carregar informações do JSON: $e');
+    }
+  }
+
+  Future<void> _atualizarDistancia(int valor) async {
+    await atualizaJson('sensores', widget.objetoSensor, 'distancia_minima', valor);
+    setState(() => distanciaMinima = valor);
+  }
+
+  Future<void> _atualizarDiretorio(String? valor) async {
+    if (valor != null) {
+      await atualizaJson('sensores', widget.objetoSensor, 'diretorio', valor);
+      setState(() => rotinaNoPlaceholder = valor);
+    }
   }
 
   @override
@@ -43,16 +59,16 @@ class SensorRotinaState extends State<SensorRotina> {
             child: CircularProgressIndicator(),
           );
         } else if (snapshot.hasError) {
-          debugPrint('Error loading data: ${snapshot.error}');
-          return Text('Error: ${snapshot.error}');
+          debugPrint('Erro ao carregar dados: ${snapshot.error}');
+          return Text('Erro: ${snapshot.error}');
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Text('No data available');
+          return const Text('Nenhum dado disponível');
         } else {
           return Wrap(
             alignment: WrapAlignment.start,
             runAlignment: WrapAlignment.center,
-            spacing: screenWidth * 0.05, // Espaçamento horizontal
-            runSpacing: screenWidth * 0.02, // Espaçamento vertical
+            spacing: screenWidth * 0.05,
+            runSpacing: screenWidth * 0.02,
             children: [
               SizedBox(
                 width: screenWidth * 0.35,
@@ -64,20 +80,18 @@ class SensorRotinaState extends State<SensorRotina> {
                       width: screenWidth * 0.30,
                       child: fui.AutoSuggestBox<String>(
                         placeholder: rotinaNoPlaceholder,
-                        items: snapshot.data!.map((lista) {
+                        items: snapshot.data!.map((item) {
                           return fui.AutoSuggestBoxItem<String>(
-                            value: lista,
-                            label: lista,
+                            value: item,
+                            label: item,
                             onFocusChange: (focused) {
-                              if (focused) {
-                                debugPrint('Focused $lista');
-                              }
+                              if (focused) debugPrint('Focado em $item');
                             },
                           );
                         }).toList(),
                         onSelected: (item) async {
                           setState(() => selected = item);
-                          await atualizaJson('sensores', widget.objetoSensor, 'diretorio', item.value);
+                          await _atualizarDiretorio(item.value);
                         },
                       ),
                     ),
@@ -99,14 +113,9 @@ class SensorRotinaState extends State<SensorRotina> {
                         onChanged: disabled
                             ? null
                             : (value) async {
-                                await atualizaJson(
-                                  'sensores',
-                                  widget.objetoSensor,
-                                  'distancia_minima',
-                                  value,
-                                );
-                                setState(() => distanciaMinima = value as int);
-
+                                if (value is int) {
+                                  await _atualizarDistancia(value);
+                                }
                               },
                       ),
                     ),
