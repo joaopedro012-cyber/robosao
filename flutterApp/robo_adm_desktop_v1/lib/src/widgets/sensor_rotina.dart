@@ -24,31 +24,48 @@ class SensorRotinaState extends State<SensorRotina> {
     _carregaInfo();
   }
 
+  // Função para carregar as informações do sensor do config.json
   Future<void> _carregaInfo() async {
     try {
-      rotinaNoPlaceholder = await carregaInfoJson('sensores', widget.objetoSensor, 'diretorio') ?? '';
-      distanciaMinima = (await carregaInfoJson('sensores', widget.objetoSensor, 'distancia_minima') ?? 0) as int;
-      setState(() {});
+      rotinaNoPlaceholder =
+          await carregaInfoJson('sensores', widget.objetoSensor, 'diretorio') ??
+              '';
+      distanciaMinima = (await carregaInfoJson(
+              'sensores', widget.objetoSensor, 'distancia_minima') ??
+          0) as int;
+
+      if (mounted) {
+        // Verificar se o widget está montado antes de chamar setState
+        setState(() {});
+      }
     } catch (e) {
       debugPrint('Erro ao carregar informações do JSON: $e');
     }
   }
 
+  // Atualizar a distância mínima no config.json
   Future<void> _atualizarDistancia(int valor) async {
-    await atualizaJson('sensores', widget.objetoSensor, 'distancia_minima', valor);
-    setState(() => distanciaMinima = valor);
+    await atualizaJson(
+        'sensores', widget.objetoSensor, 'distancia_minima', valor);
+    if (mounted) {
+      setState(() => distanciaMinima = valor);
+    }
   }
 
+  // Atualizar o diretório no config.json
   Future<void> _atualizarDiretorio(String? valor) async {
     if (valor != null) {
       await atualizaJson('sensores', widget.objetoSensor, 'diretorio', valor);
-      setState(() => rotinaNoPlaceholder = valor);
+      if (mounted) {
+        setState(() => rotinaNoPlaceholder = valor);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+
     return FutureBuilder<List<String>>(
       future: objetoListaDeRotinas,
       builder: (context, snapshot) {

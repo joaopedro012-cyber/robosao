@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';  
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:robo_adm_desktop_v1/src/utils/json_config.dart';
 import 'package:robo_adm_desktop_v1/src/widgets/sensor_rotina.dart';
@@ -95,11 +95,13 @@ class RoboTriangular {
       parar();
       moverParaTras();
       girarDireita();
-    } else if (distancias[3] < distanciaMinima || distancias[4] < distanciaMinima) {
+    } else if (distancias[3] < distanciaMinima ||
+        distancias[4] < distanciaMinima) {
       parar();
       moverParaTras();
       girarDireita();
-    } else if (distancias[8] < distanciaMinima || distancias[9] < distanciaMinima) {
+    } else if (distancias[8] < distanciaMinima ||
+        distancias[9] < distanciaMinima) {
       parar();
       moverParaTras();
       girarEsquerda();
@@ -107,7 +109,8 @@ class RoboTriangular {
   }
 
   Future<double> carregaDistanciaMinima() async {
-    var distanciaMinima = await carregaInfoJson('sensores', 'sensor1', 'distancia_minima');
+    var distanciaMinima =
+        await carregaInfoJson('sensores', 'sensor1', 'distancia_minima');
     return distanciaMinima ?? distanciaMinimaDefault;
   }
 }
@@ -134,7 +137,8 @@ class _SensoresPageState extends State<SensoresPage> {
 
   Future<void> _carregarConfiguracoes() async {
     final diretorio = await carregaInfoJson('sensores', 'sensor1', 'diretorio');
-    final distanciaMinima = await carregaInfoJson('sensores', 'sensor1', 'distancia_minima');
+    final distanciaMinima =
+        await carregaInfoJson('sensores', 'sensor1', 'distancia_minima');
 
     setState(() {
       sensor1Diretorio = diretorio as String?;
@@ -155,7 +159,8 @@ class _SensoresPageState extends State<SensoresPage> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Erro ao carregar arquivos: ${snapshot.error}'));
+          return Center(
+              child: Text('Erro ao carregar arquivos: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('Nenhum arquivo encontrado'));
         } else {

@@ -1,119 +1,98 @@
-import 'package:flutter/material.dart'; 
-import 'package:fluent_ui/fluent_ui.dart' as fui;
+import 'package:flutter/material.dart';
 import 'package:robo_adm_desktop_v1/src/utils/json_config.dart';
-import 'package:libserialport/libserialport.dart';
 
 class AutomacaoCampo extends StatefulWidget {
   final String objetoAutomacao;
+
   const AutomacaoCampo({super.key, required this.objetoAutomacao});
 
   @override
-  State<AutomacaoCampo> createState() => _AutomacaoCampoState();
+  AutomacaoCampoState createState() => AutomacaoCampoState();
 }
 
-class _AutomacaoCampoState extends State<AutomacaoCampo> {
-  fui.AutoSuggestBoxItem<String>? selected;
-  String? porta = 'Porta não encontrada'; // Aceita nulo agora
-  List<fui.AutoSuggestBoxItem<String>> objetoListaDePortas = [];
-  bool isConnected = false;
-  bool disabled = false;
+class AutomacaoCampoState extends State<AutomacaoCampo> {
+  TextEditingController controller = TextEditingController();
+  bool _isLoading = false; // Flag para controle de carregamento
 
   @override
   void initState() {
     super.initState();
-    _carregaPortasDisponiveis();
-    carregaInfo();
+    _carregarValor();
   }
 
-  /// Carrega a lista de portas seriais disponíveis e preenche o campo de sugestão.
-  void _carregaPortasDisponiveis() {
-    try {
-      objetoListaDePortas = SerialPort.availablePorts
-          .map((port) => fui.AutoSuggestBoxItem<String>(value: port, label: port))
-          .toList();
-    } catch (e) {
-      print('Erro ao carregar portas: $e');
+  // Carregar valor do objeto de automação do config.json
+  Future<void> _carregarValor() async {
+    setState(() {
+      _isLoading = true; // Inicia o carregamento
+    });
+
+    dynamic valor =
+        await carregaInfoJson('automacao', widget.objetoAutomacao, 'valor');
+    if (valor != null) {
+      controller.text = valor.toString();
+    } else {
+      controller.text =
+          ''; // Caso o valor seja nulo, deixamos o campo em branco
     }
-  }
 
-  /// Carrega informações da porta a partir do arquivo JSON de configuração.
-  Future<void> carregaInfo() async {
-    try {
-      String? portaCarregada = await carregaInfoJson('automacao', widget.objetoAutomacao, 'porta');
+    if (mounted) {
+      // Verifica se o widget ainda está montado
       setState(() {
-        porta = portaCarregada ?? 'Porta não encontrada';
-        isConnected = portaCarregada != null;
+        _isLoading = false; // Finaliza o carregamento
       });
-    } catch (e) {
-      print('Erro ao carregar informações da porta: $e');
     }
   }
 
-  /// Atualiza o status de conexão da porta selecionada no JSON.
-  Future<void> _atualizaPortaSelecionada(fui.AutoSuggestBoxItem<String> item) async {
-    setState(() => selected = item);
-    try {
-      await atualizaJson('automacao', widget.objetoAutomacao, 'porta', item.value);
+  // Atualizar o valor do objeto de automação no config.json
+  Future<void> _atualizarValor() async {
+    setState(() {
+      _isLoading = true; // Inicia o carregamento ao salvar os dados
+    });
+
+    await atualizaJson(
+        'automacao', widget.objetoAutomacao, 'valor', controller.text);
+
+    if (mounted) {
+      // Verifica se o widget ainda está montado
       setState(() {
-        porta = item.value;
-        isConnected = true;
+        _isLoading = false; // Finaliza o carregamento
       });
-    } catch (e) {
-      print('Erro ao atualizar a porta no JSON: $e');
-    }
-  }
 
-  /// Atualiza a lista de portas disponíveis.
-  void _atualizarPortas() {
-    setState(() => _carregaPortasDisponiveis());
+      // Feedback visual quando o valor for atualizado
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Valor atualizado com sucesso!')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-
-    return Wrap(
-      alignment: WrapAlignment.start,
-      runAlignment: WrapAlignment.center,
-      spacing: screenWidth * 0.05,
-      runSpacing: screenWidth * 0.02,
-      children: [
-        SizedBox(
-          width: screenWidth * 0.35,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(widget.objetoAutomacao),
-              SizedBox(
-                width: screenWidth * 0.30,
-                child: fui.AutoSuggestBox<String>(
-                  placeholder: porta ?? 'Porta não encontrada',
-                  items: objetoListaDePortas,
-                  onSelected: _atualizaPortaSelecionada,
-                ),
-              ),
-              Row(
-                children: [
-                  fui.Tooltip(
-                    message: 'Atualizar portas',
-                    child: fui.IconButton(
-                      icon: const Icon(fui.FluentIcons.refresh),
-                      onPressed: _atualizarPortas,
-                    ),
-                  ),
-                  Text(
-                    isConnected ? 'Conectado' : 'Desconectado',
-                    style: TextStyle(
-                      color: isConnected ? Colors.green : Colors.red,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.objetoAutomacao,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
-        ),
-      ],
+          const SizedBox(height: 8),
+          // Campo de texto com feedback de carregamento
+          TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              labelText: 'Valor',
+              border: const OutlineInputBorder(),
+              suffixIcon: _isLoading
+                  ? const CircularProgressIndicator()
+                  : null, // Ícone de carregamento quando o valor está sendo atualizado
+            ),
+            onChanged: (_) {
+              _atualizarValor(); // Atualiza o valor no config.json assim que o campo for alterado
+            },
+          ),
+        ],
+      ),
     );
   }
 }

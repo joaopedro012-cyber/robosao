@@ -2,17 +2,27 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 class CriadorConfig {
+  // Função para criar o config.json com valores padrão
   Future<void> criarConfigJson() async {
-    final Directory documentsDirectory = await getApplicationDocumentsDirectory();
+    // Obtém o diretório de documentos do dispositivo
+    final Directory documentsDirectory =
+        await getApplicationDocumentsDirectory();
+
+    // Define o caminho para a pasta onde o config.json será salvo
     final String novoCaminho = '${documentsDirectory.path}/Rotinas Robo';
     final Directory novoDiretorio = Directory(novoCaminho);
 
+    // Verifica se o diretório não existe, e cria caso necessário
     if (!await novoDiretorio.exists()) {
       await novoDiretorio.create(recursive: true);
     }
 
+    // Define o caminho para o arquivo config.json
     final File configFile = File('${novoDiretorio.path}/config.json');
+
+    // Verifica se o arquivo config.json já existe
     if (!await configFile.exists()) {
+      // Cria o arquivo com as configurações padrão caso ele não exista
       await configFile.writeAsString(r'''
 {
     "sensores": [
