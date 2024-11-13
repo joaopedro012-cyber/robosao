@@ -28,7 +28,7 @@ class DB {
       CREATE TABLE rotinas (
         id_rotina INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL,
-        descricao TEXT NOT NULL,
+        descricao TEXT,
         ativo TEXT DEFAULT "S"
       )
     ''');
@@ -87,7 +87,7 @@ class DB {
     if (existingExecucoes.isEmpty) {
       List<Map<String, dynamic>> execucoesIniciais = [
         {'id_rotina': 1, 'qtd_horizontal': 20, 'acao_horizontal': 'w'},
-        {'id_rotina': 1, 'qtd_horizontal': 30, 'acao_horizontal': 'w'},
+        {'id_rotina': 2, 'qtd_horizontal': 30, 'acao_horizontal': 'w'},
         {'id_rotina': 3, 'qtd_horizontal': 50, 'acao_horizontal': 's'},
       ];
 
@@ -97,6 +97,7 @@ class DB {
           VALUES (${execucao['id_rotina']}, ${execucao['qtd_horizontal']}, '${execucao['acao_horizontal']}', 
           (strftime('%s', 'now') * 1000000));
         ''');
+
       }
     }
   }
@@ -109,6 +110,7 @@ class DB {
     await db.insert('rotinas', {
       'nome': nome,
       'descricao': descricao,
+      'ativo': 'S', // Definindo valor padrão de "ativo"
     });
   }
 
@@ -154,7 +156,7 @@ class DB {
   }) async {
     final db = await instance.database;
 
-    if (idRotina <= 0 || acaoHorizontal.isEmpty || acaoVertical.isEmpty || 
+   if (idRotina <= 0 || acaoHorizontal.isEmpty || acaoVertical.isEmpty || 
         acaoPlataforma.isEmpty || qtdHorizontal < 0 || qtdVertical < 0 || 
         qtdPlataforma < 0 || qtdBotao1 < 0 || qtdBotao2 < 0 || qtdBotao3 < 0) {
       throw Exception("Dados inválidos para inserção.");
@@ -228,10 +230,6 @@ class DB {
       throw Exception("ID da execução deve ser maior que zero.");
     }
     await db.delete('adm_execucao_rotinas', where: 'id_execucao = ?', whereArgs: [idExecucao]);
-  }
-
-  Future<void> deleteAcao(int idAcao) async {
-    await deleteExecucaoRotina(idAcao); 
   }
 
   Future<List<Map<String, dynamic>>> getRotinas() async {
