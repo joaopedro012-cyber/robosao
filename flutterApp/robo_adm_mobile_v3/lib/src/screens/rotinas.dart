@@ -251,12 +251,12 @@ class _RotinasPageState extends State<RotinasPage> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                                   children: [
-                                    Expanded(child: Center(child: Text(acao['acao_vertical'].toString()))),
-                                    Expanded(child: Center(child: Text(acao['acao_horizontal'].toString()))),
-                                    Expanded(child: Center(child: Text(acao['acao_plataforma'].toString()))),
-                                    Expanded(child: Center(child: Text(acao['acao_botao1'].toString()))),
-                                    Expanded(child: Center(child: Text(acao['acao_botao2'].toString()))),
-                                    Expanded(child: Center(child: Text(acao['acao_botao3'].toString()))),
+                                    Expanded(child: Center(child: Text(acao['acao_vertical']?.toString()?? ''))),
+                                    Expanded(child: Center(child: Text(acao['acao_horizontal']?.toString()?? ''))),
+                                    Expanded(child: Center(child: Text(acao['acao_plataforma']?.toString()?? ''))),
+                                    Expanded(child: Center(child: Text(acao['acao_botao1']?.toString()?? ''))),
+                                    Expanded(child: Center(child: Text(acao['acao_botao2']?.toString()?? ''))),
+                                    Expanded(child: Center(child: Text(acao['acao_botao3']?.toString()?? ''))),
                                   ],
                                 ),
                               ),
