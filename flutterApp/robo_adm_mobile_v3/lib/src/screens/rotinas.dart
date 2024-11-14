@@ -15,7 +15,9 @@ class _RotinasPageState extends State<RotinasPage> {
   List<Map<String, dynamic>> _rotinas = [];
   Map<int, List<Map<String, dynamic>>> _acoesPorRotina = {};
   final TextEditingController nomeController = TextEditingController();
+  final TextEditingController descricaoController = TextEditingController(); // Novo controlador para a descrição
   final TextEditingController editNomeController = TextEditingController();
+  final TextEditingController editDescricaoController = TextEditingController(); // Controlador para editar descrição
   final Map<int, bool> _isExpanded = {};
 
   Future<void> _loadRotinas() async {
@@ -39,9 +41,9 @@ class _RotinasPageState extends State<RotinasPage> {
     }
   }
 
-  Future<void> _insertRotina(String nome) async {
-    if (nome.isEmpty) {
-      _showSnackBar('Nome é obrigatório');
+  Future<void> _insertRotina(String nome, String descricao) async {
+    if (nome.isEmpty || descricao.isEmpty) {
+      _showSnackBar('Nome e descrição são obrigatórios');
       return;
     }
 
@@ -51,23 +53,25 @@ class _RotinasPageState extends State<RotinasPage> {
     }
 
     final db = await DB.instance.database;
-    await db.insert('rotinas', {'nome': nome});
+    await db.insert('rotinas', {'nome': nome, 'descricao': descricao});
     await _loadRotinas();
     setState(() {
       nomeController.clear();
+      descricaoController.clear();
     });
   }
 
   Future<void> _editRotina(int idRotina) async {
     final nome = editNomeController.text;
+    final descricao = editDescricaoController.text;
 
-    if (nome.isEmpty) {
-      _showSnackBar('Nome é obrigatório');
+    if (nome.isEmpty || descricao.isEmpty) {
+      _showSnackBar('Nome e descrição são obrigatórios');
       return;
     }
 
     final db = await DB.instance.database;
-    await db.update('rotinas', {'nome': nome}, where: 'id_rotina = ?', whereArgs: [idRotina]);
+    await db.update('rotinas', {'nome': nome, 'descricao': descricao}, where: 'id_rotina = ?', whereArgs: [idRotina]);
     await _loadRotinas();
   }
 
@@ -87,11 +91,9 @@ class _RotinasPageState extends State<RotinasPage> {
     final String rotinaJson = jsonEncode(rotinaExport);
 
     try {
-      // Obter o diretório de Downloads do dispositivo
       final Directory? downloadsDir = await getExternalStorageDirectory();
       if (downloadsDir != null) {
-        // Caminho para o arquivo que será salvo no diretório de Downloads
-        final String filePath = '${downloadsDir.path}/Download/rotina_$idRotina.json'; // A pasta Download é acessível
+        final String filePath = '${downloadsDir.path}/Download/rotina_$idRotina.json';
         final File file = File(filePath);
         await file.writeAsString(rotinaJson);
         _showSnackBar('Rotina exportada com sucesso para $filePath');
@@ -144,6 +146,16 @@ class _RotinasPageState extends State<RotinasPage> {
                       ),
                     ),
                     const SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: descricaoController,
+                        decoration: const InputDecoration(
+                          hintText: 'Descrição...',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
                     Container(
                       height: 50,
                       width: 50,
@@ -153,7 +165,7 @@ class _RotinasPageState extends State<RotinasPage> {
                       ),
                       child: IconButton(
                         icon: const Icon(Icons.add, color: Colors.white),
-                        onPressed: () => _insertRotina(nomeController.text),
+                        onPressed: () => _insertRotina(nomeController.text, descricaoController.text),
                       ),
                     ),
                   ],
@@ -174,6 +186,7 @@ class _RotinasPageState extends State<RotinasPage> {
                           rotina['nome'],
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
+                        subtitle: Text(rotina['descricao'] ?? 'Sem descrição'), // Exibe a descrição
                         trailing: Container(
                           decoration: BoxDecoration(
                             color: const Color.fromARGB(255, 255, 255, 255),
@@ -194,6 +207,7 @@ class _RotinasPageState extends State<RotinasPage> {
                                 icon: const Icon(Icons.edit_note, color: Color.fromARGB(255, 53, 36, 204)),
                                 onPressed: () {
                                   editNomeController.text = rotina['nome'];
+                                  editDescricaoController.text = rotina['descricao'] ?? ''; // Carrega a descrição para edição
                                   _showEditDialog(rotina['id_rotina']);
                                 },
                               ),
@@ -272,32 +286,40 @@ class _RotinasPageState extends State<RotinasPage> {
       ),
     );
   }
-
   void _showEditDialog(int idRotina) {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Editar Rotina'),
-          content: TextField(
-            controller: editNomeController,
-            decoration: const InputDecoration(
-              hintText: 'Novo nome...',
-            ),
+          title: const Text("Editar Rotina"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: editNomeController,
+                decoration: const InputDecoration(
+                  hintText: "Novo nome da rotina...",
+                ),
+              ),
+              TextField(
+                controller: editDescricaoController,
+                decoration: const InputDecoration(
+                  hintText: "Nova descrição da rotina...",
+                ),
+              ),
+            ],
           ),
-          actions: [
+          actions: <Widget>[
             TextButton(
-              child: const Text('Cancelar'),
+              child: const Text("Cancelar"),
               onPressed: () {
-                editNomeController.clear();
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text('Salvar'),
+              child: const Text("Salvar"),
               onPressed: () {
                 _editRotina(idRotina);
-                editNomeController.clear();
                 Navigator.of(context).pop();
               },
             ),
