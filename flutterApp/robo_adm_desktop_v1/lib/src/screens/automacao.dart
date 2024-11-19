@@ -125,10 +125,6 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
           Wrap(
             verticalDirection: VerticalDirection.down,
             children: [
-
-
-
-              
               // Campos de automação fixos
               _buildAutomacaoCampo('Sensores', itemWidth),
               _buildAutomacaoCampo('Motores Horizontal', itemWidth),
