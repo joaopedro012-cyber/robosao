@@ -150,8 +150,13 @@ class _MainScreenState extends State<MainScreen> {
     List<BluetoothDevice> scanResults = _scanResults.toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bluetooth'),
+       appBar: AppBar(
+        title: const Text(
+          'Bluetooth',
+          style: TextStyle(fontSize: 30 , fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+        ),
+        centerTitle: true, 
+        backgroundColor: const Color.fromARGB(255, 226, 226, 226),
         actions: [
           if (_adapterState == BluetoothAdapterState.on)
             IconButton(

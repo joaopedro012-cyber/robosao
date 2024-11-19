@@ -184,9 +184,14 @@ Widget build(BuildContext context) {
   }
 
   return Scaffold(
-    appBar: AppBar(
-      title: const Text('Controle'),
-    ),
+     appBar: AppBar(
+        title: const Text(
+          'Controle',
+          style: TextStyle(fontSize: 30 , fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+        ),
+        centerTitle: true, // Centraliza o título do AppBar
+        backgroundColor: const Color.fromARGB(255, 226, 226, 226),
+      ),
     body: Container(
       color: const Color(0xFFECE6F0),
       child: Column(
