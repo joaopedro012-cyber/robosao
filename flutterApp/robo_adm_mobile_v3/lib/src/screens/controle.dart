@@ -169,115 +169,134 @@ class ControlePageState extends State<ControlePage> {
   }
 }
 
+@override
+Widget build(BuildContext context) {
+  double tamanhoTela = MediaQuery.of(context).size.width;
 
-  @override
-  Widget build(BuildContext context) {
-    double tamanhoTela = MediaQuery.of(context).size.width;
+  // Buscar a descrição da rotina selecionada
+  String? descricaoRotinaSelecionada;
+  if (_selectedRoutine != null) {
+    final rotina = _rotinas.firstWhere(
+      (r) => r['id_rotina'].toString() == _selectedRoutine,
+      orElse: () => {},
+    );
+    descricaoRotinaSelecionada = rotina.isNotEmpty ? rotina['descricao'] as String? : null;
+  }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Controle'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: SizedBox(
-              width: 200,
-              child: DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                  labelText: 'Selecione uma rotina',
-                  border: OutlineInputBorder(),
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('Controle'),
+    ),
+    body: Container(
+      color: const Color(0xFFECE6F0),
+      child: Column(
+        children: [
+          // Container no topo para o DropdownButton
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            color: Colors.white,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(
+                    labelText: 'Selecione uma rotina',
+                    border: OutlineInputBorder(),
+                  ),
+                  value: _selectedRoutine,
+                  items: _rotinas.map((rotina) {
+                    return DropdownMenuItem<String>(
+                      value: rotina['id_rotina'].toString(),
+                      child: Text(rotina['nome']),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedRoutine = newValue;
+                    });
+                  },
                 ),
-                value: _selectedRoutine,
-                items: _rotinas.map((rotina) {
-                  return DropdownMenuItem<String>(
-                    value: rotina['id_rotina'].toString(),
-                    child: Text(rotina['nome']),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedRoutine = newValue;
-                  });
-                },
+                if (descricaoRotinaSelecionada != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      descricaoRotinaSelecionada,
+                      style: const TextStyle(fontSize: 14, color: Colors.black54),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Container para o joystick esquerdo
+                  SizedBox(
+                    width: tamanhoTela * 0.17,
+                    height: tamanhoTela * 0.17,
+                    child: JoystickHorizontal(
+                      moveRobot: (double horizontal) {
+                        moveRobot(horizontal, 0); // Motor horizontal
+                      },
+                    ),
+                  ),
+                  // Container para o slider
+                  RotatedBox(
+                    quarterTurns: 3,
+                    child: SizedBox(
+                      width: tamanhoTela * 0.40,
+                      child: Slider(
+                        value: _currentSliderValue,
+                        min: 0,
+                        max: 100,
+                        divisions: 100,
+                        label: _currentSliderValue.round().toString(),
+                        onChanged: (double value) {
+                          setState(() {
+                            _currentSliderValue = value;
+                          });
+                          movePlatform(value / 100); // Mova a plataforma conforme o slider
+                        },
+                      ),
+                    ),
+                  ),
+                  // Container para os botões de controle
+                  SizedBox(
+                    width: tamanhoTela * 0.30,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildTomadaButton(1),
+                        const SizedBox(height: 8),
+                        _buildTomadaButton(2),
+                        const SizedBox(height: 8),
+                        _buildTomadaButton(3),
+                      ],
+                    ),
+                  ),
+                  // Container para o joystick direito
+                  SizedBox(
+                    width: tamanhoTela * 0.17,
+                    height: tamanhoTela * 0.17,
+                    child: JoystickVertical(
+                      moveRobot: (double vertical) {
+                        moveRobot(0, vertical); // Motor vertical
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
         ],
       ),
-      body: Container(
-        color: const Color(0xFFECE6F0),
-        child: Column(
-          children: [
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Container para o joystick esquerdo
-                    SizedBox(
-                      width: tamanhoTela * 0.17,
-                      height: tamanhoTela * 0.17,
-                      child: JoystickHorizontal(
-                        moveRobot: (double horizontal) {
-                          moveRobot(horizontal, 0); // Motor horizontal
-                        },
-                      ),
-                    ),
-                    // Container para o slider
-                    RotatedBox(
-                      quarterTurns: 3,
-                      child: SizedBox(
-                        width: tamanhoTela * 0.40,
-                        child: Slider(
-                          value: _currentSliderValue,
-                          min: 0,
-                          max: 100,
-                          divisions: 100,
-                          label: _currentSliderValue.round().toString(),
-                          onChanged: (double value) {
-                            setState(() {
-                              _currentSliderValue = value;
-                            });
-                            movePlatform(value / 100); // Mova a plataforma conforme o slider
-                          },
-                        ),
-                      ),
-                    ),
-                    // Container para os botões de controle
-                    SizedBox(
-                      width: tamanhoTela * 0.30,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildTomadaButton(1),
-                          const SizedBox(height: 8),
-                          _buildTomadaButton(2),
-                          const SizedBox(height: 8),
-                          _buildTomadaButton(3),
-                        ],
-                      ),
-                    ),
-                    // Container para o joystick direito
-                    SizedBox(
-                      width: tamanhoTela * 0.17,
-                      height: tamanhoTela * 0.17,
-                      child: JoystickVertical(
-                        moveRobot: (double vertical) {
-                          moveRobot(0, vertical); // Motor vertical
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-       ),
- ),
-);
+    ),
+  );
 }
-
 
   Widget _buildTomadaButton(int deviceNumber) {
     bool isSelected = _tomadaSelecionada[deviceNumber - 1];

@@ -4,7 +4,7 @@ import 'package:logging/logging.dart';
 import 'dart:io';
 import 'src/screens/home.dart';
 import 'src/screens/bluetooth.dart';
-import 'src/screens/controle.dart';
+import 'src/screens/controle.dart'; 
 import 'src/screens/rotinas.dart';
 import 'src/screens/testes.dart';
 
