@@ -5,11 +5,18 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Obtém a orientação da tela
+    final orientation = MediaQuery.of(context).orientation;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           'Administração',
-          style: TextStyle(fontSize: 30 , fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+          style: TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            decoration: TextDecoration.underline,
+          ),
         ),
         centerTitle: true, // Centraliza o título do AppBar
         backgroundColor: const Color.fromARGB(255, 226, 226, 226),
@@ -17,7 +24,7 @@ class HomeScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.count(
-          crossAxisCount: 2,
+          crossAxisCount: orientation == Orientation.portrait ? 2 : 4, // Ajusta o número de colunas com base na orientação
           mainAxisSpacing: 16.0,
           crossAxisSpacing: 16.0,
           childAspectRatio: 0.8, // Ajusta o aspecto dos itens para evitar overflow
@@ -99,7 +106,8 @@ class HomeScreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0), // Bordas arredondadas
                     ),
-                    backgroundColor: const Color.fromARGB(255, 151, 197, 213), // Cor de fundo do botão
+                    backgroundColor:
+                        const Color.fromARGB(255, 151, 197, 213), // Cor de fundo do botão
                   ),
                   child: const Text(
                     'VER',
