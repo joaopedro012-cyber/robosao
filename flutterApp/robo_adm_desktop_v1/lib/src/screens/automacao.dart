@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:robo_adm_desktop_v1/src/utils/serial_config.dart';
@@ -43,20 +44,20 @@ class AutomacaoPage extends StatefulWidget {
 
 class _AutomacaoPageState extends State<AutomacaoPage> {
   late SerialPort porta;
-  List<Map<String, dynamic>> rotinasCarregadas =
-      []; // Armazenará as rotinas carregadas
+  List<Map<String, dynamic>> rotinasCarregadas = []; // Armazenará as rotinas
 
   @override
   void initState() {
     super.initState();
     porta = SerialPort("COM4");
-    _carregarRotinasExportadas(); // Carregar rotinas na inicialização
-    executarAutomacao(); // Executar a automação ao iniciar a tela
+    inicializadorSerialPort(porta); // Inicializa a porta serial
+    _carregarRotinasExportadas(); // Carrega as rotinas ao iniciar
+    executarAutomacao(); // Executa automação automaticamente
   }
 
   @override
   void dispose() {
-    finalizacaoSerialPort(porta);
+    finalizacaoSerialPort(porta); // Fecha a conexão ao sair
     super.dispose();
   }
 
@@ -74,14 +75,14 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
         rotinasCarregadas = rotinas;
       });
     } catch (e) {
-      print('Erro ao carregar rotinas exportadas: $e');
+      if (kDebugMode) print('Erro ao carregar rotinas exportadas: $e');
     }
   }
 
-  // Função para executar a automação das rotinas carregadas
+  // Função para executar as rotinas carregadas
   Future<void> executarAutomacao() async {
     for (var rotina in rotinasCarregadas) {
-      await _executarRotina(rotina); // Executa cada rotina automaticamente
+      await _executarRotina(rotina); // Executa cada rotina
     }
   }
 
@@ -90,20 +91,16 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
     try {
       for (var chave in rotina.keys) {
         var acao = rotina[chave];
-        // Implemente a lógica para executar as ações com base na rotina carregada
-        print('Executando: $chave - $acao');
-        // Exemplo de envio de comando para a porta serial
+        if (kDebugMode) print('Executando: $chave - $acao');
         enviaDadosSerialPort(porta, "$chave:$acao\n");
-        await Future.delayed(const Duration(
-            seconds:
-                1)); // Aguarda um tempo entre comandos, ajuste conforme necessário
+        await Future.delayed(const Duration(seconds: 1)); // Intervalo
       }
     } catch (e) {
-      print('Erro ao executar rotina: $e');
+      if (kDebugMode) print('Erro ao executar rotina: $e');
     }
   }
 
-  // Função para construir o campo de automação
+  // Função para construir campos de automação
   Widget _buildAutomacaoCampo(String objetoAutomacao, double width) {
     return Container(
       width: width,
@@ -125,7 +122,6 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
           Wrap(
             verticalDirection: VerticalDirection.down,
             children: [
-              // Campos de automação fixos
               _buildAutomacaoCampo('Sensores', itemWidth),
               _buildAutomacaoCampo('Motores Horizontal', itemWidth),
               _buildAutomacaoCampo('Motores Vertical', itemWidth),
@@ -134,7 +130,7 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
               _buildAutomacaoCampo('Botão Roda Dianteira', itemWidth),
             ],
           ),
-          // Exibindo as rotinas carregadas
+          // Exibindo rotinas carregadas
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -150,8 +146,7 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: ElevatedButton(
                       onPressed: () {
-                        _executarRotina(
-                            rotina); // Executa a rotina selecionada manualmente
+                        _executarRotina(rotina); // Executa rotina manualmente
                       },
                       child: Text('Executar Rotina ${rotina['nome']}'),
                     ),
@@ -169,7 +164,7 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
                   objetoAutomacao: 'Monitor Serial Padrao',
                 ),
                 FilledButton(
-                  child: const Text('FECHA A CONEXÃO'),
+                  child: const Text('FECHAR CONEXÃO'),
                   onPressed: () => finalizacaoSerialPort(porta),
                 ),
                 Container(
