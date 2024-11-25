@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io'; // Import necessário para manipulação de arquivos
 import 'package:flutter/material.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
-import 'package:path_provider/path_provider.dart'; // Import necessário para obter o diretório de Downloads
+import 'package:path_provider/path_provider.dart';
 
 class RotinasPage extends StatefulWidget {
   const RotinasPage({super.key});
@@ -80,30 +80,42 @@ class _RotinasPageState extends State<RotinasPage> {
     await _loadRotinas();
   }
 
-  Future<void> _exportRotina(int idRotina) async {
+    Future<void> _exportRotina(int idRotina) async {
+    // Encontrar a rotina com base no ID
     final rotina = _rotinas.firstWhere((r) => r['id_rotina'] == idRotina);
     final List<Map<String, dynamic>> acoes = _acoesPorRotina[idRotina] ?? [];
+    
+    // Criar o mapa que será exportado
     final Map<String, dynamic> rotinaExport = {
       'rotina': rotina,
       'acoes': acoes,
     };
 
+    // Converter para JSON
     final String rotinaJson = jsonEncode(rotinaExport);
 
+    // Exibir o JSON no console
+    //ignore: avoid_print
+    print('Conteúdo da rotina exportada:');
+    //ignore: avoid_print
+    print(rotinaJson);
+
     try {
-      final Directory? downloadsDir = await getExternalStorageDirectory();
-      if (downloadsDir != null) {
-        final String filePath = '${downloadsDir.path}/Download/rotina_$idRotina.json';
-        final File file = File(filePath);
-        await file.writeAsString(rotinaJson);
-        _showSnackBar('Rotina exportada com sucesso para $filePath');
-      } else {
-        _showSnackBar('Erro: Diretório de downloads não encontrado.');
-      }
+      // Diretório para salvar o arquivo
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = '${directory.path}/rotina_$idRotina.json';
+
+      // Salvar no arquivo
+      final file = File(filePath);
+      await file.writeAsString(rotinaJson);
+//ignore: avoid_print
+      print('Arquivo salvo com sucesso em: $filePath');
     } catch (e) {
-      _showSnackBar('Erro ao exportar a rotina: $e');
+      //ignore: avoid_print
+      print('Erro ao exportar rotina: $e');
     }
   }
+
 
   void _showSnackBar(String message) {
     if (mounted) {

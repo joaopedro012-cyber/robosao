@@ -178,7 +178,7 @@ Widget build(BuildContext context) {
   if (_selectedRoutine != null) {
     final rotina = _rotinas.firstWhere(
       (r) => r['id_rotina'].toString() == _selectedRoutine,
-      orElse: () => {},
+      orElse: () => {},  
     );
     descricaoRotinaSelecionada = rotina.isNotEmpty ? rotina['descricao'] as String? : null;
   }
