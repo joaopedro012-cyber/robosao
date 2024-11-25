@@ -122,9 +122,13 @@ class _RotinasPageState extends State<RotinasPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Rotinas'),
-        backgroundColor: const Color.fromARGB(255, 69, 94, 235),
+       appBar: AppBar(
+        title: const Text(
+          'Rotinas',
+          style: TextStyle(fontSize: 30 , fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+        ),
+        centerTitle: true, // Centraliza o título do AppBar
+        backgroundColor: const Color.fromARGB(255, 226, 226, 226),
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -139,9 +143,37 @@ class _RotinasPageState extends State<RotinasPage> {
                     Expanded(
                       child: TextField(
                         controller: nomeController,
-                        decoration: const InputDecoration(
-                          hintText: 'Nome da nova rotina...',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          hintText: 'Nome da Rotina...',
+                          hintStyle: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey, // Cor do texto de dica
+                          ),
+                          filled: true,
+                          fillColor: const Color(0xFFF5F5F5), // Fundo claro
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0), // Bordas arredondadas
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 142, 141, 141), // Cor preta para a borda
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 142, 141, 141), // Borda preta ao carregar a página
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF4CAF50), // Cor verde ao focar
+                              width: 2.0,
+                            ),
+                          ),
+                        ),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black, // Cor do texto
                         ),
                       ),
                     ),
@@ -149,22 +181,50 @@ class _RotinasPageState extends State<RotinasPage> {
                     Expanded(
                       child: TextField(
                         controller: descricaoController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: 'Descrição...',
-                          border: OutlineInputBorder(),
+                          hintStyle: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey, // Cor do texto de dica
+                          ),
+                          filled: true,
+                          fillColor: const Color(0xFFF5F5F5), // Fundo claro
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0), // Bordas arredondadas
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 142, 141, 141), // Cor preta para a borda
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 142, 141, 141), // Borda preta ao carregar a página
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF4CAF50), // Cor verde ao focar
+                              width: 2.0,
+                            ),
+                          ),
+                        ),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black, // Cor do texto
                         ),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Container(
-                      height: 50,
-                      width: 50,
+                      height: 55, // Altura ajustada para combinar com as text boxes
+                      width: 55,  // Largura ajustada para combinar com as text boxes
                       decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 88, 69, 252),
-                        borderRadius: BorderRadius.circular(8.0),
+                        color: Colors.black, // Cor de fundo preta
+                        borderRadius: BorderRadius.circular(12.0), // Bordas arredondadas consistentes com as caixas de texto
                       ),
                       child: IconButton(
-                        icon: const Icon(Icons.add, color: Colors.white),
+                        icon: const Icon(Icons.add, color: Colors.white), // Ícone branco para contraste
                         onPressed: () => _insertRotina(nomeController.text, descricaoController.text),
                       ),
                     ),

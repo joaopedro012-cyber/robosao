@@ -150,8 +150,13 @@ class _MainScreenState extends State<MainScreen> {
     List<BluetoothDevice> scanResults = _scanResults.toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bluetooth'),
+       appBar: AppBar(
+        title: const Text(
+          'Bluetooth',
+          style: TextStyle(fontSize: 30 , fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+        ),
+        centerTitle: true, 
+        backgroundColor: const Color.fromARGB(255, 226, 226, 226),
         actions: [
           if (_adapterState == BluetoothAdapterState.on)
             IconButton(
@@ -205,11 +210,41 @@ class _MainScreenState extends State<MainScreen> {
             children: [
               ElevatedButton(
                 onPressed: _connectToDevices,
-                child: const Text('Conectar'),
+                style: ElevatedButton.styleFrom(
+                  elevation: 8, // Elevação para criar profundidade
+                  shadowColor: Colors.black.withOpacity(0.4), // Cor da sombra
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0), // Bordas arredondadas
+                  ),
+                  backgroundColor: const Color.fromARGB(255, 151, 197, 213), // Cor de fundo do botão
+                ),
+                child: const Text(
+                  'Conectar',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 64, 59, 59), // Cor do texto
+                  ),
+                ),
               ),
               ElevatedButton(
                 onPressed: _startStopScan,
-                child: Text(_isScanning ? 'Parar Busca' : 'Procurar Dispositivos'),
+                style: ElevatedButton.styleFrom(
+                  elevation: 8, // Elevação para criar profundidade
+                  shadowColor: Colors.black.withOpacity(0.4), // Cor da sombra
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0), // Bordas arredondadas
+                  ),
+                  backgroundColor: const Color.fromARGB(255, 151, 197, 213), // Cor de fundo do botão
+                ),
+                child: Text(
+                  _isScanning ? 'Parar Busca' : 'Procurar Dispositivos',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 64, 59, 59), // Cor do texto
+                  ),
+                ),
               ),
             ],
           ),
