@@ -9,12 +9,13 @@ void inicializadorSerialPort(final SerialPort portaConexao) {
       throw 'Não foi possível abrir a porta serial';
     }
 
-    portaConexao.config = SerialPortConfig()
-      ..baudRate = 9600
-      ..bits = 8
-      ..stopBits = 1
-      ..parity = SerialPortParity.none
-      ..setFlowControl(SerialPortFlowControl.none);
+    final config = SerialPortConfig();
+    config.baudRate = 9600;
+    config.bits = 8;
+    config.stopBits = 1;
+    config.parity = SerialPortParity.none;
+
+    portaConexao.config = config;
 
     if (kDebugMode) {
       print('Porta serial inicializada com sucesso!');
