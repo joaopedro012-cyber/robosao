@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io'; // Import necessário para manipulação de arquivos
 import 'package:flutter/material.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
-import 'package:path_provider/path_provider.dart';
 
 class RotinasPage extends StatefulWidget {
   const RotinasPage({super.key});
@@ -94,27 +93,29 @@ class _RotinasPageState extends State<RotinasPage> {
     // Converter para JSON
     final String rotinaJson = jsonEncode(rotinaExport);
 
-    // Exibir o JSON no console
-    //ignore: avoid_print
-    print('Conteúdo da rotina exportada:');
-    //ignore: avoid_print
-    print(rotinaJson);
-
     try {
-      // Diretório para salvar o arquivo
-      final directory = await getApplicationDocumentsDirectory();
-      final filePath = '${directory.path}/rotina_$idRotina.json';
+    // Diretório para salvar o arquivo na pasta Downloads
+    final directory = Directory('/storage/emulated/0/Download'); // Caminho para downloads no Android
+    final filePath = '${directory.path}/rotina_$idRotina.json';
 
-      // Salvar no arquivo
-      final file = File(filePath);
-      await file.writeAsString(rotinaJson);
-//ignore: avoid_print
-      print('Arquivo salvo com sucesso em: $filePath');
-    } catch (e) {
-      //ignore: avoid_print
-      print('Erro ao exportar rotina: $e');
+    // Verifica se o diretório existe e cria, se necessário
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
     }
+
+    // Salva o arquivo no caminho
+    final file = File(filePath);
+    await file.writeAsString(rotinaJson);
+
+    // Mensagem de sucesso
+    //ignore: avoid_print
+    print('Arquivo salvo com sucesso em: $filePath');
+  } catch (e) {
+    // Mensagem de erro
+    //ignore: avoid_print
+    print('Erro ao exportar rotina: $e');
   }
+}
 
 
   void _showSnackBar(String message) {
