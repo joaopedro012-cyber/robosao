@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:robo_adm_desktop_v1/src/screens/automacao.dart';
 import 'package:robo_adm_desktop_v1/src/screens/rotinas.dart';
 import 'package:robo_adm_desktop_v1/src/screens/sensores.dart';
+import 'package:robo_adm_desktop_v1/src/screens/bluetooth_manager.dart'; // Importando a tela de Bluetooth
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -63,6 +64,13 @@ class _HomePageState extends State<HomePage> {
         icon: const Icon(FluentIcons.waitlist_confirm),
         title: const Text('Status'),
         body: const Center(child: Text('Status')),
+      ),
+      // Adicionando o item de Bluetooth
+      PaneItem(
+        icon: const Icon(FluentIcons.bluetooth),
+        title: const Text('Bluetooth'),
+        body: const Center(
+            child: BluetoothDesktopPage()), // Referência à página de Bluetooth
       ),
     ];
   }
