@@ -9,10 +9,11 @@ class Testetela extends StatelessWidget {
        appBar: AppBar(
         title: const Text(
           'Testes',
-          style: TextStyle(fontSize: 30 , fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+          style: TextStyle(fontSize: 30 , fontWeight: FontWeight.bold),
         ),
         centerTitle: true, // Centraliza o título do AppBar
         backgroundColor: const Color.fromARGB(255, 226, 226, 226),
+        toolbarHeight: 70.0,
       ),
       body: const Center(
         child: Text('Tela de Testes'),

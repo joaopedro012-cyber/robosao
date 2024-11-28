@@ -15,11 +15,11 @@ class HomeScreen extends StatelessWidget {
           style: TextStyle(
             fontSize: 30,
             fontWeight: FontWeight.bold,
-            decoration: TextDecoration.underline,
           ),
         ),
         centerTitle: true, // Centraliza o título do AppBar
         backgroundColor: const Color.fromARGB(255, 226, 226, 226),
+        toolbarHeight: 70.0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

@@ -187,10 +187,11 @@ Widget build(BuildContext context) {
      appBar: AppBar(
         title: const Text(
           'Controle',
-          style: TextStyle(fontSize: 30 , fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+          style: TextStyle(fontSize: 30 , fontWeight: FontWeight.bold),
         ),
         centerTitle: true, // Centraliza o título do AppBar
         backgroundColor: const Color.fromARGB(255, 226, 226, 226),
+        toolbarHeight: 70.0,
       ),
     body: Container(
       color: const Color(0xFFECE6F0),

@@ -153,10 +153,11 @@ class _MainScreenState extends State<MainScreen> {
        appBar: AppBar(
         title: const Text(
           'Bluetooth',
-          style: TextStyle(fontSize: 30 , fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+          style: TextStyle(fontSize: 30 , fontWeight: FontWeight.bold),
         ),
         centerTitle: true, 
         backgroundColor: const Color.fromARGB(255, 226, 226, 226),
+        toolbarHeight: 70.0,
         actions: [
           if (_adapterState == BluetoothAdapterState.on)
             IconButton(

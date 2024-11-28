@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:convert';
 import 'dart:io'; // Import necessário para manipulação de arquivos
 import 'package:flutter/material.dart';
@@ -99,23 +101,89 @@ class _RotinasPageState extends State<RotinasPage> {
     final filePath = '${directory.path}/rotina_$idRotina.json';
 
     // Verifica se o diretório existe e cria, se necessário
-    if (!await directory.exists()) {
-      await directory.create(recursive: true);
-    }
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
 
-    // Salva o arquivo no caminho
+        // Exibe uma Snackbar informando que o diretório foi criado
+        if (context.mounted) {
+          // ignore: use_build_context_synchronously
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Diretório de downloads não encontrado. Novo diretório criado.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
+
     final file = File(filePath);
+
+    // Verifica se o arquivo já existe
+      if (await file.exists()) {
+        // Se existir, exibe um dialog de confirmação
+        bool confirmarSobrescrita = await showDialog<bool>(
+          // ignore: use_build_context_synchronously
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Sobrescrever arquivo?'),
+              content: const Text(
+                  'Já existe uma rotina salva com este ID. Deseja sobrescrever o arquivo? (Caso não deseje sobescrever os dados, sugerimos que crie outra rotina)'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('Sobrescrever'),
+                ),
+              ],
+            );
+          },
+        ) ?? false; // Retorna false se o usuário fechar o dialog sem escolher.
+
+        // Se o usuário cancelar, encerra a função
+        if (!confirmarSobrescrita) {
+          if (context.mounted) {
+            // ignore: use_build_context_synchronously
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Exportação cancelada pelo usuário.'),
+                backgroundColor: Colors.grey,
+              ),
+            );
+          }
+          return;
+        }
+      }
+
+    // Salva ou sobrescreve o arquivo
     await file.writeAsString(rotinaJson);
 
-    // Mensagem de sucesso
-    //ignore: avoid_print
-    print('Arquivo salvo com sucesso em: $filePath');
-  } catch (e) {
-    // Mensagem de erro
-    //ignore: avoid_print
-    print('Erro ao exportar rotina: $e');
+    // Exibe uma Snackbar de sucesso se o contexto ainda estiver montado
+      if (context.mounted) {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Arquivo salvo com sucesso em: $filePath'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      // Exibe uma Snackbar de erro se o contexto ainda estiver montado
+      if (context.mounted) {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao exportar rotina: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
-}
 
 
   void _showSnackBar(String message) {
@@ -138,10 +206,11 @@ class _RotinasPageState extends State<RotinasPage> {
        appBar: AppBar(
         title: const Text(
           'Rotinas',
-          style: TextStyle(fontSize: 30 , fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+          style: TextStyle(fontSize: 30 , fontWeight: FontWeight.bold),
         ),
         centerTitle: true, // Centraliza o título do AppBar
         backgroundColor: const Color.fromARGB(255, 226, 226, 226),
+        toolbarHeight: 70.0,
       ),
       body: SingleChildScrollView(
         child: Container(
