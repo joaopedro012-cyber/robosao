@@ -4,6 +4,9 @@ import 'package:robo_adm_desktop_v1/src/screens/automacao.dart';
 import 'package:robo_adm_desktop_v1/src/screens/rotinas.dart';
 import 'package:robo_adm_desktop_v1/src/screens/sensores.dart';
 import 'package:robo_adm_desktop_v1/src/screens/bluetooth_manager.dart'; // Importando a tela de Bluetooth
+import 'package:robo_adm_desktop_v1/src/screens/gps_module.dart'; // Importando a tela de GPS
+import 'package:robo_adm_desktop_v1/src/screens/log_module.dart'; // Tela de Log
+import 'package:robo_adm_desktop_v1/src/screens/status_module.dart'; // Tela de Status
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -28,49 +31,50 @@ class _HomePageState extends State<HomePage> {
       PaneItem(
         icon: const Icon(FluentIcons.robot),
         title: const Text('Automação'),
-        body: const Center(child: AutomacaoPage()),
+        body: const Center(child: AutomacaoPage()), // Página de Automação
       ),
       PaneItem(
         icon: const Icon(FluentIcons.compass_n_w),
         title: const Text('GPS'),
-        body: const Center(child: Text('GPS')),
+        body: const Center(child: GPSModuleWidget()), // Página de GPS
       ),
       PaneItem(
         icon: const Icon(FluentIcons.power_button),
         title: const Text('Inicialização'),
-        body: const Center(child: Text('Inicialização')),
+        body: const Center(
+            child: Text('Inicialização')), // Página de Inicialização
       ),
       PaneItem(
         icon: const Icon(FluentIcons.log_remove),
         title: const Text('Log'),
-        body: const Center(child: Text('Log')),
+        body: const LogPage(), // Página de Log
       ),
       PaneItem(
         icon: const Icon(FluentIcons.mobile_selected),
         title: const Text('Mobile'),
-        body: const Center(child: Text('Mobile')),
+        body: const Center(child: Text('Mobile')), // Página de Mobile
       ),
       PaneItem(
         icon: const Icon(FluentIcons.clipboard_list),
         title: const Text('Rotinas'),
-        body: const RotinasPage(),
+        body: const RotinasPage(), // Página de Rotinas
       ),
       PaneItem(
         icon: const Icon(FluentIcons.communications),
         title: const Text('Sensores'),
-        body: const SensoresPage(),
+        body: const SensoresPage(), // Página de Sensores
       ),
       PaneItem(
         icon: const Icon(FluentIcons.waitlist_confirm),
         title: const Text('Status'),
-        body: const Center(child: Text('Status')),
+        body: const StatusPage(), // Página de Status
       ),
       // Adicionando o item de Bluetooth
       PaneItem(
         icon: const Icon(FluentIcons.bluetooth),
         title: const Text('Bluetooth'),
-        body: const Center(
-            child: BluetoothDesktopPage()), // Referência à página de Bluetooth
+        body:
+            const Center(child: BluetoothDesktopPage()), // Página de Bluetooth
       ),
     ];
   }

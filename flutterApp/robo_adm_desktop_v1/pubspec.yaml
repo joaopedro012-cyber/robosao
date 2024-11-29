@@ -13,7 +13,7 @@ dependencies:
   flutter_acrylic: ^1.0.0+2
   flutter_libserialport: ^0.4.0
   flutter_markdown: ^0.6.13
-  fluent_ui: ^4.0.0 
+  fluent_ui: ^4.0.0
   fpdart: ^1.0.0
   google_fonts: ^4.0.4
   path: ^1.8.0
@@ -21,8 +21,8 @@ dependencies:
   system_theme: ^2.3.1
   window_manager: 0.2.4
   libserialport: ^0.3.0+1
-
-
+  flutter_map: ^7.0.2    # Adicionando flutter_map para uso do mapa
+  latlong2: ^0.9.1        # Para coordenadas geográficas (para o mapa)
 
 dev_dependencies:
   flutter_test:
@@ -39,7 +39,7 @@ flutter_launcher_icons:
   windows:
     generate: true
     image_path: "lib/src/assets/gorfe.png"
-    icon_size: 48 
+    icon_size: 48
 
 flutter:
   uses-material-design: true
