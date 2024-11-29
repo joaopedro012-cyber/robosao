@@ -158,7 +158,7 @@ class _BluetoothDesktopPageState extends State<BluetoothDesktopPage> {
                 ],
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
