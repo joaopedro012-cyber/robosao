@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-// Simula coleta de dados GPS
 class GPSModule {
   double latitude = 0.0;
   double longitude = 0.0;
 
   // Função que simula a coleta dos dados GPS
   Future<void> coletarDados() async {
-    // Simulação de coleta de dados GPS (substituir por lógica real)
+    // Simulação de coleta de dados GPS (substitua por lógica real)
     await Future.delayed(
         const Duration(seconds: 2)); // Simulando atraso na coleta
     latitude = 40.7128; // Exemplo: Nova York
@@ -48,20 +47,50 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('GPS Module')),
+      appBar: AppBar(
+        title: const Text('GPS Module'),
+        backgroundColor: Colors.blueGrey,
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(localizacao),
+            Text(
+              localizacao,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _atualizarLocalizacao,
-              child: const Text('Atualizar Localização'),
+              child: const Text(
+                'Atualizar Localização',
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  localizacao = "Aguardando...";
+                });
+              },
+              child: const Text(
+                'Resetar Localização',
+                style: TextStyle(fontSize: 18),
+              ),
             ),
           ],
         ),
       ),
     );
   }
+}
+
+void main() {
+  runApp(
+    const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: GPSModuleWidget(),
+    ),
+  );
 }
