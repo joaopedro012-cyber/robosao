@@ -23,6 +23,7 @@ dependencies:
   libserialport: ^0.3.0+1
   flutter_map: ^7.0.2    # Para uso do mapa
   latlong2: ^0.9.1        # Para coordenadas geográficas (para o mapa)
+  geolocator: ^13.0.2
   
 dev_dependencies:
   flutter_test:
