@@ -69,9 +69,14 @@ class RoboTriangular {
     }
   }
 
+  void moverParaFrente() {
+    if (kDebugMode) {
+      print("Movendo para frente...");
+    }
+  }
+
   Future<void> monitorarSensores() async {
     Timer.periodic(const Duration(milliseconds: 500), (timer) async {
-      // Carrega distância mínima de desvio do JSON
       double distanciaMinima = await carregaDistanciaMinima();
 
       // Medir a distância em cada sensor e armazenar em uma lista
@@ -85,26 +90,53 @@ class RoboTriangular {
         }
       }
 
-      // Verifica se há obstáculos
+      // Verifica se há obstáculos e realiza a movimentação
       _verificaObstaculos(distancias, distanciaMinima);
     });
   }
 
   void _verificaObstaculos(List<double> distancias, double distanciaMinima) {
-    if (distancias[0] < distanciaMinima || distancias[1] < distanciaMinima) {
-      parar();
-      moverParaTras();
-      girarDireita();
-    } else if (distancias[3] < distanciaMinima ||
-        distancias[4] < distanciaMinima) {
-      parar();
-      moverParaTras();
-      girarDireita();
-    } else if (distancias[8] < distanciaMinima ||
+    // Se os sensores à frente detectarem um obstáculo
+    if (distancias[0] < distanciaMinima ||
+        distancias[1] < distanciaMinima ||
+        distancias[8] < distanciaMinima ||
         distancias[9] < distanciaMinima) {
       parar();
       moverParaTras();
-      girarEsquerda();
+      girarDireita(); // Gira à direita para evitar o obstáculo
+      // Avança após girar para verificar se o caminho está livre
+      Future.delayed(const Duration(seconds: 1), () {
+        moverParaFrente();
+      });
+    }
+    // Se os sensores laterais detectarem um obstáculo
+    else if (distancias[2] < distanciaMinima ||
+        distancias[3] < distanciaMinima ||
+        distancias[4] < distanciaMinima ||
+        distancias[5] < distanciaMinima ||
+        distancias[6] < distanciaMinima ||
+        distancias[7] < distanciaMinima) {
+      parar();
+      moverParaTras();
+      girarEsquerda(); // Gira à esquerda para evitar o obstáculo
+      // Avança após girar para verificar se o caminho está livre
+      Future.delayed(const Duration(seconds: 1), () {
+        moverParaFrente();
+      });
+    }
+    // Se o centro do robô estiver obstruído
+    else if (distancias[10] < distanciaMinima ||
+        distancias[11] < distanciaMinima) {
+      parar();
+      moverParaTras();
+      girarDireita(); // Se o centro estiver obstruído, gira para a direita
+      // Avança após girar para verificar se o caminho está livre
+      Future.delayed(const Duration(seconds: 1), () {
+        moverParaFrente();
+      });
+    } else {
+      // Caso não haja obstáculos, segue em frente
+      moverParaFrente();
     }
   }
 
