@@ -81,8 +81,12 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
 
   // Função para executar as rotinas carregadas
   Future<void> executarAutomacao() async {
-    for (var rotina in rotinasCarregadas) {
-      await _executarRotina(rotina); // Executa cada rotina
+    try {
+      for (var rotina in rotinasCarregadas) {
+        await _executarRotina(rotina); // Executa cada rotina
+      }
+    } catch (e) {
+      if (kDebugMode) print('Erro ao executar automação: $e');
     }
   }
 
@@ -117,6 +121,7 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
     double itemWidth = screenWidth * 0.35;
 
     return SingleChildScrollView(
+      // Permite rolar a tela se necessário
       child: Column(
         children: [
           Wrap(
@@ -157,7 +162,8 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
           // Monitor Serial
           SizedBox(
             width: screenWidth,
-            height: screenWidth * 0.15,
+            height:
+                screenWidth * 0.15, // Ajuste de altura para o monitor serial
             child: Column(
               children: [
                 const AutomacaoCampo(

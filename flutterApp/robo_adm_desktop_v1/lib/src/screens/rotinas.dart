@@ -25,28 +25,41 @@ class _RotinasPageState extends State<RotinasPage> {
       Map<String, dynamic> dadosJson = jsonDecode(conteudo);
 
       // Aqui você pode fazer o que for necessário com os dados da rotina
-      // Como exemplo, vamos exibir os sensores e automatizações configuradas no arquivo JSON
       List sensores = dadosJson['sensores'];
       List automacao = dadosJson['automacao'];
 
+      // Exibindo os sensores e automações configurados no arquivo JSON
       print("Sensores configurados:");
       for (var sensor in sensores) {
         print(
             'Nome: ${sensor['nome']}, Diretorio: ${sensor['diretorio']}, Distância Mínima: ${sensor['distancia_minima']}');
+        // Aqui você pode implementar a lógica para acionar sensores
+        // Por exemplo, se for um sensor de distância, iniciar leitura
+        // exemplo: acionarSensor(sensor['diretorio']);
       }
 
       print("\nAutomação configurada:");
       for (var device in automacao) {
         print(
             'Nome: ${device['nome']}, Porta: ${device['porta']}, Ativo: ${device['ativo']}');
+        // Aqui você pode implementar a lógica de controle de dispositivos
+        // Por exemplo, se for um motor, enviar comando para mover o robô
+        if (device['ativo']) {
+          // Enviar comando para ativar o dispositivo (motor, sensor, etc)
+          // exemplo: enviarComandoMotor(device['porta']);
+        }
       }
 
-      // Aqui você poderia simular a execução da rotina, como enviar comandos para o robo
-      // Exemplo: Controle de motores ou sensores
+      // Simulação de execução da rotina
       print('\nExecutando a rotina...');
 
-      // Simulação de execução
+      // Exemplo de interação com os motores
       await Future.delayed(const Duration(seconds: 2));
+
+      // Aqui você deve chamar as funções reais para controlar o robô,
+      // como por exemplo, enviar comandos para os motores
+      // Exemplo de movimentação: moverParaFrente(), virarParaEsquerda()
+
       print("Rotina executada com sucesso!");
     } catch (e) {
       print("Erro ao executar a rotina: $e");
@@ -152,7 +165,7 @@ class _RotinasPageState extends State<RotinasPage> {
               content: SizedBox(
                 height: 300,
                 child: SingleChildScrollView(
-                  child: Text('A long Text He'),
+                  child: Text('A long Text Here'),
                 ),
               )),
         ),

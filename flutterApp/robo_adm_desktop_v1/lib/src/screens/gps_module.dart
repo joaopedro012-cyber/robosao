@@ -101,7 +101,7 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('GPS Module'),
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: const Color.fromARGB(235, 253, 253, 253),
       ),
       body: Stack(
         children: [
