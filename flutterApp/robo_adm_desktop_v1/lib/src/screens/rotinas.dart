@@ -6,6 +6,57 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_libserialport/flutter_libserialport.dart'; // Importando a biblioteca
+
+class ComunicacaoArduino {
+  late SerialPort _port;
+  late SerialPortReader _reader;
+
+  // Abrir a porta serial com a configuração adequada
+  void abrirPorta(String porta) {
+    _port = SerialPort(porta);
+
+    if (_port.openReadWrite()) {
+      print("Porta Serial aberta com sucesso");
+    } else {
+      print("Erro ao abrir a porta serial");
+    }
+
+    // Iniciando o leitor para ler dados da porta serial
+    _reader = SerialPortReader(_port);
+    _reader.stream.listen((data) {
+      // Convertendo o Uint8List para String
+      String dadosRecebidos = utf8.decode(data);
+
+      print("Dados recebidos do Arduino: $dadosRecebidos");
+
+      // Aqui você pode processar as respostas do Arduino, como detectar obstáculos
+      if (dadosRecebidos == "obstaculo_detectado") {
+        print("Obstáculo detectado, interrompendo rotina...");
+        // Interromper a execução da rotina
+        // Você pode adicionar lógica aqui para gerenciar a interrupção
+      }
+    });
+  }
+
+  // Enviar um comando para o Arduino
+  void enviarComando(String comando) {
+    if (_port.isOpen) {
+      // Converter o comando de String para Uint8List antes de enviar
+      _port.write(Uint8List.fromList(comando.codeUnits));
+    } else {
+      print("Porta serial não está aberta");
+    }
+  }
+
+  // Fechar a porta serial quando não for mais necessário
+  void fecharPorta() {
+    if (_port.isOpen) {
+      _port.close();
+      print("Porta Serial fechada.");
+    }
+  }
+}
 
 class RotinasPage extends StatefulWidget {
   const RotinasPage({super.key});
@@ -15,6 +66,8 @@ class RotinasPage extends StatefulWidget {
 
 class _RotinasPageState extends State<RotinasPage> {
   bool filledDisabled = false;
+  ComunicacaoArduino comunicacao =
+      ComunicacaoArduino(); // Instância da comunicação serial
 
   // Função para simular a execução da rotina
   void executarRotina(String caminhoArquivo) async {
@@ -34,8 +87,7 @@ class _RotinasPageState extends State<RotinasPage> {
         print(
             'Nome: ${sensor['nome']}, Diretorio: ${sensor['diretorio']}, Distância Mínima: ${sensor['distancia_minima']}');
         // Aqui você pode implementar a lógica para acionar sensores
-        // Por exemplo, se for um sensor de distância, iniciar leitura
-        // exemplo: acionarSensor(sensor['diretorio']);
+        // Exemplo: acionarSensor(sensor['diretorio']);
       }
 
       print("\nAutomação configurada:");
@@ -43,22 +95,21 @@ class _RotinasPageState extends State<RotinasPage> {
         print(
             'Nome: ${device['nome']}, Porta: ${device['porta']}, Ativo: ${device['ativo']}');
         // Aqui você pode implementar a lógica de controle de dispositivos
-        // Por exemplo, se for um motor, enviar comando para mover o robô
         if (device['ativo']) {
           // Enviar comando para ativar o dispositivo (motor, sensor, etc)
-          // exemplo: enviarComandoMotor(device['porta']);
+          // Exemplo: enviarComandoMotor(device['porta']);
         }
       }
 
       // Simulação de execução da rotina
       print('\nExecutando a rotina...');
 
-      // Exemplo de interação com os motores
-      await Future.delayed(const Duration(seconds: 2));
+      // Iniciando a comunicação com o Arduino
+      comunicacao.enviarComando(
+          'start_routine'); // Comando para o Arduino começar a rotina
 
-      // Aqui você deve chamar as funções reais para controlar o robô,
-      // como por exemplo, enviar comandos para os motores
-      // Exemplo de movimentação: moverParaFrente(), virarParaEsquerda()
+      // Simula a execução da rotina enquanto aguarda o feedback do Arduino
+      await Future.delayed(const Duration(seconds: 2));
 
       print("Rotina executada com sucesso!");
     } catch (e) {
@@ -125,8 +176,21 @@ class _RotinasPageState extends State<RotinasPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Inicializa a comunicação com a porta serial do Arduino (substitua 'COM3' pela sua porta serial)
+    comunicacao.abrirPorta('COM3');
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    // Fecha a comunicação com a porta serial quando a página for destruída
+    comunicacao.fecharPorta();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Agora você pode acessar o 'context' aqui
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Row(

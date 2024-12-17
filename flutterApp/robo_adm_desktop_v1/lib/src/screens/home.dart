@@ -2,8 +2,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:robo_adm_desktop_v1/src/screens/automacao.dart';
 import 'package:robo_adm_desktop_v1/src/screens/rotinas.dart';
-import 'package:robo_adm_desktop_v1/src/screens/sensores.dart';
-import 'package:robo_adm_desktop_v1/src/screens/bluetooth_manager.dart'; // Importando a tela de Bluetooth
+import 'package:robo_adm_desktop_v1/src/screens/sensores.dart'; // Importando a tela de Bluetooth
 import 'package:robo_adm_desktop_v1/src/screens/gps_module.dart'; // Importando a tela de GPS
 import 'package:robo_adm_desktop_v1/src/screens/log_module.dart'; // Tela de Log
 import 'package:robo_adm_desktop_v1/src/screens/status_module.dart'; // Tela de Status
@@ -68,14 +67,7 @@ class _HomePageState extends State<HomePage> {
         icon: const Icon(FluentIcons.waitlist_confirm),
         title: const Text('Status'),
         body: const StatusPage(), // Página de Status
-      ),
-      // Adicionando o item de Bluetooth
-      PaneItem(
-        icon: const Icon(FluentIcons.bluetooth),
-        title: const Text('Bluetooth'),
-        body:
-            const Center(child: BluetoothDesktopPage()), // Página de Bluetooth
-      ),
+      )
     ];
   }
 

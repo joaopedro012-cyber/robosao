@@ -24,6 +24,8 @@ dependencies:
   flutter_map: ^7.0.2    # Para uso do mapa
   latlong2: ^0.9.1        # Para coordenadas geográficas (para o mapa)
   geolocator: ^13.0.2
+  flutter_blue_plus_windows: ^1.24.22
+  flutter_blue_plus: ^1.24.22
   
 dev_dependencies:
   flutter_test:

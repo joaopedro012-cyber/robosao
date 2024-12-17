@@ -1,42 +1,55 @@
- /* CÓDIGO FUNCIONAL */
-/* BIBLIOTECAS COMEÇO */
-#include <NewPing.h>
-/* BIBLIOTECAS FINAL */
+#include <Arduino.h>
 
-#define SONAR_NUM 12 /* NÚMERO DE SENSORES */
-#define MAX_DISTANCE 200 /* DISTÂNCIA MÁXIMA DE 200 CM */
+const int sensorPin = 7;  // Pino do sensor de obstáculos (ex: sensor de proximidade)
+const int motorPin = 9;   // Pino do motor ou outro dispositivo (ex: motor)
 
-/* ENTRADA E SAÍDA DE SENSORES */
-  NewPing sensor01(23, 22, 200);
-  NewPing sensor02(25, 24, 200);
-  NewPing sensor03(27, 26, 200);
-  NewPing sensor04(29, 28, 200);
-  NewPing sensor05(31, 30, 200);
-  NewPing sensor06(33, 32, 200);
-  NewPing sensor07(35, 34, 200);
-  NewPing sensor08(37, 36, 200);
-  NewPing sensor09(39, 38, 200);
-  NewPing sensor10(41, 40, 200);
-  NewPing sensor11(43, 42, 200);
-  NewPing sensor12(45, 44, 200);
-/* ENTRADA E SAÍDA DE SENSORES FIM */
+String comandoRecebido = "";  // Variável para armazenar o comando recebido
+
+// Função para executar a rotina com base nos dados JSON
+void executarRotina(String rotinaJson) {
+  // Simulando a execução da rotina conforme os dados do JSON
+  // Aqui o Arduino interpretaria o JSON e realizaria ações com base nos dados
+
+  // Ativa o motor, por exemplo, se o comando 'ativo' for verdadeiro
+  if (rotinaJson.indexOf("motor") >= 0) {  // Verifica se há motor no JSON
+    digitalWrite(motorPin, HIGH);  // Liga o motor
+    delay(2000);  // Aguarda 2 segundos
+
+    // Verifica se o sensor de obstáculos detectou algo
+    if (digitalRead(sensorPin) == HIGH) {
+      Serial.println("obstaculo_detectado");  // Envia a mensagem ao Flutter
+      digitalWrite(motorPin, LOW);  // Desliga o motor
+    } else {
+      Serial.println("Rotina executada com sucesso!");
+    }
+
+    digitalWrite(motorPin, LOW);  // Desliga o motor no final
+  }
+}
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600);  // Inicia a comunicação serial a 9600 bps
+  pinMode(sensorPin, INPUT);  // Definir o pino do sensor como entrada
+  pinMode(motorPin, OUTPUT);  // Definir o pino do motor como saída
 }
 
 void loop() {
-  Serial.write(sensor01.ping_cm());
-  Serial.write(sensor02.ping_cm());
-  Serial.write(sensor03.ping_cm());
-  Serial.write(sensor04.ping_cm());
-  Serial.write(sensor05.ping_cm());
-  Serial.write(sensor06.ping_cm());
-  Serial.write(sensor07.ping_cm());
-  Serial.write(sensor08.ping_cm());
-  Serial.write(sensor09.ping_cm());
-  Serial.write(sensor10.ping_cm());
-  Serial.write(sensor11.ping_cm());
-  Serial.write(sensor12.ping_cm());
-  delay(500);
+  // Verifica se há dados disponíveis na porta serial
+  if (Serial.available() > 0) {
+    // Lê a string recebida
+    comandoRecebido = Serial.readString();
+    comandoRecebido.trim();  // Remove espaços em branco ou quebras de linha
+
+    // Verifica se o comando recebido é 'start_routine'
+    if (comandoRecebido == "start_routine") {
+      Serial.println("Iniciando a rotina...");
+
+      // Simulação de execução da rotina com base no JSON recebido
+      // Aqui você pode adicionar lógica para processar o JSON conforme necessário
+      String rotinaJson = "{\"sensores\": [{\"nome\": \"sensor_obstaculo\", \"diretorio\": \"7\", \"distancia_minima\": 10}], \"automacao\": [{\"nome\": \"motor\", \"porta\": \"9\", \"ativo\": true}]}";
+      
+      // Chama a função para executar a rotina com o JSON
+      executarRotina(rotinaJson);
+    }
+  }
 }
