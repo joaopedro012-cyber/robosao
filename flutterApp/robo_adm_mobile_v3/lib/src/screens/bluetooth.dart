@@ -13,9 +13,13 @@ class MainScreen extends StatefulWidget {
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
+class BluetoothManager {
+  static String? macVertical;
+  static String? macHorizontal;
+}
 
 class _MainScreenState extends State<MainScreen> {
-  final _flutterBlueClassicPlugin = FlutterBlueClassic();
+  final flutterBlueClassicPlugin = FlutterBlueClassic();
   BluetoothAdapterState _adapterState = BluetoothAdapterState.unknown;
   StreamSubscription? _adapterStateSubscription;
   final Set<BluetoothDevice> _scanResults = {};
@@ -32,31 +36,50 @@ class _MainScreenState extends State<MainScreen> {
     _loadConnectedDevices(); // Carregar dispositivos conectados ao iniciar
   }
 
-  Future<void> initPlatformState() async {
-    try {
-      _adapterState = await _flutterBlueClassicPlugin.adapterStateNow;
-      _adapterStateSubscription = _flutterBlueClassicPlugin.adapterState.listen((current) {
-        if (mounted) setState(() => _adapterState = current);
-      });
+String? macVertical;   // Armazena o MAC do dispositivo "Motores_vertical"
+String? macHorizontal; // Armazena o MAC do dispositivo "Motores_horizontal"
 
-      _scanSubscription = _flutterBlueClassicPlugin.scanResults.listen((device) {
-        if (mounted) {
-          setState(() {
-            _scanResults.add(device);
-            _selectedDevices[device.address] = false;
-          });
-          if (kDebugMode) print('Dispositivo encontrado: ${device.name} (${device.address})');
-        }
-      });
+Future<void> initPlatformState() async {
+  try {
+    _adapterState = await flutterBlueClassicPlugin.adapterStateNow;
+    _adapterStateSubscription = flutterBlueClassicPlugin.adapterState.listen((current) {
+      if (mounted) setState(() => _adapterState = current);
+    });
 
-      _scanningStateSubscription = _flutterBlueClassicPlugin.isScanning.listen((isScanning) {
-        if (mounted) setState(() => _isScanning = isScanning);
-      });
-    } catch (e) {
-      if (kDebugMode) print('Erro: $e');
-    }
+    _scanSubscription = flutterBlueClassicPlugin.scanResults.listen((device) {
+      if (mounted) {
+        setState(() {
+          _scanResults.add(device);
+          _selectedDevices[device.address] = false;
+
+          // Verifica se o nome do dispositivo é "Motores_vertical"
+          if (device.name == 'Motores_vertical') {
+            BluetoothManager.macVertical = device.address; // Armazena o endereço MAC na variável
+            if (kDebugMode) {
+              print('MAC do dispositivo Motores_vertical: $macVertical');
+            }
+          }
+
+          // Verifica se o nome do dispositivo é "Motores_horizontal"
+          if (device.name == 'Motores_horizontal') {
+            BluetoothManager.macHorizontal = device.address; // Armazena o endereço MAC na variável
+            if (kDebugMode) {
+              print('MAC do dispositivo Motores_horizontal: $macHorizontal');
+            }
+          }
+        });
+        if (kDebugMode) print('Dispositivo encontrado: ${device.name} (${device.address})');
+      }
+    });
+
+    _scanningStateSubscription = flutterBlueClassicPlugin.isScanning.listen((isScanning) {
+      if (mounted) setState(() => _isScanning = isScanning);
+    });
+  } catch (e) {
+    if (kDebugMode) print('Erro: $e');
   }
-
+}
+ 
   Future<void> _saveConnectedDevices() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> connectedAddresses = _connectedDevices.keys.toList();
@@ -88,19 +111,29 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> _connectToDevice(BluetoothDevice device) async {
-    try {
-      final connection = await _flutterBlueClassicPlugin.connect(device.address);
-      if (mounted) {
-        setState(() {
-          _connectedDevices[device.address] = connection;
-          _selectedDevices[device.address] = true;
-        });
-        await _saveConnectedDevices(); // Salvar dispositivos conectados
-      }
-    } catch (e) {
-      if (kDebugMode) print('Erro ao conectar: $e');
+  try {
+    // Conectando ao dispositivo usando o endereço
+    final connection = await flutterBlueClassicPlugin.connect(device.address);
+    
+    // Após a conexão bem-sucedida
+    if (mounted) {
+      setState(() {
+        _connectedDevices[device.address] = connection;
+        _selectedDevices[device.address] = true;
+      });
+
+      // Acessando o nome do dispositivo
+      String? deviceName = device.name; // Aqui é onde obtemos o nome do dispositivo
+      if (kDebugMode) {
+        print('Dispositivo conectado: $deviceName');
+      } // Exibindo o nome do dispositivo no console
+      
+      await _saveConnectedDevices(); // Salvar dispositivos conectados
     }
+  } catch (e) {
+    if (kDebugMode) print('Erro ao conectar: $e');
   }
+}
 
   Future<void> _connectToDevices() async {
     final selectedDevices = _selectedDevices.entries.where((entry) => entry.value).map((entry) => entry.key).toList();
@@ -138,10 +171,10 @@ class _MainScreenState extends State<MainScreen> {
 
   void _startStopScan() {
     if (_isScanning) {
-      _flutterBlueClassicPlugin.stopScan();
+      flutterBlueClassicPlugin.stopScan();
     } else {
       _scanResults.clear();
-      _flutterBlueClassicPlugin.startScan();
+      flutterBlueClassicPlugin.startScan();
     }
   }
 
@@ -172,7 +205,7 @@ class _MainScreenState extends State<MainScreen> {
           if (_adapterState != BluetoothAdapterState.on)
             IconButton(
               icon: const Icon(Icons.bluetooth),
-              onPressed: () => _flutterBlueClassicPlugin.turnOn(),
+              onPressed: () => flutterBlueClassicPlugin.turnOn(),
               tooltip: 'Ligar Bluetooth',
             ),
         ],

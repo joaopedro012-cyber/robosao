@@ -4,6 +4,7 @@ import 'package:logging/logging.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
 import 'dart:convert';
+import 'package:robo_adm_mobile_v2/src/screens/bluetooth.dart'; 
 
 final log = Logger('JoystickLogger');
 
@@ -68,18 +69,58 @@ class ControlePageState extends State<ControlePage> {
     });
   }
 
-  void sendBluetoothCommand(String command) {
+DateTime? _lastVerticalCommandTime;
+
+Future<void> sendBluetoothCommand(String command) async {
+  final now = DateTime.now();
+
+  // Controle de comandos para o motor vertical
+  if (['a', 'd', 'z'].contains(command)) {
+    // Verifica se o intervalo de 3 segundos foi atingido
+    if (_lastVerticalCommandTime != null &&
+        now.difference(_lastVerticalCommandTime!).inSeconds < 1) {
+      log.info('Comando "$command" ignorado. Aguardando intervalo de 1 segundo (motor vertical).');
+      return;
+    }
+
+    // Atualiza o tempo do último comando enviado
+    _lastVerticalCommandTime = now;
+
+    // Envia o comando para o motor vertical
     for (var connection in widget.connections) {
-      List<int> bytes = utf8.encode(command); // Converte o comando em bytes
-      connection.output.add(Uint8List.fromList(bytes)); // Envia o comando
-      log.info('Comando enviado: $command');
-      // Imprimir no debug console
-      if (kDebugMode) {
-        print('Comando Bluetooth enviado: $command');
+      String address = connection.address; // Obtém o endereço MAC do dispositivo
+      if (address == BluetoothManager.macVertical) {
+        List<int> bytes = utf8.encode(command);
+        connection.output.add(Uint8List.fromList(bytes));
+        await Future.delayed(const Duration(milliseconds: 100));
+        log.info('Comando "$command" enviado para o módulo Vertical ($address)');
+        await connection.output.allSent;
+      } else {
+        log.warning('Comando "$command" ignorado. Endereço MAC incorreto para Vertical: $address');
       }
     }
+    return;
   }
 
+  // Envio direto para os comandos do motor horizontal
+  if (['w', 'x', 's'].contains(command)) {
+    for (var connection in widget.connections) {
+      String address = connection.address; // Obtém o endereço MAC do dispositivo
+
+      if (address == BluetoothManager.macHorizontal ) {
+        List<int> bytes = utf8.encode(command);
+        connection.output.add(Uint8List.fromList(bytes));
+        await Future.delayed(const Duration(milliseconds: 100));
+        log.info('Comando "$command" enviado para o módulo Horizontal ($address)');
+        await connection.output.allSent;
+      } else {
+        log.warning('Comando "$command" ignorado. Endereço MAC incorreto para Horizontal: $address');
+      }
+    }
+  } else {
+    log.warning('Comando "$command" inválido e não enviado.');
+  }
+}
   Future<void> registerActionAndSendCommand({
     required String actionDescription,
     required int quantidade,
@@ -87,32 +128,83 @@ class ControlePageState extends State<ControlePage> {
   }) async {
     if (_selectedRoutine != null && actionDescription.isNotEmpty) {
       try {
-        await _db.insertAcao(
-          idRotina: int.parse(_selectedRoutine!),
-          acaoHorizontal: actionDescription,
-          qtdHorizontal: quantidade,
-          acaoVertical: '',
-          qtdVertical: 0,
-          acaoPlataforma: '',
-          qtdPlataforma: 0,
-          acaoBotao1: '',
-          qtdBotao1: 0,
-          acaoBotao2: '',
-          qtdBotao2: 0,
-          acaoBotao3: '',
-          qtdBotao3: 0,
-          dtExecucao: DateTime.now().millisecondsSinceEpoch,
-        );
-        log.info('Ação do robô registrada com sucesso: $actionDescription');
-        sendBluetoothCommand(bluetoothCommand);
-      } catch (e) {
-        log.severe('Erro ao registrar ação do robô: $e');
-      }
-    } else {
-      log.warning('Nenhuma rotina selecionada.');
-    }
-  }
+        // Inicializa os valores padrão
+        String acaoHorizontal = '';
+        int qtdHorizontal = 0;
+        String acaoVertical = '';
+        int qtdVertical = 0;
+        String acaoBotao1 = '';
+        int qtdBotao1 = 0;
+        String acaoBotao2 = '';
+        int qtdBotao2 = 0;
+        String acaoPlataforma = '';
+        int qtdPlataforma = 0;
 
+        // Verifica o tipo de ação e preenche os campos correspondentes
+        if (actionDescription.contains('Motor' )) {
+          if (actionDescription. contains('Motor movendo para trás: x')){
+            acaoHorizontal = 'x';
+            qtdHorizontal = quantidade; 
+          } else if (actionDescription.contains('Motor movendo para frente: w')){
+            acaoHorizontal = 'w';
+            qtdHorizontal = quantidade;
+          } else if (actionDescription.contains('Motor Horizontal desligado')){
+            acaoHorizontal = 's';
+            qtdHorizontal = quantidade;
+          } else if (actionDescription.contains('Motor virando para direita: d')){
+            acaoVertical = 'd';
+            qtdVertical = quantidade;
+          } else if (actionDescription.contains('Motor virando para esquerda: a')){
+            acaoVertical = 'a';
+            qtdVertical = quantidade;
+          } 
+        } else if (actionDescription.contains('desligar tomada')){
+          if (actionDescription.contains('desligar tomada 1')){
+            acaoBotao1 = actionDescription ;
+            qtdBotao1 = quantidade;
+          } else if (actionDescription.contains('desligar tomada 2')){
+            acaoBotao2 = actionDescription;
+            qtdBotao2 = quantidade;
+          }
+        } else if (actionDescription.contains('ligar tomada')){
+          if (actionDescription.contains('ligar tomada 1')){
+            acaoBotao1 = actionDescription;
+            qtdBotao1 = quantidade;
+          } else if (actionDescription.contains('ligar tomada 2')){
+            acaoBotao2 = actionDescription;
+            qtdBotao2 = quantidade;
+          }
+        } else if (actionDescription.contains('Movendo Plataforma para')) {
+          acaoPlataforma = actionDescription;
+          qtdPlataforma = quantidade;
+        }
+      // Insere no banco de dados
+      await _db.insertAcao(
+        idRotina: int.parse(_selectedRoutine!),
+        acaoHorizontal: acaoHorizontal,
+        qtdHorizontal: qtdHorizontal,
+        acaoVertical: acaoVertical,
+        qtdVertical: qtdVertical,
+        acaoPlataforma: acaoPlataforma,
+        qtdPlataforma: qtdPlataforma,
+        acaoBotao1: acaoBotao1,
+        qtdBotao1: qtdBotao1,
+        acaoBotao2: acaoBotao2,
+        qtdBotao2: qtdBotao2,
+        acaoBotao3: '',
+        qtdBotao3: 0,
+        dtExecucao: DateTime.now().millisecondsSinceEpoch,
+      );
+
+      log.info('Ação do robô registrada com sucesso: $actionDescription');
+      sendBluetoothCommand(bluetoothCommand);
+    } catch (e) {
+      log.severe('Erro ao registrar ação do robô: $e');
+    }
+  } else {
+    log.warning('Nenhuma rotina selecionada ou descrição de ação vazia.');
+  }
+}
   void turnOnDevice(int deviceNumber) async {
     log.info('Ligando a tomada $deviceNumber');
     await registerActionAndSendCommand(
@@ -151,18 +243,21 @@ class ControlePageState extends State<ControlePage> {
   if (_selectedRoutine != null) {
     if (horizontal < 0) {
       _sendMovementCommand('w'); // Para frente
-      log.info('Movendo para frente: w');
-    } else if (horizontal > 0) {
+      log.info('Motor movendo para frente: w');
+    } else if (horizontal > 0) { 
       _sendMovementCommand('x'); // Para trás
-      log.info('Movendo para trás: x');
+      log.info('Motor movendo para trás: x');
+    } else if (horizontal == 0) {
+      _sendMovementCommand('s');
+      log.info('Motor Horizontal desligado') ;
     }
     // Alterando aqui para que o joystick vertical controle a rotação
     if (vertical < 0) {
       _sendMovementCommand('a'); // Para esquerda
-      log.info('Virando para esquerda: a');
+      log.info('Motor virando para esquerda: a');
     } else if (vertical > 0) {
       _sendMovementCommand('d'); // Para direita
-      log.info('Virando para direita: d');
+      log.info('Motor virando para direita: d');
     }
   } else {
     log.warning('Nenhuma rotina selecionada.');
