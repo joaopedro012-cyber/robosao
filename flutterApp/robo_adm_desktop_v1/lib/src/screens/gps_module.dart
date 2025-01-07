@@ -4,6 +4,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/foundation.dart'; // Para detectar a plataforma
 import 'dart:io';
+import 'dart:async'; // Para usar o Timer
+import 'package:audioplayers/audioplayers.dart'; // Importando o pacote de áudio
 
 class GPSModule {
   double latitude = 0.0;
@@ -53,6 +55,12 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
   String localizacao = "Aguardando...";
   LatLng _currentPosition = const LatLng(0.0, 0.0);
   final MapController _mapController = MapController();
+  
+  // Variáveis para controle de tempo e detecção de movimento
+  LatLng? ultimoMovimento; // Agora é LatLng, não DateTime
+  Timer? _timer;
+  bool alarmeDisparado = false;
+  final AudioPlayer _audioPlayer = AudioPlayer(); // Criando o player de áudio
 
   @override
   void initState() {
@@ -85,6 +93,18 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
             localizacao = gpsModule.obterLocalizacao();
           });
 
+          // Verifica se houve movimento
+          if (ultimoMovimento == null || 
+              _currentPosition.latitude != ultimoMovimento!.latitude || 
+              _currentPosition.longitude != ultimoMovimento!.longitude) {
+            // Se houve movimento, reinicia o contador de tempo
+            if (_timer != null) {
+              _timer!.cancel();
+            }
+            ultimoMovimento = _currentPosition;
+            _iniciarContadorInatividade();
+          }
+
           // Move o mapa para a nova posição em tempo real
           _mapController.move(_currentPosition, 16.0);
         });
@@ -93,6 +113,57 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
       setState(() {
         localizacao = "Erro: $e";
       });
+    }
+  }
+
+  // Função para iniciar o contador de inatividade
+  void _iniciarContadorInatividade() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (ultimoMovimento == null) return;
+
+      final tempoInativo = DateTime.now().difference(DateTime.now());
+
+      if (tempoInativo.inMinutes >= 10 && !alarmeDisparado) {
+        // Disparar alarme
+        setState(() {
+          alarmeDisparado = true;
+        });
+
+        // Verifica se ainda está montado antes de disparar o alarme
+        if (mounted) {
+          _dispararAlarme();
+        }
+      }
+    });
+  }
+
+  // Função para disparar o alarme com som
+  void _dispararAlarme() async {
+    // Reproduz o som de alarme (usando um arquivo de áudio)
+    await _audioPlayer.play(AssetSource('assets/sounds/alarme.mp3')); // Caminho do arquivo de áudio
+
+    // Verifica se ainda está montado antes de exibir o diálogo
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Alarme"),
+            content: const Text("Você ficou inativo por mais de 10 minutos!"),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  setState(() {
+                    alarmeDisparado = false;
+                  });
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -133,88 +204,6 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
               ),
             ],
           ),
-          // Texto "Norte" no topo do mapa
-          Positioned(
-            top: 10,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.all(4.0),
-                color: Colors.white.withOpacity(0.7),
-                child: const Text(
-                  "Norte",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          // Texto "Sul" na parte inferior do mapa
-          Positioned(
-            bottom: 10,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.all(4.0),
-                color: Colors.white.withOpacity(0.7),
-                child: const Text(
-                  "Sul",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          // Texto "Leste" no lado direito do mapa
-          Positioned(
-            top: 0,
-            bottom: 0,
-            right: 10,
-            child: Center(
-              child: RotatedBox(
-                quarterTurns: 1,
-                child: Container(
-                  padding: const EdgeInsets.all(4.0),
-                  color: Colors.white.withOpacity(0.7),
-                  child: const Text(
-                    "Leste",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          // Texto "Oeste" no lado esquerdo do mapa
-          Positioned(
-            top: 0,
-            bottom: 0,
-            left: 10,
-            child: Center(
-              child: RotatedBox(
-                quarterTurns: 3,
-                child: Container(
-                  padding: const EdgeInsets.all(4.0),
-                  color: Colors.white.withOpacity(0.7),
-                  child: const Text(
-                    "Oeste",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
           // Informações e botão na parte inferior
           Positioned(
             bottom: 70,
@@ -229,8 +218,7 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
-                  onPressed:
-                      _iniciarLocalizacao, // Botão para iniciar a atualização
+                  onPressed: _iniciarLocalizacao, // Botão para iniciar a atualização
                   child: const Text('Atualizar Localização'),
                 ),
               ],

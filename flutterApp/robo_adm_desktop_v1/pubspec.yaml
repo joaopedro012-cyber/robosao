@@ -26,6 +26,7 @@ dependencies:
   geolocator: ^13.0.2
   flutter_blue_plus_windows: ^1.24.22
   flutter_blue_plus: ^1.24.22
+  audioplayers: ^6.1.0
   
 dev_dependencies:
   flutter_test:

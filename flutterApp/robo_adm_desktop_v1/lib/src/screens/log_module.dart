@@ -11,31 +11,51 @@ class LogPage extends StatefulWidget {
 class LogPageState extends State<LogPage> {
   final LogModule logModule = LogModule(); // Instanciando o LogModule
 
+  String statusRobo = 'Parado'; // Variável para armazenar o estado do robô
+  String statusArduino = 'Funcionando'; // Variável para armazenar o estado do Arduino
+
   // Função para simular o movimento do robô e registrar eventos automaticamente
   void _simularMovimento() {
-    // Simulação contínua de movimento, com logs sendo registrados em intervalos
+    // Simulação de movimento, com logs sendo registrados em intervalos
+
     Future.delayed(const Duration(seconds: 2), () {
-      logModule.registrarEvento("Movendo o robô para frente...");
-      setState(() {}); // Atualiza a tela para mostrar o novo log
+      setState(() {
+        statusRobo = 'Movendo para frente...';
+        logModule.registrarEvento("Movendo o robô para frente...");
+      });
     });
 
     Future.delayed(const Duration(seconds: 5), () {
-      logModule.registrarEvento("Robô parando.");
-      setState(() {}); // Atualiza a tela para mostrar o novo log
+      setState(() {
+        statusRobo = 'Parado';
+        logModule.registrarEvento("Robô parando.");
+      });
     });
 
     Future.delayed(const Duration(seconds: 8), () {
-      logModule.registrarEvento("Movendo o robô para a esquerda...");
-      setState(() {}); // Atualiza a tela para mostrar o novo log
+      setState(() {
+        statusRobo = 'Movendo para a esquerda...';
+        logModule.registrarEvento("Movendo o robô para a esquerda...");
+      });
     });
 
     Future.delayed(const Duration(seconds: 11), () {
-      logModule.registrarEvento("Robô parando.");
-      setState(() {}); // Atualiza a tela para mostrar o novo log
+      setState(() {
+        statusRobo = 'Parado';
+        logModule.registrarEvento("Robô parando.");
+      });
+    });
+
+    // Simulação de falha no Arduino
+    Future.delayed(const Duration(seconds: 20), () {
+      setState(() {
+        statusArduino = 'Parou de funcionar';
+        logModule.registrarEvento("Arduino parou de funcionar.");
+      });
     });
 
     // Repetir o movimento para continuar gerando logs
-    Future.delayed(const Duration(seconds: 14), _simularMovimento);
+    Future.delayed(const Duration(seconds: 24), _simularMovimento);
   }
 
   @override
@@ -52,6 +72,30 @@ class LogPageState extends State<LogPage> {
       ),
       body: Column(
         children: [
+          // Exibindo o estado atual do robô
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'Status do Robô: $statusRobo',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: statusRobo == 'Parado' ? Colors.red : Colors.green,
+              ),
+            ),
+          ),
+          // Exibindo o estado do Arduino
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'Status do Arduino: $statusArduino',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: statusArduino == 'Funcionando' ? Colors.green : Colors.red,
+              ),
+            ),
+          ),
           // Exibindo os logs na tela
           Expanded(
             child: ListView.builder(

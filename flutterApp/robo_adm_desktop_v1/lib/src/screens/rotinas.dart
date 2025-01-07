@@ -12,31 +12,55 @@ class ComunicacaoArduino {
   late SerialPort _port;
   late SerialPortReader _reader;
 
-  // Abrir a porta serial com a configuração adequada
-  void abrirPorta(String porta) {
-    _port = SerialPort(porta);
+  // Função para identificar e abrir a primeira porta disponível
+  void abrirPortaAutomaticamente() {
+    List<String> portas = _listarPortasSeriais(); // Obtém uma lista de portas possíveis
 
-    if (_port.openReadWrite()) {
-      print("Porta Serial aberta com sucesso");
+    if (portas.isNotEmpty) {
+      _port = SerialPort(portas[0]); // Seleciona a primeira porta disponível
+      if (_port.openReadWrite()) {
+        print("Porta Serial ${portas[0]} aberta com sucesso");
+      } else {
+        print("Erro ao abrir a porta serial ${portas[0]}");
+      }
+
+      // Iniciando o leitor para ler dados da porta serial
+      _reader = SerialPortReader(_port);
+      _reader.stream.listen((data) {
+        // Convertendo o Uint8List para String
+        String dadosRecebidos = utf8.decode(data);
+
+        print("Dados recebidos do Arduino: $dadosRecebidos");
+
+        // Aqui você pode processar as respostas do Arduino, como detectar obstáculos
+        if (dadosRecebidos == "obstaculo_detectado") {
+          print("Obstáculo detectado, interrompendo rotina...");
+          // Interromper a execução da rotina
+          // Você pode adicionar lógica aqui para gerenciar a interrupção
+        }
+      });
     } else {
-      print("Erro ao abrir a porta serial");
+      print("Nenhuma porta serial encontrada.");
+    }
+  }
+
+  // Função para listar as portas seriais disponíveis (implementação manual)
+  List<String> _listarPortasSeriais() {
+    List<String> portas = [];
+
+    // Defina as portas possíveis dependendo do sistema operacional
+    if (Platform.isWindows) {
+      // No Windows, as portas são geralmente "COM1", "COM2", etc.
+      portas = List.generate(10, (index) => 'COM${index + 1}');
+    } else if (Platform.isLinux) {
+      // No Linux, as portas são geralmente "/dev/ttyUSB0", "/dev/ttyUSB1", etc.
+      portas = List.generate(10, (index) => '/dev/ttyUSB$index');
+    } else if (Platform.isMacOS) {
+      // No MacOS, as portas são geralmente "/dev/tty.usbserial-xxxx"
+      portas = List.generate(10, (index) => '/dev/tty.usbserial-$index');
     }
 
-    // Iniciando o leitor para ler dados da porta serial
-    _reader = SerialPortReader(_port);
-    _reader.stream.listen((data) {
-      // Convertendo o Uint8List para String
-      String dadosRecebidos = utf8.decode(data);
-
-      print("Dados recebidos do Arduino: $dadosRecebidos");
-
-      // Aqui você pode processar as respostas do Arduino, como detectar obstáculos
-      if (dadosRecebidos == "obstaculo_detectado") {
-        print("Obstáculo detectado, interrompendo rotina...");
-        // Interromper a execução da rotina
-        // Você pode adicionar lógica aqui para gerenciar a interrupção
-      }
-    });
+    return portas;
   }
 
   // Enviar um comando para o Arduino
@@ -60,14 +84,14 @@ class ComunicacaoArduino {
 
 class RotinasPage extends StatefulWidget {
   const RotinasPage({super.key});
+  
   @override
   State<RotinasPage> createState() => _RotinasPageState();
 }
 
 class _RotinasPageState extends State<RotinasPage> {
   bool filledDisabled = false;
-  ComunicacaoArduino comunicacao =
-      ComunicacaoArduino(); // Instância da comunicação serial
+  ComunicacaoArduino comunicacao = ComunicacaoArduino(); // Instância da comunicação serial
 
   // Função para simular a execução da rotina
   void executarRotina(String caminhoArquivo) async {
@@ -77,38 +101,26 @@ class _RotinasPageState extends State<RotinasPage> {
       String conteudo = await arquivo.readAsString();
       Map<String, dynamic> dadosJson = jsonDecode(conteudo);
 
-      // Aqui você pode fazer o que for necessário com os dados da rotina
-      List sensores = dadosJson['sensores'];
-      List automacao = dadosJson['automacao'];
-
       // Exibindo os sensores e automações configurados no arquivo JSON
       print("Sensores configurados:");
-      for (var sensor in sensores) {
+      for (var sensor in dadosJson['sensores']) {
         print(
             'Nome: ${sensor['nome']}, Diretorio: ${sensor['diretorio']}, Distância Mínima: ${sensor['distancia_minima']}');
-        // Aqui você pode implementar a lógica para acionar sensores
-        // Exemplo: acionarSensor(sensor['diretorio']);
       }
 
       print("\nAutomação configurada:");
-      for (var device in automacao) {
+      for (var device in dadosJson['automacao']) {
         print(
             'Nome: ${device['nome']}, Porta: ${device['porta']}, Ativo: ${device['ativo']}');
-        // Aqui você pode implementar a lógica de controle de dispositivos
         if (device['ativo']) {
           // Enviar comando para ativar o dispositivo (motor, sensor, etc)
-          // Exemplo: enviarComandoMotor(device['porta']);
         }
       }
 
-      // Simulação de execução da rotina
-      print('\nExecutando a rotina...');
-
       // Iniciando a comunicação com o Arduino
-      comunicacao.enviarComando(
-          'start_routine'); // Comando para o Arduino começar a rotina
+      comunicacao.enviarComando('start_routine'); // Comando para o Arduino começar a rotina
 
-      // Simula a execução da rotina enquanto aguarda o feedback do Arduino
+      // Simulação de execução da rotina
       await Future.delayed(const Duration(seconds: 2));
 
       print("Rotina executada com sucesso!");
@@ -124,15 +136,10 @@ class _RotinasPageState extends State<RotinasPage> {
     }
     GlobalKey<ScaffoldMessengerState>().currentState?.hideCurrentSnackBar();
     GlobalKey<ScaffoldMessengerState>().currentState?.showSnackBar(
-          SnackBar(
-            content: Text(
-              message,
-              style: const TextStyle(
-                color: Colors.white,
-              ),
-            ),
-          ),
-        );
+      SnackBar(
+        content: Text(message, style: const TextStyle(color: Colors.white)),
+      ),
+    );
   }
 
   // Função para selecionar os arquivos e iniciar a execução
@@ -178,8 +185,8 @@ class _RotinasPageState extends State<RotinasPage> {
   @override
   void initState() {
     super.initState();
-    // Inicializa a comunicação com a porta serial do Arduino (substitua 'COM3' pela sua porta serial)
-    comunicacao.abrirPorta('COM3');
+    // Inicializa a comunicação com a porta serial automaticamente
+    comunicacao.abrirPortaAutomaticamente();
   }
 
   @override
