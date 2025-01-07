@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
 
+
 class DeviceScreen extends StatefulWidget {
   const DeviceScreen({super.key, required this.connection});
 
@@ -13,6 +14,7 @@ class DeviceScreen extends StatefulWidget {
   @override
   State<DeviceScreen> createState() => _DeviceScreenState();
 }
+
 
 class _DeviceScreenState extends State<DeviceScreen> {
   StreamSubscription? _readSubscription;
@@ -49,7 +51,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
           acaoVertical: "",
           qtdVertical: 0,
           acaoPlataforma: "",
-          qtdPlataforma: 0,
+          qtdPlataforma: "",
           acaoBotao1: "",
           qtdBotao1: 0,
           acaoBotao2: "",

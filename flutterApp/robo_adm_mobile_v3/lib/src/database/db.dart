@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
+
 class DB {
   DB._();
   static final DB instance = DB._();
@@ -144,7 +145,7 @@ class DB {
     required String acaoVertical,
     required int qtdVertical,
     required String acaoPlataforma,
-    required int qtdPlataforma,
+    required String qtdPlataforma,
     required String acaoBotao1,
     required int qtdBotao1,
     required String acaoBotao2,
@@ -158,7 +159,7 @@ class DB {
 
    if (idRotina <= 0 || acaoHorizontal.isEmpty || acaoVertical.isEmpty || 
         acaoPlataforma.isEmpty || qtdHorizontal < 0 || qtdVertical < 0 || 
-        qtdPlataforma < 0 || qtdBotao1 < 0 || qtdBotao2 < 0 || qtdBotao3 < 0) {
+        qtdPlataforma.isEmpty || qtdBotao1 < 0 || qtdBotao2 < 0 || qtdBotao3 < 0) {
       throw Exception("Dados inválidos para inserção.");
     }
 
@@ -187,7 +188,7 @@ class DB {
     required String acaoVertical,
     required int qtdVertical,
     required String acaoPlataforma,
-    required int qtdPlataforma,
+    required String qtdPlataforma,
     required String acaoBotao1,
     required int qtdBotao1,
     required String acaoBotao2,
@@ -199,7 +200,7 @@ class DB {
 
     if (idExecucao <= 0 || acaoHorizontal.isEmpty || acaoVertical.isEmpty || 
         acaoPlataforma.isEmpty || qtdHorizontal < 0 || qtdVertical < 0 || 
-        qtdPlataforma < 0 || qtdBotao1 < 0 || qtdBotao2 < 0 || qtdBotao3 < 0) {
+        qtdPlataforma.isEmpty || qtdBotao1 < 0 || qtdBotao2 < 0 || qtdBotao3 < 0) {
       throw Exception("Dados inválidos para atualização.");
     }
 
@@ -257,7 +258,7 @@ class DB {
     required String acaoBotao3,
     required int qtdHorizontal,
     required int qtdVertical,
-    required int qtdPlataforma,
+    required String qtdPlataforma,
     required int qtdBotao1,
     required int qtdBotao2,
     required int qtdBotao3,
