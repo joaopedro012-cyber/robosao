@@ -4,8 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:robo_adm_desktop_v1/src/utils/serial_config.dart';
-import 'package:robo_adm_desktop_v1/src/widgets/automacao_campo.dart';
-import 'package:robo_adm_desktop_v1/src/widgets/monitor_serial.dart';
 import 'package:path_provider/path_provider.dart';
 
 // Função para listar os arquivos de rotinas exportadas
@@ -45,74 +43,51 @@ class AutomacaoPage extends StatefulWidget {
 class _AutomacaoPageState extends State<AutomacaoPage> {
   late SerialPort porta;
   List<Map<String, dynamic>> rotinasCarregadas = []; // Armazenará as rotinas
-
-  @override
-  void initState() {
-    super.initState();
-    porta = SerialPort("COM4");
-    inicializadorSerialPort(porta); // Inicializa a porta serial
-    _carregarRotinasExportadas(); // Carrega as rotinas ao iniciar
-    executarAutomacao(); // Executa automação automaticamente
-  }
+  bool conexaoAtiva = false;
+  Map<String, String> configuracoesPortas = {
+    'Sensores': '',
+    'Motores Horizontal': '',
+    'Motores Vertical': '',
+    'Plataforma': '',
+    'Botões Plataforma': '',
+    'Botão Roda Dianteira': '',
+  };
 
   @override
   void dispose() {
-    finalizacaoSerialPort(porta); // Fecha a conexão ao sair
+    if (conexaoAtiva) finalizacaoSerialPort(porta); // Fecha a conexão ao sair
     super.dispose();
   }
 
   // Função para carregar as rotinas exportadas
-  Future<void> _carregarRotinasExportadas() async {
+
+  // Função para conectar às portas configuradas
+  void iniciarConexao() {
     try {
-      final List<File> arquivos = await listarRotinasExportadas();
-      List<Map<String, dynamic>> rotinas = [];
-      for (var arquivo in arquivos) {
-        Map<String, dynamic> rotina =
-            await carregarRotinaExportada(arquivo.path);
-        rotinas.add(rotina);
-      }
       setState(() {
-        rotinasCarregadas = rotinas;
+        porta = SerialPort(configuracoesPortas['Sensores']!);
+        inicializadorSerialPort(porta);
+        conexaoAtiva = true;
       });
+      if (kDebugMode) print('Conexão iniciada com as portas configuradas.');
     } catch (e) {
-      if (kDebugMode) print('Erro ao carregar rotinas exportadas: $e');
+      if (kDebugMode) print('Erro ao iniciar conexão: $e');
     }
   }
 
-  // Função para executar as rotinas carregadas
-  Future<void> executarAutomacao() async {
+  // Função para desconectar
+  void fecharConexao() {
     try {
-      for (var rotina in rotinasCarregadas) {
-        await _executarRotina(rotina); // Executa cada rotina
+      if (conexaoAtiva) {
+        finalizacaoSerialPort(porta);
+        setState(() {
+          conexaoAtiva = false;
+        });
+        if (kDebugMode) print('Conexão fechada.');
       }
     } catch (e) {
-      if (kDebugMode) print('Erro ao executar automação: $e');
+      if (kDebugMode) print('Erro ao fechar conexão: $e');
     }
-  }
-
-  // Função para executar uma rotina específica
-  Future<void> _executarRotina(Map<String, dynamic> rotina) async {
-    try {
-      for (var chave in rotina.keys) {
-        var acao = rotina[chave];
-        if (kDebugMode) print('Executando: $chave - $acao');
-        enviaDadosSerialPort(porta, "$chave:$acao\n");
-        await Future.delayed(const Duration(seconds: 1)); // Intervalo
-      }
-    } catch (e) {
-      if (kDebugMode) print('Erro ao executar rotina: $e');
-    }
-  }
-
-  // Função para construir campos de automação
-  Widget _buildAutomacaoCampo(String objetoAutomacao, double width) {
-    return Container(
-      width: width,
-      alignment: Alignment.topLeft,
-      child: AutomacaoCampo(
-        objetoAutomacao: objetoAutomacao,
-      ),
-    );
   }
 
   @override
@@ -121,21 +96,48 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
     double itemWidth = screenWidth * 0.35;
 
     return SingleChildScrollView(
-      // Permite rolar a tela se necessário
       child: Column(
         children: [
           Wrap(
             verticalDirection: VerticalDirection.down,
+            children: configuracoesPortas.keys.map((objetoAutomacao) {
+              return Container(
+                width: itemWidth,
+                margin: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('$objetoAutomacao:'),
+                    TextField(
+                      onChanged: (value) {
+                        configuracoesPortas[objetoAutomacao] = value;
+                      },
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        labelText: 'Porta para $objetoAutomacao',
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildAutomacaoCampo('Sensores', itemWidth),
-              _buildAutomacaoCampo('Motores Horizontal', itemWidth),
-              _buildAutomacaoCampo('Motores Vertical', itemWidth),
-              _buildAutomacaoCampo('Plataforma', itemWidth),
-              _buildAutomacaoCampo('Botões Plataforma', itemWidth),
-              _buildAutomacaoCampo('Botão Roda Dianteira', itemWidth),
+              ElevatedButton(
+                onPressed: iniciarConexao,
+                child: const Text('Iniciar Conexão'),
+              ),
+              const SizedBox(width: 16),
+              ElevatedButton(
+                onPressed: fecharConexao,
+                child: const Text('Fechar Conexão'),
+              ),
             ],
           ),
-          // Exibindo rotinas carregadas
+          const SizedBox(height: 32),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -150,36 +152,10 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: ElevatedButton(
-                      onPressed: () {
-                        _executarRotina(rotina); // Executa rotina manualmente
-                      },
+                      onPressed: () {}, // Substituir por lógica de execução
                       child: Text('Executar Rotina ${rotina['nome']}'),
                     ),
                   ),
-              ],
-            ),
-          ),
-          // Monitor Serial
-          SizedBox(
-            width: screenWidth,
-            height:
-                screenWidth * 0.15, // Ajuste de altura para o monitor serial
-            child: Column(
-              children: [
-                const AutomacaoCampo(
-                  objetoAutomacao: 'Monitor Serial Padrao',
-                ),
-                FilledButton(
-                  child: const Text('FECHAR CONEXÃO'),
-                  onPressed: () => finalizacaoSerialPort(porta),
-                ),
-                Container(
-                  color: Colors.black,
-                  width: screenWidth,
-                  child: MonitorSerial(
-                    portaConexao: porta,
-                  ),
-                ),
               ],
             ),
           ),
