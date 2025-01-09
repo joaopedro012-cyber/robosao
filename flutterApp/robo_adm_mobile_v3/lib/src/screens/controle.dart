@@ -48,6 +48,7 @@ class ControlePage extends StatefulWidget {
 }
 
 class SendBD {
+  static int idRotina = int.parse(ControlePageState.selectedRoutine!);
   static String acaoHorizontal = '';
   static int qtdHorizontal = 0;
   static String acaoVertical = '';
@@ -58,14 +59,16 @@ class SendBD {
   static int qtdBotao2 = 0;
   static String acaoPlataforma = '';
   static String qtdPlataforma = ''; 
+  static String dtExecucao = '';
 }
 
 class ControlePageState extends State<ControlePage> {
-  String? selectedRoutine;
+  static String? selectedRoutine;
   final DB db = DB.instance;
   String comandoPlataforma = '';
   List<Map<String, dynamic>> _rotinas = [];
   final List<bool> _tomadaSelecionada = [false, false, false];
+  
 
   @override
   void initState() {
@@ -125,7 +128,7 @@ class ControlePageState extends State<ControlePage> {
         }
       }
     } else {
-      log.warning('Comando "$command" inválido e não enviado.');
+      log.warning('');
     }
 
     if (command.contains('Movendo Plataforma')) {
@@ -154,7 +157,7 @@ class ControlePageState extends State<ControlePage> {
         }  
       }
     } else {
-      log.warning('Comando "$command" inválido e não enviado.');
+      log.warning('');
     } if (command.contains('Ligar Tomada')) {
       for (var connection in widget.connections) {
         String address = connection.address;
@@ -169,7 +172,7 @@ class ControlePageState extends State<ControlePage> {
         }
       }
     } else {
-      log.warning('Comando "$command" inválido e não enviado.');
+      log.warning('');
     } if (command.contains('Desligar Tomada')) {
       for (var connection in widget.connections) {
         String address = connection.address;
@@ -185,7 +188,7 @@ class ControlePageState extends State<ControlePage> {
         }
       }
     } else {
-      log.warning('Comando "$command" inválido e não enviado.');
+      log.warning('');
     } 
   }
 
@@ -196,16 +199,6 @@ class ControlePageState extends State<ControlePage> {
   }) async {
     if (selectedRoutine != null && actionDescription.isNotEmpty) {
       try {
-        String acaoHorizontal = '';
-        int qtdHorizontal = 0;
-        String acaoVertical = '';
-        int qtdVertical = 0;
-        String acaoBotao1 = '';
-        int qtdBotao1 = 0;
-        String acaoBotao2 = '';
-        int qtdBotao2 = 0;
-        String acaoPlataforma = '';
-        String qtdPlataforma = '';
 
         if (actionDescription.contains('Motor')) {
           if (actionDescription.contains('Motor movendo para trás: x')) {
@@ -258,18 +251,16 @@ class ControlePageState extends State<ControlePage> {
 
         await db.insertAcao(
           idRotina: int.parse(selectedRoutine!),
-          acaoHorizontal: acaoHorizontal,
-          qtdHorizontal: qtdHorizontal,
-          acaoVertical: acaoVertical,
-          qtdVertical: qtdVertical,
-          acaoPlataforma: acaoPlataforma,
-          qtdPlataforma: qtdPlataforma,
-          acaoBotao1: acaoBotao1,
-          qtdBotao1: qtdBotao1,
-          acaoBotao2: acaoBotao2,
-          qtdBotao2: qtdBotao2,
-          acaoBotao3: '',
-          qtdBotao3: 0,
+          acaoHorizontal: SendBD.acaoHorizontal,
+          qtdHorizontal: SendBD.qtdHorizontal,
+          acaoVertical: SendBD.acaoVertical,
+          qtdVertical: SendBD.qtdVertical,
+          acaoPlataforma: SendBD.acaoPlataforma,
+          qtdPlataforma: SendBD.qtdPlataforma,
+          acaoBotao1: SendBD.acaoBotao1,
+          qtdBotao1: SendBD.qtdBotao1,
+          acaoBotao2: SendBD.acaoBotao2,
+          qtdBotao2: SendBD.qtdBotao2,
           dtExecucao: DateTime.now().millisecondsSinceEpoch,
         );
         log.info('Ação do robô registrada com sucesso: $actionDescription');
@@ -493,8 +484,8 @@ class ControlePageState extends State<ControlePage> {
     );
   }
 
-  Widget _buildTomadaButton(int deviceNumber) {
-    bool isSelected = _tomadaSelecionada[deviceNumber - 1];
+   Widget _buildTomadaButton(int deviceNumber) {
+    bool isSelected = _tomadaSelecionada[deviceNumber - 1]; 
 
     return ElevatedButton(
       style: ButtonStyle(
@@ -513,8 +504,7 @@ class ControlePageState extends State<ControlePage> {
         side: WidgetStateProperty.all(
           const BorderSide(color: Color.fromARGB(255, 111, 43, 131), width: 2),
         ),
-        minimumSize: WidgetStateProperty.all(const Size(110, 40)),
-        padding: WidgetStateProperty.all(EdgeInsets.zero),
+        minimumSize: WidgetStateProperty.all(const Size(100, 40)),
       ),
       onPressed: () {
         setState(() {

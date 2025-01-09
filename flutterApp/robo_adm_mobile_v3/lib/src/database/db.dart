@@ -48,8 +48,6 @@ class DB {
         qtd_botao1 INTEGER,
         acao_botao2 TEXT,
         qtd_botao2 INTEGER,
-        acao_botao3 TEXT,
-        qtd_botao3 INTEGER,
         dt_execucao_unix_microssegundos INTEGER,
         dt_exclusao_unix_microssegundos INTEGER,
         FOREIGN KEY(id_rotina) REFERENCES rotinas(id_rotina)
@@ -150,19 +148,10 @@ class DB {
     required int qtdBotao1,
     required String acaoBotao2,
     required int qtdBotao2,
-    required String acaoBotao3,
-    required int qtdBotao3,
     required int dtExecucao,
     int? dtExclusao,
   }) async {
     final db = await instance.database;
-
-   if (idRotina <= 0 || acaoHorizontal.isEmpty || acaoVertical.isEmpty || 
-        acaoPlataforma.isEmpty || qtdHorizontal < 0 || qtdVertical < 0 || 
-        qtdPlataforma.isEmpty || qtdBotao1 < 0 || qtdBotao2 < 0 || qtdBotao3 < 0) {
-      throw Exception("Dados inválidos para inserção.");
-    }
-
     await db.insert('adm_execucao_rotinas', {
       'id_rotina': idRotina,
       'acao_horizontal': acaoHorizontal,
@@ -175,8 +164,6 @@ class DB {
       'qtd_botao1': qtdBotao1,
       'acao_botao2': acaoBotao2,
       'qtd_botao2': qtdBotao2,
-      'acao_botao3': acaoBotao3,
-      'qtd_botao3': qtdBotao3,
       'dt_execucao_unix_microssegundos': dtExecucao,
       'dt_exclusao_unix_microssegundos': dtExclusao ?? 0,
     });
@@ -193,16 +180,14 @@ class DB {
     required int qtdBotao1,
     required String acaoBotao2,
     required int qtdBotao2,
-    required String acaoBotao3,
-    required int qtdBotao3,
   }) async {
     final db = await instance.database;
 
     if (idExecucao <= 0 || acaoHorizontal.isEmpty || acaoVertical.isEmpty || 
         acaoPlataforma.isEmpty || qtdHorizontal < 0 || qtdVertical < 0 || 
-        qtdPlataforma.isEmpty || qtdBotao1 < 0 || qtdBotao2 < 0 || qtdBotao3 < 0) {
+        qtdPlataforma.isEmpty || qtdBotao1 < 0 || qtdBotao2 < 0) {
       throw Exception("Dados inválidos para atualização.");
-    }
+    } else {
 
     await db.update(
       'adm_execucao_rotinas',
@@ -217,12 +202,11 @@ class DB {
         'qtd_botao1': qtdBotao1,
         'acao_botao2': acaoBotao2,
         'qtd_botao2': qtdBotao2,
-        'acao_botao3': acaoBotao3,
-        'qtd_botao3': qtdBotao3,
       },
       where: 'id_execucao = ?',
       whereArgs: [idExecucao],
     );
+  }
   }
 
   Future<void> deleteExecucaoRotina(int idExecucao) async {
@@ -255,18 +239,15 @@ class DB {
     required String acaoPlataforma,
     required String acaoBotao1,
     required String acaoBotao2,
-    required String acaoBotao3,
     required int qtdHorizontal,
     required int qtdVertical,
     required String qtdPlataforma,
     required int qtdBotao1,
     required int qtdBotao2,
-    required int qtdBotao3,
     required int dtExecucao,
   }) async {
     if (kDebugMode) {
-      print('Inserindo ação: $acaoHorizontal, $acaoVertical, $acaoPlataforma');
-    }
+      print('Inserindo ação:  $acaoBotao1 ,$acaoBotao2, $acaoHorizontal, $acaoVertical, $acaoPlataforma, $dtExecucao');
     await insertExecucaoRotina(
       idRotina: idRotina,
       acaoHorizontal: acaoHorizontal,
@@ -279,9 +260,8 @@ class DB {
       qtdBotao1: qtdBotao1,
       acaoBotao2: acaoBotao2,
       qtdBotao2: qtdBotao2,
-      acaoBotao3: acaoBotao3,
-      qtdBotao3: qtdBotao3,
       dtExecucao: dtExecucao,
     );
+  }
   }
 }
