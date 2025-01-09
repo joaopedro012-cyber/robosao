@@ -59,7 +59,7 @@ class SendBD {
   static int qtdBotao2 = 0;
   static String acaoPlataforma = '';
   static String qtdPlataforma = ''; 
-  static String dtExecucao = '';
+  static int dtExecucao = 0;
 }
 
 class ControlePageState extends State<ControlePage> {
@@ -128,7 +128,6 @@ class ControlePageState extends State<ControlePage> {
         }
       }
     } else {
-      log.warning('');
     }
 
     if (command.contains('Movendo Plataforma')) {
@@ -157,7 +156,6 @@ class ControlePageState extends State<ControlePage> {
         }  
       }
     } else {
-      log.warning('');
     } if (command.contains('Ligar Tomada')) {
       for (var connection in widget.connections) {
         String address = connection.address;
@@ -172,7 +170,6 @@ class ControlePageState extends State<ControlePage> {
         }
       }
     } else {
-      log.warning('');
     } if (command.contains('Desligar Tomada')) {
       for (var connection in widget.connections) {
         String address = connection.address;
@@ -188,7 +185,7 @@ class ControlePageState extends State<ControlePage> {
         }
       }
     } else {
-      log.warning('');
+
     } 
   }
 
@@ -211,10 +208,10 @@ class ControlePageState extends State<ControlePage> {
             SendBD.acaoHorizontal = 's';
             SendBD.qtdHorizontal = quantidade;
           } else if (actionDescription.contains('Motor virando para direita: d')) {
-            SendBD.acaoVertical = 'd';
+            SendBD.acaoVertical = bluetoothCommand;
             SendBD.qtdVertical = quantidade;
           } else if (actionDescription.contains('Motor virando para esquerda: a')) {
-            SendBD.acaoVertical = 'a';
+            SendBD.acaoVertical = bluetoothCommand;
             SendBD.qtdVertical = quantidade;
           } 
         } else if (actionDescription.contains('Desligar Tomada')) {
@@ -248,7 +245,6 @@ class ControlePageState extends State<ControlePage> {
             sendBluetoothCommand('Movendo Plataforma: b');
           }
         }
-
         await db.insertAcao(
           idRotina: int.parse(selectedRoutine!),
           acaoHorizontal: SendBD.acaoHorizontal,
@@ -286,7 +282,7 @@ class ControlePageState extends State<ControlePage> {
     log.info('Desligando a tomada $deviceNumber');
     await registerActionAndSendCommand(
       actionDescription: 'Desligar Tomada $deviceNumber',
-      quantidade: 0,
+      quantidade: 1,
       bluetoothCommand: 'Desligar Tomada $deviceNumber',
     );
   }
@@ -296,51 +292,53 @@ class ControlePageState extends State<ControlePage> {
       log.info('Movendo a plataforma para C');
       await registerActionAndSendCommand(
       actionDescription: 'Movendo Plataforma: c',
-      quantidade: 0,
+      quantidade: 1,
       bluetoothCommand: 'Movendo Plataforma: c',
     );
     } else if (comandoPlataforma == 'b') {
       log.info('Movendo a plataforma para B');
      await registerActionAndSendCommand(
       actionDescription: 'Movendo Plataforma: b',
-      quantidade: 0,
+      quantidade: 1,
       bluetoothCommand: 'Movendo Plataforma: b',
     );
     }
   }
 
-  void _sendMovementCommand(String command) {
-    if (kDebugMode) {
-      print('Comando enviado: $command');
-    }
-    sendBluetoothCommand(command);
-  }
-
-  void moveRobot(double horizontal, double vertical) async {
+  void moveRobotHorizontal(double horizontal, int seconds) async {
     if (selectedRoutine != null) {
       if (horizontal < 0) {
-        _sendMovementCommand('w'); // Para frente
-        log.info('Motor movendo para frente: w');
+        await registerActionAndSendCommand(
+        actionDescription: 'Motor movendo para frente: w',
+        quantidade: seconds,
+        bluetoothCommand: 'w',); // Para frente
       } else if (horizontal > 0) { 
-        _sendMovementCommand('x'); // Para trás
-        log.info('Motor movendo para trás: x');
+          await registerActionAndSendCommand(
+          actionDescription: 'Motor movendo para trás: x',
+          quantidade: seconds,
+          bluetoothCommand: 'x',); //para trás
       } else if (horizontal == 0) {
-        _sendMovementCommand('s');
-        log.info('Motor Horizontal desligado');
+          await registerActionAndSendCommand(
+          actionDescription: 'Motor Horizontal desligado',
+          quantidade: seconds,
+          bluetoothCommand: 's',);
       }
-
-      if (vertical < 0) {
-        _sendMovementCommand('a'); // Para esquerda
-        log.info('Motor virando para esquerda: a');
-      } else if (vertical > 0) {
-        _sendMovementCommand('d'); // Para direita
-        log.info('Motor virando para direita: d');
       }
-    } else {
-      log.warning('Nenhuma rotina selecionada.');
-    }
   }
-
+void moveRobotVertical(double vertical) async {
+      if (vertical < 0) {
+          await registerActionAndSendCommand(
+          actionDescription: 'Motor virando para esquerda: a',
+          quantidade: 1,
+          bluetoothCommand: 'a',); // Para esquerda
+    } else if (vertical > 0) {
+          await registerActionAndSendCommand(
+          actionDescription: 'Motor virando para direita: d',
+          quantidade: 1,
+          bluetoothCommand: 'd',);
+      }
+      }
+  
   @override
   Widget build(BuildContext context) {
     double tamanhoTela = MediaQuery.of(context).size.width;
@@ -414,8 +412,17 @@ class ControlePageState extends State<ControlePage> {
                       width: tamanhoTela * 0.17,
                       height: tamanhoTela * 0.17,
                       child: JoystickHorizontal(
-                        moveRobot: (double horizontal) {
-                          moveRobot(horizontal, 0); // Motor horizontal
+                        moveRobotHorizontal: (double horizontal, int seconds) {
+                          moveRobotHorizontal(horizontal, seconds); // Motor horizontal
+                        },
+                      ),
+                    ),
+                     SizedBox(
+                      width: tamanhoTela * 0.17,
+                      height: tamanhoTela * 0.17,
+                      child: JoystickVertical(
+                        moveRobotVertical: (double vertical) {
+                          moveRobotVertical(vertical); // Motor vertical
                         },
                       ),
                     ),
@@ -465,15 +472,6 @@ class ControlePageState extends State<ControlePage> {
                         ],
                       ),
                     ),
-                    SizedBox(
-                      width: tamanhoTela * 0.17,
-                      height: tamanhoTela * 0.17,
-                      child: JoystickVertical(
-                        moveRobot: (double vertical) {
-                          moveRobot(0, vertical); // Motor vertical
-                        },
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -519,12 +517,13 @@ class ControlePageState extends State<ControlePage> {
       child: Text(isSelected ? 'Desligar Tomada $deviceNumber' : 'Ligar Tomada $deviceNumber'),
     );
   }
+  
 }
 
 class JoystickHorizontal extends StatefulWidget {
-  final Function(double) moveRobot;
+  final Function(double, int) moveRobotHorizontal; // Atualizado para incluir tempo entre comandos
 
-  const JoystickHorizontal({super.key, required this.moveRobot});
+  const JoystickHorizontal({super.key, required this.moveRobotHorizontal});
 
   @override
   JoystickHorizontalState createState() => JoystickHorizontalState();
@@ -532,25 +531,52 @@ class JoystickHorizontal extends StatefulWidget {
 
 class JoystickHorizontalState extends State<JoystickHorizontal> {
   double _yOffset = 0.0; 
+  double _lastDirection = 0.0; // Armazena a última direção significativa enviada
+  DateTime? _lastCommandTime; // Armazena o horário do último comando enviado
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onPanUpdate: (details) {
         setState(() {
-          _yOffset += details.delta.dy; 
+          _yOffset += details.delta.dy;
 
+          // Limitar o deslocamento máximo
           if (_yOffset > 40) _yOffset = 40;
           if (_yOffset < -40) _yOffset = -40;
 
-          widget.moveRobot(_yOffset / 40);
+          // Determinar a direção atual (-1, 0 ou 1)
+          double currentDirection = 0.0;
+          if (_yOffset > 10) {
+            currentDirection = 1.0; // Direção "para baixo"
+          } else if (_yOffset < -10) {
+            currentDirection = -1.0; // Direção "para cima"
+          }
+
+          // Enviar sinal apenas se a direção mudou significativamente
+          if (currentDirection != _lastDirection) {
+            int secondsSinceLastCommand = 0;
+
+            if (_lastCommandTime != null) {
+              secondsSinceLastCommand =
+                  DateTime.now().difference(_lastCommandTime!).inSeconds;
+            }
+
+            _lastDirection = currentDirection;
+            _lastCommandTime = DateTime.now();
+
+            // Passar direção e tempo desde o último comando
+            widget.moveRobotHorizontal(currentDirection, secondsSinceLastCommand);
+          }
         });
       },
       onPanEnd: (details) {
         setState(() {
           _yOffset = 0;
         });
-        widget.moveRobot(0);
+        _lastDirection = 0.0; // Resetar direção para o estado neutro
+        _lastCommandTime = DateTime.now(); // Atualizar o tempo
+        widget.moveRobotHorizontal(0, 0);
       },
       child: SizedBox(
         width: 50,
@@ -573,9 +599,9 @@ class JoystickHorizontalState extends State<JoystickHorizontal> {
 }
 
 class JoystickVertical extends StatefulWidget {
-  final Function(double) moveRobot;
+  final Function(double) moveRobotVertical;
 
-  const JoystickVertical({super.key, required this.moveRobot});
+  const JoystickVertical({super.key, required this.moveRobotVertical});
 
   @override
   JoystickVerticalState createState() => JoystickVerticalState();
@@ -583,25 +609,33 @@ class JoystickVertical extends StatefulWidget {
 
 class JoystickVerticalState extends State<JoystickVertical> {
   double _xOffset = 0.0; 
+  bool _hasMovedSignificantly = false;  // Variável para rastrear se o movimento foi significativo
+  final double _threshold = 10.0; // Limiar de movimento mínimo para considerar um comando
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onPanUpdate: (details) {
         setState(() {
-          _xOffset += details.delta.dx; 
+          _xOffset += details.delta.dx;
 
+          // Limitar o movimento para dentro do intervalo de -40 a 40
           if (_xOffset > 40) _xOffset = 40;
           if (_xOffset < -40) _xOffset = -40;
 
-          widget.moveRobot(_xOffset / 40);
+          // Verificar se o movimento ultrapassou o limiar e enviar sinal apenas uma vez
+          if (!_hasMovedSignificantly && _xOffset.abs() > _threshold) {
+            widget.moveRobotVertical(_xOffset / 40);
+            _hasMovedSignificantly = true;  // Marcar que um movimento significativo foi enviado
+          }
         });
       },
       onPanEnd: (details) {
         setState(() {
           _xOffset = 0;
+          _hasMovedSignificantly = false;  // Permitir que o movimento significativo seja registrado novamente
         });
-        widget.moveRobot(0);
+        widget.moveRobotVertical(0);
       },
       child: Container(
         width: 50,
