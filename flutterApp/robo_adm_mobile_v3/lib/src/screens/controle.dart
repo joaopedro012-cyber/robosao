@@ -9,8 +9,7 @@ import 'package:robo_adm_mobile_v2/src/screens/bluetooth.dart';
 final log = Logger('JoystickLogger');
 
 void main() {
-  // Configurar o nível de log para exibir informações no console
-  Logger.root.level = Level.ALL; // Capturar todas as mensagens de log
+  Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
     if (kDebugMode) {
       print('${record.level.name}: ${record.time}: ${record.message}');
@@ -31,8 +30,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.purple,
       ),
       home: const ControlePage(
-        connectedDevices: [], // Preencha com os dispositivos Bluetooth conectados
-        connections: [], // Preencha com as conexões Bluetooth
+        connectedDevices: [],
+        connections: [],
       ),
     );
   }
@@ -48,12 +47,28 @@ class ControlePage extends StatefulWidget {
   ControlePageState createState() => ControlePageState();
 }
 
+class SendBD {
+  static int idRotina = int.parse(ControlePageState.selectedRoutine!);
+  static String acaoHorizontal = '';
+  static int qtdHorizontal = 0;
+  static String acaoVertical = '';
+  static int qtdVertical = 0;
+  static String acaoBotao1 = '';
+  static int qtdBotao1 = 0;
+  static String acaoBotao2 = '';
+  static int qtdBotao2 = 0;
+  static String acaoPlataforma = '';
+  static String qtdPlataforma = ''; 
+  static String dtExecucao = '';
+}
+
 class ControlePageState extends State<ControlePage> {
-  String? _selectedRoutine;
-  final DB _db = DB.instance;
-  double _currentSliderValue = 50;
+  static String? selectedRoutine;
+  final DB db = DB.instance;
+  String comandoPlataforma = '';
   List<Map<String, dynamic>> _rotinas = [];
   final List<bool> _tomadaSelecionada = [false, false, false];
+  
 
   @override
   void initState() {
@@ -69,148 +84,201 @@ class ControlePageState extends State<ControlePage> {
     });
   }
 
-DateTime? _lastVerticalCommandTime;
+  DateTime? _lastVerticalCommandTime;
 
-Future<void> sendBluetoothCommand(String command) async {
-  final now = DateTime.now();
+  Future<void> sendBluetoothCommand(String command) async {
+    final now = DateTime.now();
 
-  // Controle de comandos para o motor vertical
-  if (['a', 'd', 'z'].contains(command)) {
-    // Verifica se o intervalo de 3 segundos foi atingido
-    if (_lastVerticalCommandTime != null &&
-        now.difference(_lastVerticalCommandTime!).inSeconds < 1) {
-      log.info('Comando "$command" ignorado. Aguardando intervalo de 1 segundo (motor vertical).');
+    if (['a', 'd', 'z'].contains(command)) {
+      if (_lastVerticalCommandTime != null &&
+          now.difference(_lastVerticalCommandTime!).inSeconds < 1) {
+        log.info('Comando "$command" ignorado. Aguardando intervalo de 1 segundo (motor vertical).');
+        return;
+      }
+
+      _lastVerticalCommandTime = now;
+
+      for (var connection in widget.connections) {
+        String address = connection.address;
+        if (address == BluetoothManager.macVertical) {
+          List<int> bytes = utf8.encode(command);
+          connection.output.add(Uint8List.fromList(bytes));
+          await Future.delayed(const Duration(milliseconds: 100));
+          log.info('Comando "$command" enviado para o módulo Vertical ($address)');
+          await connection.output.allSent;
+        } else {
+          log.warning('Comando "$command" ignorado. Endereço MAC incorreto para Vertical: $address');
+        }
+      }
       return;
     }
 
-    // Atualiza o tempo do último comando enviado
-    _lastVerticalCommandTime = now;
+    if (['w', 'x', 's'].contains(command)) {
+      for (var connection in widget.connections) {
+        String address = connection.address;
 
-    // Envia o comando para o motor vertical
-    for (var connection in widget.connections) {
-      String address = connection.address; // Obtém o endereço MAC do dispositivo
-      if (address == BluetoothManager.macVertical) {
-        List<int> bytes = utf8.encode(command);
-        connection.output.add(Uint8List.fromList(bytes));
-        await Future.delayed(const Duration(milliseconds: 100));
-        log.info('Comando "$command" enviado para o módulo Vertical ($address)');
-        await connection.output.allSent;
-      } else {
-        log.warning('Comando "$command" ignorado. Endereço MAC incorreto para Vertical: $address');
+        if (address == BluetoothManager.macHorizontal ) {
+          List<int> bytes = utf8.encode(command);
+          connection.output.add(Uint8List.fromList(bytes));
+          await Future.delayed(const Duration(milliseconds: 100));
+          log.info('Comando "$command" enviado para o módulo Horizontal ($address)');
+          await connection.output.allSent;
+        } else {
+          log.warning('Comando "$command" ignorado. Endereço MAC incorreto para Horizontal: $address');
+        }
       }
+    } else {
+      log.warning('');
     }
-    return;
+
+    if (command.contains('Movendo Plataforma')) {
+      for (var connection in widget.connections) {
+        String address = connection.address;
+        if (('Movendo Plataforma: b').contains(command)) {
+          if (address == BluetoothManager.macPlataforma) {
+            List<int> bytes = utf8.encode('b');
+            connection.output.add(Uint8List.fromList(bytes));
+            await Future.delayed(const Duration(milliseconds: 100));
+            log.info('Comando "$command" enviado para o módulo Plataforma ($address)');
+            await connection.output.allSent;
+          } else {
+            log.warning('Comando "$command" ignorado. Endereço MAC incorreto para Plataforma: $address');
+          }
+        } else if (('Movendo Plataforma: c').contains(command)) {
+          if (address == BluetoothManager.macPlataforma) {
+            List<int> bytes = utf8.encode('c');
+            connection.output.add(Uint8List.fromList(bytes));
+            await Future.delayed(const Duration(milliseconds: 100));
+            log.info('Comando "$command" enviado para o módulo Plataforma ($address)');
+            await connection.output.allSent;
+          } else {
+            log.warning('Comando "$command" ignorado. Endereço MAC incorreto para Plataforma: $address');
+          }
+        }  
+      }
+    } else {
+      log.warning('');
+    } if (command.contains('Ligar Tomada')) {
+      for (var connection in widget.connections) {
+        String address = connection.address;
+        if (address == BluetoothManager.macTomadas) {
+          List<int> bytes = utf8.encode(command);
+          connection.output.add(Uint8List.fromList(bytes));
+          await Future.delayed(const Duration(milliseconds: 100));
+          log.info('Comando "$command" enviado para o módulo Plataforma ($address)');
+          await connection.output.allSent;
+        } else {
+          log.warning('Comando "$command" ignorado. Endereço MAC incorreto para Plataforma: $address');
+        }
+      }
+    } else {
+      log.warning('');
+    } if (command.contains('Desligar Tomada')) {
+      for (var connection in widget.connections) {
+        String address = connection.address;
+
+        if (address == BluetoothManager.macTomadas) {
+          List<int> bytes = utf8.encode(command);
+          connection.output.add(Uint8List.fromList(bytes));
+          await Future.delayed(const Duration(milliseconds: 100));
+          log.info('Comando "$command" enviado para o módulo Plataforma ($address)');
+          await connection.output.allSent;
+        } else {
+          log.warning('Comando "$command" ignorado. Endereço MAC incorreto para Plataforma: $address');
+        }
+      }
+    } else {
+      log.warning('');
+    } 
   }
 
-  // Envio direto para os comandos do motor horizontal
-  if (['w', 'x', 's'].contains(command)) {
-    for (var connection in widget.connections) {
-      String address = connection.address; // Obtém o endereço MAC do dispositivo
-
-      if (address == BluetoothManager.macHorizontal ) {
-        List<int> bytes = utf8.encode(command);
-        connection.output.add(Uint8List.fromList(bytes));
-        await Future.delayed(const Duration(milliseconds: 100));
-        log.info('Comando "$command" enviado para o módulo Horizontal ($address)');
-        await connection.output.allSent;
-      } else {
-        log.warning('Comando "$command" ignorado. Endereço MAC incorreto para Horizontal: $address');
-      }
-    }
-  } else {
-    log.warning('Comando "$command" inválido e não enviado.');
-  }
-}
   Future<void> registerActionAndSendCommand({
     required String actionDescription,
     required int quantidade,
     required String bluetoothCommand,
   }) async {
-    if (_selectedRoutine != null && actionDescription.isNotEmpty) {
+    if (selectedRoutine != null && actionDescription.isNotEmpty) {
       try {
-        // Inicializa os valores padrão
-        String acaoHorizontal = '';
-        int qtdHorizontal = 0;
-        String acaoVertical = '';
-        int qtdVertical = 0;
-        String acaoBotao1 = '';
-        int qtdBotao1 = 0;
-        String acaoBotao2 = '';
-        int qtdBotao2 = 0;
-        String acaoPlataforma = '';
-        int qtdPlataforma = 0;
 
-        // Verifica o tipo de ação e preenche os campos correspondentes
-        if (actionDescription.contains('Motor' )) {
-          if (actionDescription. contains('Motor movendo para trás: x')){
-            acaoHorizontal = 'x';
-            qtdHorizontal = quantidade; 
-          } else if (actionDescription.contains('Motor movendo para frente: w')){
-            acaoHorizontal = 'w';
-            qtdHorizontal = quantidade;
-          } else if (actionDescription.contains('Motor Horizontal desligado')){
-            acaoHorizontal = 's';
-            qtdHorizontal = quantidade;
-          } else if (actionDescription.contains('Motor virando para direita: d')){
-            acaoVertical = 'd';
-            qtdVertical = quantidade;
-          } else if (actionDescription.contains('Motor virando para esquerda: a')){
-            acaoVertical = 'a';
-            qtdVertical = quantidade;
+        if (actionDescription.contains('Motor')) {
+          if (actionDescription.contains('Motor movendo para trás: x')) {
+            SendBD.acaoHorizontal = 'x';
+            SendBD.qtdHorizontal = quantidade; 
+          } else if (actionDescription.contains('Motor movendo para frente: w')) {
+            SendBD.acaoHorizontal = 'w';
+            SendBD.qtdHorizontal = quantidade;
+          } else if (actionDescription.contains('Motor Horizontal desligado')) {
+            SendBD.acaoHorizontal = 's';
+            SendBD.qtdHorizontal = quantidade;
+          } else if (actionDescription.contains('Motor virando para direita: d')) {
+            SendBD.acaoVertical = 'd';
+            SendBD.qtdVertical = quantidade;
+          } else if (actionDescription.contains('Motor virando para esquerda: a')) {
+            SendBD.acaoVertical = 'a';
+            SendBD.qtdVertical = quantidade;
           } 
-        } else if (actionDescription.contains('desligar tomada')){
-          if (actionDescription.contains('desligar tomada 1')){
-            acaoBotao1 = actionDescription ;
-            qtdBotao1 = quantidade;
-          } else if (actionDescription.contains('desligar tomada 2')){
-            acaoBotao2 = actionDescription;
-            qtdBotao2 = quantidade;
+        } else if (actionDescription.contains('Desligar Tomada')) {
+          if (actionDescription.contains('Desligar Tomada 1')) {
+            SendBD.acaoBotao1 = actionDescription ;
+            SendBD.qtdBotao1 = quantidade;
+            sendBluetoothCommand('Desligar Tomada 1');
+          } else if (actionDescription.contains('Desligar Tomada 2')) {
+            SendBD.acaoBotao2 = actionDescription;
+            SendBD.qtdBotao2 = quantidade;
+            sendBluetoothCommand('Desligar Tomada 2');
           }
-        } else if (actionDescription.contains('ligar tomada')){
-          if (actionDescription.contains('ligar tomada 1')){
-            acaoBotao1 = actionDescription;
-            qtdBotao1 = quantidade;
-          } else if (actionDescription.contains('ligar tomada 2')){
-            acaoBotao2 = actionDescription;
-            qtdBotao2 = quantidade;
+        } else if (actionDescription.contains('Ligar Tomada')) {
+          if (actionDescription.contains('Ligar Tomada 1')) {
+            SendBD.acaoBotao1 = actionDescription;
+            SendBD.qtdBotao1 = quantidade;
+            sendBluetoothCommand('Ligar Tomada 1');
+          } else if (actionDescription.contains('Ligar Tomada 2')) {
+            SendBD.acaoBotao2 = actionDescription;
+            SendBD.qtdBotao2 = quantidade;
+            sendBluetoothCommand('Ligar Tomada 2');
           }
-        } else if (actionDescription.contains('Movendo Plataforma para')) {
-          acaoPlataforma = actionDescription;
-          qtdPlataforma = quantidade;
+        } else if (actionDescription.contains('Movendo Plataforma: ')) {
+          if (actionDescription.contains('Movendo Plataforma: c')) {
+            SendBD.acaoPlataforma = actionDescription;
+            SendBD.qtdPlataforma = 'c';
+            sendBluetoothCommand('Movendo Plataforma: c');
+          } else if (actionDescription.contains('Movendo Plataforma: b')) {
+            SendBD.acaoPlataforma = actionDescription;
+            SendBD.qtdPlataforma = 'b'; 
+            sendBluetoothCommand('Movendo Plataforma: b');
+          }
         }
-      // Insere no banco de dados
-      await _db.insertAcao(
-        idRotina: int.parse(_selectedRoutine!),
-        acaoHorizontal: acaoHorizontal,
-        qtdHorizontal: qtdHorizontal,
-        acaoVertical: acaoVertical,
-        qtdVertical: qtdVertical,
-        acaoPlataforma: acaoPlataforma,
-        qtdPlataforma: qtdPlataforma,
-        acaoBotao1: acaoBotao1,
-        qtdBotao1: qtdBotao1,
-        acaoBotao2: acaoBotao2,
-        qtdBotao2: qtdBotao2,
-        acaoBotao3: '',
-        qtdBotao3: 0,
-        dtExecucao: DateTime.now().millisecondsSinceEpoch,
-      );
 
-      log.info('Ação do robô registrada com sucesso: $actionDescription');
-      sendBluetoothCommand(bluetoothCommand);
-    } catch (e) {
-      log.severe('Erro ao registrar ação do robô: $e');
+        await db.insertAcao(
+          idRotina: int.parse(selectedRoutine!),
+          acaoHorizontal: SendBD.acaoHorizontal,
+          qtdHorizontal: SendBD.qtdHorizontal,
+          acaoVertical: SendBD.acaoVertical,
+          qtdVertical: SendBD.qtdVertical,
+          acaoPlataforma: SendBD.acaoPlataforma,
+          qtdPlataforma: SendBD.qtdPlataforma,
+          acaoBotao1: SendBD.acaoBotao1,
+          qtdBotao1: SendBD.qtdBotao1,
+          acaoBotao2: SendBD.acaoBotao2,
+          qtdBotao2: SendBD.qtdBotao2,
+          dtExecucao: DateTime.now().millisecondsSinceEpoch,
+        );
+        log.info('Ação do robô registrada com sucesso: $actionDescription');
+        sendBluetoothCommand(bluetoothCommand);
+      } catch (e) {
+        log.severe('Erro ao registrar ação do robô: $e');
+      }
+    } else {
+      log.warning('Nenhuma rotina selecionada ou descrição de ação vazia.');
     }
-  } else {
-    log.warning('Nenhuma rotina selecionada ou descrição de ação vazia.');
   }
-}
+
   void turnOnDevice(int deviceNumber) async {
     log.info('Ligando a tomada $deviceNumber');
     await registerActionAndSendCommand(
       actionDescription: 'Ligar Tomada $deviceNumber',
       quantidade: 0,
-      bluetoothCommand: 'Ligar Tomada $deviceNumber',
+      bluetoothCommand: 'Ligar Tomada $deviceNumber'
     );
   }
 
@@ -223,13 +291,22 @@ Future<void> sendBluetoothCommand(String command) async {
     );
   }
 
-  void movePlatform(double position) async {
-    log.info('Movendo a plataforma para: $position');
-    await registerActionAndSendCommand(
-      actionDescription: 'Movendo Plataforma para ${position * 100}%',
-      quantidade: (position * 100).toInt(),
-      bluetoothCommand: 'Movendo Plataforma para ${position * 100}%',
+  void movePlatform(String comandoPlataforma) async {
+    if (comandoPlataforma == 'c') {
+      log.info('Movendo a plataforma para C');
+      await registerActionAndSendCommand(
+      actionDescription: 'Movendo Plataforma: c',
+      quantidade: 0,
+      bluetoothCommand: 'Movendo Plataforma: c',
     );
+    } else if (comandoPlataforma == 'b') {
+      log.info('Movendo a plataforma para B');
+     await registerActionAndSendCommand(
+      actionDescription: 'Movendo Plataforma: b',
+      quantidade: 0,
+      bluetoothCommand: 'Movendo Plataforma: b',
+    );
+    }
   }
 
   void _sendMovementCommand(String command) {
@@ -240,167 +317,175 @@ Future<void> sendBluetoothCommand(String command) async {
   }
 
   void moveRobot(double horizontal, double vertical) async {
-  if (_selectedRoutine != null) {
-    if (horizontal < 0) {
-      _sendMovementCommand('w'); // Para frente
-      log.info('Motor movendo para frente: w');
-    } else if (horizontal > 0) { 
-      _sendMovementCommand('x'); // Para trás
-      log.info('Motor movendo para trás: x');
-    } else if (horizontal == 0) {
-      _sendMovementCommand('s');
-      log.info('Motor Horizontal desligado') ;
-    }
-    // Alterando aqui para que o joystick vertical controle a rotação
-    if (vertical < 0) {
-      _sendMovementCommand('a'); // Para esquerda
-      log.info('Motor virando para esquerda: a');
-    } else if (vertical > 0) {
-      _sendMovementCommand('d'); // Para direita
-      log.info('Motor virando para direita: d');
-    }
-  } else {
-    log.warning('Nenhuma rotina selecionada.');
-  }
-}
+    if (selectedRoutine != null) {
+      if (horizontal < 0) {
+        _sendMovementCommand('w'); // Para frente
+        log.info('Motor movendo para frente: w');
+      } else if (horizontal > 0) { 
+        _sendMovementCommand('x'); // Para trás
+        log.info('Motor movendo para trás: x');
+      } else if (horizontal == 0) {
+        _sendMovementCommand('s');
+        log.info('Motor Horizontal desligado');
+      }
 
-@override
-Widget build(BuildContext context) {
-  double tamanhoTela = MediaQuery.of(context).size.width;
-
-  // Buscar a descrição da rotina selecionada
-  String? descricaoRotinaSelecionada;
-  if (_selectedRoutine != null) {
-    final rotina = _rotinas.firstWhere(
-      (r) => r['id_rotina'].toString() == _selectedRoutine,
-      orElse: () => {},  
-    );
-    descricaoRotinaSelecionada = rotina.isNotEmpty ? rotina['descricao'] as String? : null;
+      if (vertical < 0) {
+        _sendMovementCommand('a'); // Para esquerda
+        log.info('Motor virando para esquerda: a');
+      } else if (vertical > 0) {
+        _sendMovementCommand('d'); // Para direita
+        log.info('Motor virando para direita: d');
+      }
+    } else {
+      log.warning('Nenhuma rotina selecionada.');
+    }
   }
 
-  return Scaffold(
-     appBar: AppBar(
+  @override
+  Widget build(BuildContext context) {
+    double tamanhoTela = MediaQuery.of(context).size.width;
+
+    String? descricaoRotinaSelecionada;
+    if (selectedRoutine != null) {
+      final rotina = _rotinas.firstWhere(
+        (r) => r['id_rotina'].toString() == selectedRoutine,
+        orElse: () => {},  
+      );
+      descricaoRotinaSelecionada = rotina.isNotEmpty ? rotina['descricao'] as String? : null;
+    }
+
+    return Scaffold(
+      appBar: AppBar(
         title: const Text(
           'Controle',
           style: TextStyle(fontSize: 30 , fontWeight: FontWeight.bold),
         ),
-        centerTitle: true, // Centraliza o título do AppBar
+        centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 226, 226, 226),
         toolbarHeight: 70.0,
       ),
-    body: Container(
-      color: const Color(0xFFECE6F0),
-      child: Column(
-        children: [
-          // Container no topo para o DropdownButton
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            color: Colors.white,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(
-                    labelText: 'Selecione uma rotina',
-                    border: OutlineInputBorder(),
-                  ),
-                  value: _selectedRoutine,
-                  items: _rotinas.map((rotina) {
-                    return DropdownMenuItem<String>(
-                      value: rotina['id_rotina'].toString(),
-                      child: Text(rotina['nome']),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedRoutine = newValue;
-                    });
-                  },
-                ),
-                if (descricaoRotinaSelecionada != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      descricaoRotinaSelecionada,
-                      style: const TextStyle(fontSize: 14, color: Colors.black54),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Container(
+        color: const Color(0xFFECE6F0),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              color: Colors.white,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Container para o joystick esquerdo
-                  SizedBox(
-                    width: tamanhoTela * 0.17,
-                    height: tamanhoTela * 0.17,
-                    child: JoystickHorizontal(
-                      moveRobot: (double horizontal) {
-                        moveRobot(horizontal, 0); // Motor horizontal
-                      },
+                  DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(
+                      labelText: 'Selecione uma rotina',
+                      border: OutlineInputBorder(),
                     ),
+                    value: selectedRoutine,
+                    items: _rotinas.map((rotina) {
+                      return DropdownMenuItem<String>(
+                        value: rotina['id_rotina'].toString(),
+                        child: Text(rotina['nome']),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedRoutine = newValue;
+                      });
+                    },
                   ),
-                  // Container para o slider
-                  RotatedBox(
-                    quarterTurns: 3,
-                    child: SizedBox(
-                      width: tamanhoTela * 0.40,
-                      child: Slider(
-                        value: _currentSliderValue,
-                        min: 0,
-                        max: 100,
-                        divisions: 100,
-                        label: _currentSliderValue.round().toString(),
-                        onChanged: (double value) {
-                          setState(() {
-                            _currentSliderValue = value;
-                          });
-                          movePlatform(value / 100); // Mova a plataforma conforme o slider
-                        },
+                  if (descricaoRotinaSelecionada != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        descricaoRotinaSelecionada,
+                        style: const TextStyle(fontSize: 14, color: Colors.black54),
+                        textAlign: TextAlign.center,
                       ),
                     ),
-                  ),
-                  // Container para os botões de controle
-                  SizedBox(
-                    width: tamanhoTela * 0.30,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildTomadaButton(1),
-                        const SizedBox(height: 8),
-                        _buildTomadaButton(2),
-                        const SizedBox(height: 8),
-                        _buildTomadaButton(3),
-                      ],
-                    ),
-                  ),
-                  // Container para o joystick direito
-                  SizedBox(
-                    width: tamanhoTela * 0.17,
-                    height: tamanhoTela * 0.17,
-                    child: JoystickVertical(
-                      moveRobot: (double vertical) {
-                        moveRobot(0, vertical); // Motor vertical
-                      },
-                    ),
-                  ),
                 ],
               ),
             ),
-          ),
-        ],
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      width: tamanhoTela * 0.17,
+                      height: tamanhoTela * 0.17,
+                      child: JoystickHorizontal(
+                        moveRobot: (double horizontal) {
+                          moveRobot(horizontal, 0); // Motor horizontal
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      width: tamanhoTela * 0.25,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              comandoPlataforma = 'c';
+                              log.info('Comando enviado para subir: $comandoPlataforma');
+                              movePlatform(comandoPlataforma);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size(40, 40), 
+                              padding: EdgeInsets.zero, 
+                            ),
+                            child: const Text('+', style: TextStyle(fontSize: 18)),
+                          ),
+                          const SizedBox(height: 8),
+                          ElevatedButton(
+                            onPressed: () {
+                              comandoPlataforma = 'b';
+                              log.info('Comando enviado para descer: $comandoPlataforma');
+                              movePlatform(comandoPlataforma);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size(40, 40),
+                              padding: EdgeInsets.zero,
+                            ),
+                            child: const Text('-', style: TextStyle(fontSize: 18)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: tamanhoTela * 0.25,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildTomadaButton(1),
+                          const SizedBox(height: 8),
+                          _buildTomadaButton(2),
+                          const SizedBox(height: 8),
+                          _buildTomadaButton(3),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: tamanhoTela * 0.17,
+                      height: tamanhoTela * 0.17,
+                      child: JoystickVertical(
+                        moveRobot: (double vertical) {
+                          moveRobot(0, vertical); // Motor vertical
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-  Widget _buildTomadaButton(int deviceNumber) {
-    bool isSelected = _tomadaSelecionada[deviceNumber - 1];
+   Widget _buildTomadaButton(int deviceNumber) {
+    bool isSelected = _tomadaSelecionada[deviceNumber - 1]; 
 
     return ElevatedButton(
       style: ButtonStyle(

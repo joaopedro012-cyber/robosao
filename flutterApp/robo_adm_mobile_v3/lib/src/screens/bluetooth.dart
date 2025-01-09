@@ -11,14 +11,16 @@ class MainScreen extends StatefulWidget {
   final List<BluetoothDevice> connectedDevices;
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  State<MainScreen> createState() => MainScreenState();
 }
 class BluetoothManager {
   static String? macVertical;
   static String? macHorizontal;
+  static String? macPlataforma;
+  static String? macTomadas;
 }
 
-class _MainScreenState extends State<MainScreen> {
+class MainScreenState extends State<MainScreen> {
   final flutterBlueClassicPlugin = FlutterBlueClassic();
   BluetoothAdapterState _adapterState = BluetoothAdapterState.unknown;
   StreamSubscription? _adapterStateSubscription;
@@ -36,8 +38,7 @@ class _MainScreenState extends State<MainScreen> {
     _loadConnectedDevices(); // Carregar dispositivos conectados ao iniciar
   }
 
-String? macVertical;   // Armazena o MAC do dispositivo "Motores_vertical"
-String? macHorizontal; // Armazena o MAC do dispositivo "Motores_horizontal"
+ // Armazena o MAC do dispositivo "Motores_horizontal"
 
 Future<void> initPlatformState() async {
   try {
@@ -53,18 +54,26 @@ Future<void> initPlatformState() async {
           _selectedDevices[device.address] = false;
 
           // Verifica se o nome do dispositivo é "Motores_vertical"
-          if (device.name == 'Motores_vertical') {
+          if (device.name == 'motores_vertical') {
             BluetoothManager.macVertical = device.address; // Armazena o endereço MAC na variável
             if (kDebugMode) {
-              print('MAC do dispositivo Motores_vertical: $macVertical');
+              print('MAC do dispositivo Motores_vertical: $BluetoothManager.macVertical');
             }
           }
-
-          // Verifica se o nome do dispositivo é "Motores_horizontal"
-          if (device.name == 'Motores_horizontal') {
+          else if (device.name == 'motores_horizontal') {
             BluetoothManager.macHorizontal = device.address; // Armazena o endereço MAC na variável
             if (kDebugMode) {
-              print('MAC do dispositivo Motores_horizontal: $macHorizontal');
+              print('MAC do dispositivo Motores_horizontal: $BluetoothManager.macHorizontal');
+            }
+          } else if (device.name == 'plataforma') {
+            BluetoothManager.macPlataforma = device.address; // Armazena o endereço MAC na variável
+            if (kDebugMode) {
+              print('MAC do dispositivo plataforma: $BluetoothManager.macPlataforma');
+            }
+          } else if (device.name == 'tomadas') {
+            BluetoothManager.macTomadas = device.address; // Armazena o endereço MAC na variável
+            if (kDebugMode) {
+              print('MAC do dispositivo plataforma: $BluetoothManager.macTomadas');
             }
           }
         });

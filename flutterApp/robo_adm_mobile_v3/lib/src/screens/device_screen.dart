@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
+import 'controle.dart';
+
 
 class DeviceScreen extends StatefulWidget {
   const DeviceScreen({super.key, required this.connection});
@@ -13,6 +15,7 @@ class DeviceScreen extends StatefulWidget {
   @override
   State<DeviceScreen> createState() => _DeviceScreenState();
 }
+
 
 class _DeviceScreenState extends State<DeviceScreen> {
   StreamSubscription? _readSubscription;
@@ -35,7 +38,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
     super.dispose();
   }
 
-  Future<void> _sendCommand(String command) async {
+  Future<void> sendCommand(String command) async {
     if (widget.connection.isConnected) {
       try {
         // Se writeString retornar void, remova o await
@@ -43,19 +46,17 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
         // Certifique-se de que insertExecucaoRotina retorna Future<void>
         await DB.instance.insertExecucaoRotina( // Substitua DB.instance pelo construtor correto
-          idRotina: 1,
-          acaoHorizontal: command,
-          qtdHorizontal: 1,
-          acaoVertical: "",
-          qtdVertical: 0,
-          acaoPlataforma: "",
-          qtdPlataforma: 0,
-          acaoBotao1: "",
-          qtdBotao1: 0,
-          acaoBotao2: "",
-          qtdBotao2: 0,
-          acaoBotao3: "",
-          qtdBotao3: 0,
+          idRotina: int.parse(ControlePageState.selectedRoutine!),
+          acaoHorizontal: SendBD.acaoHorizontal,
+          qtdHorizontal: SendBD.qtdHorizontal,
+          acaoVertical: SendBD.acaoVertical,
+          qtdVertical: SendBD.qtdVertical,
+          acaoPlataforma: SendBD.acaoPlataforma,
+          qtdPlataforma: SendBD.qtdPlataforma,
+          acaoBotao1: SendBD.acaoBotao1,
+          qtdBotao1: SendBD.qtdBotao1,
+          acaoBotao2: SendBD.acaoBotao2,
+          qtdBotao2: SendBD.qtdBotao2,
           dtExecucao: DateTime.now().microsecondsSinceEpoch,
         );
       } catch (e) {
@@ -86,19 +87,19 @@ class _DeviceScreenState extends State<DeviceScreen> {
       body: ListView(
         children: [
           ElevatedButton(
-            onPressed: () => _sendCommand("FORWARD"),
+            onPressed: () => sendCommand("FORWARD"),
             child: const Text("Send FORWARD command to remote device"),
           ),
           ElevatedButton(
-            onPressed: () => _sendCommand("BACKWARD"),
+            onPressed: () => sendCommand("BACKWARD"),
             child: const Text("Send BACKWARD command to remote device"),
           ),
           ElevatedButton(
-            onPressed: () => _sendCommand("LEFT"),
+            onPressed: () => sendCommand("LEFT"),
             child: const Text("Send LEFT command to remote device"),
           ),
           ElevatedButton(
-            onPressed: () => _sendCommand("RIGHT"),
+            onPressed: () => sendCommand("RIGHT"),
             child: const Text("Send RIGHT command to remote device"),
           ),
           const Divider(),
