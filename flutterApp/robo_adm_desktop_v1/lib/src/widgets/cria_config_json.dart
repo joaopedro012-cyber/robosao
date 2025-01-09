@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:io'; 
 import 'package:path_provider/path_provider.dart';
 
 class CriadorConfig {
@@ -6,8 +6,7 @@ class CriadorConfig {
   Future<void> criarConfigJson() async {
     try {
       // Obtém o diretório de documentos do dispositivo
-      final Directory documentsDirectory =
-          await getApplicationDocumentsDirectory();
+      final Directory documentsDirectory = await getApplicationDocumentsDirectory();
       print('Diretório de documentos: ${documentsDirectory.path}');
 
       // Define o caminho para a pasta onde o config.json será salvo
@@ -66,5 +65,14 @@ class CriadorConfig {
     } catch (e) {
       print('Erro ao criar o arquivo config.json: $e');
     }
+  }
+
+  // Função para verificar se o arquivo de configuração existe
+  Future<bool> verificarArquivoConfig() async {
+    final Directory documentsDirectory = await getApplicationDocumentsDirectory();
+    final String novoCaminho = '${documentsDirectory.path}/Rotinas_Robo';
+    final Directory novoDiretorio = Directory(novoCaminho);
+    final File configFile = File('${novoDiretorio.path}/config.json');
+    return await configFile.exists();
   }
 }

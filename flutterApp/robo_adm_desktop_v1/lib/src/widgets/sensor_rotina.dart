@@ -28,12 +28,14 @@ class SensorRotinaState extends State<SensorRotina> {
   Future<void> _carregaInfo() async {
     try {
       rotinaNoPlaceholder =
-          await carregaInfoJson('sensores', widget.objetoSensor, 'diretorio') ??
-              '';
+          await carregaInfoJson('sensores', widget.objetoSensor, 'diretorio') ?? '';
       distanciaMinima = (await carregaInfoJson(
               'sensores', widget.objetoSensor, 'distancia_minima') ??
           0) as int;
 
+      // Debug para rastrear o diretório carregado
+      debugPrint('Diretório carregado: $rotinaNoPlaceholder');
+      
       if (mounted) {
         // Verificar se o widget está montado antes de chamar setState
         setState(() {});

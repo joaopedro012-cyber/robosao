@@ -18,20 +18,18 @@ class SensorUltrassonico {
     int startTime = 0;
     int endTime = 0;
 
-    // Lógica correta para medir o tempo de pulso
-    // Isso precisa ser ajustado para integrar com a lógica do seu hardware
-    while (false == false) {
-      startTime = DateTime.now().microsecondsSinceEpoch;
-      // Acionar o trigger aqui
-    }
+    // Lógica de acionamento do sensor
+    // Simula o acionamento do trigger (em hardware real seria um pulso digital)
+    startTime = DateTime.now().microsecondsSinceEpoch;
 
-    while (false == true) {
-      endTime = DateTime.now().microsecondsSinceEpoch;
-      // Ler o valor do echo aqui
-    }
+    // Simula a leitura do valor do echo (em hardware real seria um valor digital lido)
+    // Aqui, para fins de simulação, o valor de endTime é ajustado artificialmente
+    await Future.delayed(const Duration(milliseconds: 100)); // Simula o tempo de resposta do sensor
+    endTime = DateTime.now().microsecondsSinceEpoch;
 
+    // Calcula a distância com base no tempo de voo do som
     int duracao = endTime - startTime;
-    double distancia = duracao / 58.0;
+    double distancia = duracao / 58.0; // A constante 58 é baseada na velocidade do som
     return distancia;
   }
 }
