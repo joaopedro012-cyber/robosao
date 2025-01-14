@@ -247,7 +247,7 @@ class DB {
     required int dtExecucao,
   }) async {
     if (kDebugMode) {
-      print('Inserindo ação:  $acaoBotao1 ,$acaoBotao2, $acaoHorizontal, $acaoVertical, $acaoPlataforma, $dtExecucao');
+      print('Inserindo ação:  $acaoBotao1 ,$acaoBotao2, $acaoHorizontal, $qtdHorizontal, $acaoVertical, $acaoPlataforma');
     await insertExecucaoRotina(
       idRotina: idRotina,
       acaoHorizontal: acaoHorizontal,
