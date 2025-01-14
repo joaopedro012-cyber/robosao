@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:fluent_ui/fluent_ui.dart' as fui;
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -15,7 +18,6 @@ class RotinasPageState extends State<RotinasPage> {
 
   void _logException(String message) {
     print(message);
-    // Mostrar a mensagem no SnackBar
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -35,22 +37,49 @@ class RotinasPageState extends State<RotinasPage> {
       _paths = (await FilePicker.platform.pickFiles(
         compressionQuality: 30,
         type: FileType.custom,
-        allowMultiple: true,
+        allowMultiple: false,
         onFileLoading: (FilePickerStatus status) => print(status),
         allowedExtensions: ['json'],
-        dialogTitle: "Selecione os Arquivos de Rotinas",
+        dialogTitle: "Selecione o Arquivo de Rotina",
         initialDirectory: "C:\\",
         lockParentWindow: false,
       ))
           ?.files;
+
       if (_paths != null && _paths!.isNotEmpty) {
-        // Realizar alguma ação com os arquivos selecionados
-        print("Arquivos selecionados: ${_paths!.map((e) => e.name).join(", ")}");
+        final file = File(_paths!.first.path!);
+        final content = await file.readAsString();
+        final rotina = jsonDecode(content);
+
+        print("Rotina carregada: $rotina");
+
+        // Iniciar a execução da rotina
+        _executarRotina(rotina);
       }
     } on PlatformException catch (e) {
       _logException('Unsupported operation: ${e.toString()}');
     } catch (e) {
       _logException(e.toString());
+    }
+  }
+
+  void _executarRotina(Map<String, dynamic> rotina) {
+    // Lógica para enviar os comandos da rotina ao robô
+    if (rotina['acoes'] != null && rotina['acoes'] is List) {
+      for (var acao in rotina['acoes']) {
+        final comando = acao['comando'];
+        final duracao = acao['duracao'];
+
+        print("Executando comando: $comando por $duracao ms");
+
+        // Simula o envio do comando ao robô
+        // Substituir pelo envio real via Bluetooth, por exemplo: bluetooth.send(comando);
+        Future.delayed(Duration(milliseconds: duracao), () {
+          print("Comando $comando concluído");
+        });
+      }
+    } else {
+      print("Formato de rotina inválido. 'acoes' não encontrado.");
     }
   }
 
