@@ -94,7 +94,7 @@ class StatusPageState extends State<StatusPage> {
       appBar: AppBar(
         title: const Text('Status do Robô'),
         centerTitle: true,
-        backgroundColor: Colors.teal,
+        backgroundColor: const Color.fromARGB(255, 251, 252, 252),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -139,17 +139,45 @@ class StatusPageState extends State<StatusPage> {
 
             const SizedBox(height: 30),
 
-            // Campo de texto para inserir a quantidade de gasolina
-            TextField(
-              controller: gasolinaController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Insira a quantidade de gasolina (litros)',
-                border: const OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.teal.shade50,
-              ),
-              style: const TextStyle(fontSize: 18),
+            // Campo de quantidade de gasolina com incremento e decremento
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_downward),
+                  onPressed: () {
+                    double gasolina = double.tryParse(gasolinaController.text) ?? 0.0;
+                    if (gasolina > 0) {
+                      gasolina -= 0.1; // Decrementa 0.1 litro
+                      gasolinaController.text = gasolina.toStringAsFixed(1);
+                    }
+                  },
+                ),
+                SizedBox(
+                  width: 100,
+                  child: TextField(
+                    controller: gasolinaController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Gasolina (L)',
+                      border: const OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.teal.shade50,
+                    ),
+                    style: const TextStyle(fontSize: 18),
+                    textAlign: TextAlign.center,
+                    readOnly: true, // Não permite edição direta
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.arrow_upward),
+                  onPressed: () {
+                    double gasolina = double.tryParse(gasolinaController.text) ?? 0.0;
+                    gasolina += 0.1; // Incrementa 0.1 litro
+                    gasolinaController.text = gasolina.toStringAsFixed(1);
+                  },
+                ),
+              ],
             ),
 
             const SizedBox(height: 20),
@@ -158,7 +186,7 @@ class StatusPageState extends State<StatusPage> {
             ElevatedButton(
               onPressed: _atualizarStatus,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal, // Alterado para backgroundColor
+                backgroundColor: const Color.fromARGB(255, 12, 12, 12), // Alterado para backgroundColor
                 padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
