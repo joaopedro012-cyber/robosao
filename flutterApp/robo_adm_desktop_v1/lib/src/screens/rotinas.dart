@@ -124,7 +124,7 @@ class RotinasPageState extends State<RotinasPage> {
             SizedBox(
               width: screenWidth * 0.35,
               child: const fui.Expander(
-                header: Text('Abrir para ver'),
+                header: Text('selecione a rotina'),
                 content: SizedBox(
                   height: 300,
                   child: SingleChildScrollView(
