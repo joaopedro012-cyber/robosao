@@ -123,7 +123,7 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
 
       final tempoInativo = DateTime.now().difference(DateTime.now());
 
-      if (tempoInativo.inMinutes >= 10 && !alarmeDisparado) {
+      if (tempoInativo.inMinutes >= 2 && !alarmeDisparado) {
         // Disparar alarme
         setState(() {
           alarmeDisparado = true;
@@ -149,14 +149,15 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
         builder: (context) {
           return AlertDialog(
             title: const Text("Alarme"),
-            content: const Text("Você ficou inativo por mais de 10 minutos!"),
+            content: const Text("O robô está parado!"),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(); // Fecha a janela de alerta
                   setState(() {
                     alarmeDisparado = false;
                   });
+                  _audioPlayer.stop(); // Para o som do alarme
                 },
                 child: const Text("OK"),
               ),
