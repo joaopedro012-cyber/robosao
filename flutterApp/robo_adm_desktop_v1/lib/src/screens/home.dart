@@ -54,10 +54,11 @@ class _HomePageState extends State<HomePage> {
         body: const Center(child: Text('Mobile')), // Página de Mobile
       ),
       PaneItem(
-        icon: const Icon(FluentIcons.clipboard_list),
+      icon: const Icon(FluentIcons.clipboard_list),
         title: const Text('Rotinas'),
-        body: const RotinasPage(), // Página de Rotinas
+        body: const RotinasPage(conexaoAtiva: true), // Pass the 'conexaoAtiva' parameter here
       ),
+
       PaneItem(
         icon: const Icon(FluentIcons.communications),
         title: const Text('Sensores'),

@@ -7,7 +7,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 
 class RotinasPage extends StatefulWidget {
-  const RotinasPage({super.key});
+  final bool conexaoAtiva; // Receberá o estado da conexão
+
+  const RotinasPage({super.key, required this.conexaoAtiva});
 
   @override
   RotinasPageState createState() => RotinasPageState();
@@ -31,6 +33,7 @@ class RotinasPageState extends State<RotinasPage> {
     );
   }
 
+  // Função para selecionar e carregar arquivos
   void _selecionaArquivos() async {
     _resetState();
     try {
@@ -43,8 +46,7 @@ class RotinasPageState extends State<RotinasPage> {
         dialogTitle: "Selecione o Arquivo de Rotina",
         initialDirectory: "C:\\",
         lockParentWindow: false,
-      ))
-          ?.files;
+      ))?.files;
 
       if (_paths != null && _paths!.isNotEmpty) {
         final file = File(_paths!.first.path!);
@@ -53,8 +55,12 @@ class RotinasPageState extends State<RotinasPage> {
 
         print("Rotina carregada: $rotina");
 
-        // Iniciar a execução da rotina
-        _executarRotina(rotina);
+        // Iniciar a execução da rotina se a conexão estiver ativa
+        if (widget.conexaoAtiva) {
+          _executarRotina(rotina);
+        } else {
+          _logException('Conexão não estabelecida. Por favor, conecte-se à porta primeiro.');
+        }
       }
     } on PlatformException catch (e) {
       _logException('Unsupported operation: ${e.toString()}');
@@ -63,8 +69,8 @@ class RotinasPageState extends State<RotinasPage> {
     }
   }
 
+  // Função para executar a rotina
   void _executarRotina(Map<String, dynamic> rotina) {
-    // Lógica para enviar os comandos da rotina ao robô
     if (rotina['acoes'] != null && rotina['acoes'] is List) {
       for (var acao in rotina['acoes']) {
         final comando = acao['comando'];
@@ -73,7 +79,7 @@ class RotinasPageState extends State<RotinasPage> {
         print("Executando comando: $comando por $duracao ms");
 
         // Simula o envio do comando ao robô
-        // Substituir pelo envio real via Bluetooth, por exemplo: bluetooth.send(comando);
+        // Substitua pelo código real de envio, por exemplo: bluetooth.send(comando);
         Future.delayed(Duration(milliseconds: duracao), () {
           print("Comando $comando concluído");
         });
@@ -124,7 +130,7 @@ class RotinasPageState extends State<RotinasPage> {
             SizedBox(
               width: screenWidth * 0.35,
               child: const fui.Expander(
-                header: Text('selecione a rotina'),
+                header: Text('Selecione a Rotina'),
                 content: SizedBox(
                   height: 300,
                   child: SingleChildScrollView(

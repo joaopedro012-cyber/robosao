@@ -70,6 +70,14 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
         conexaoAtiva = true;
       });
       if (kDebugMode) print('Conexão iniciada com as portas configuradas.');
+
+      // Exibe a mensagem de sucesso
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Conectado com sucesso!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
     } catch (e) {
       if (kDebugMode) print('Erro ao iniciar conexão: $e');
     }
@@ -87,6 +95,36 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
       }
     } catch (e) {
       if (kDebugMode) print('Erro ao fechar conexão: $e');
+    }
+  }
+
+  // Função para executar uma rotina carregada
+  void executarRotina(Map<String, dynamic> rotina) {
+    if (!conexaoAtiva) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Conexão não estabelecida. Conecte-se à porta primeiro.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    if (rotina['acoes'] != null && rotina['acoes'] is List) {
+      for (var acao in rotina['acoes']) {
+        final comando = acao['comando'];
+        final duracao = acao['duracao'];
+
+        print("Executando comando: $comando por $duracao ms");
+
+        // Simula o envio do comando ao robô
+        // Substituir pelo envio real via Bluetooth, por exemplo: bluetooth.send(comando);
+        Future.delayed(Duration(milliseconds: duracao), () {
+          print("Comando $comando concluído");
+        });
+      }
+    } else {
+      print("Formato de rotina inválido. 'acoes' não encontrado.");
     }
   }
 
@@ -127,11 +165,13 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
+                // Chama a função iniciarConexao para conectar as portas
                 onPressed: iniciarConexao,
                 child: const Text('Iniciar Conexão'),
               ),
               const SizedBox(width: 16),
               ElevatedButton(
+                // Chama a função fecharConexao para desconectar as portas
                 onPressed: fecharConexao,
                 child: const Text('Fechar Conexão'),
               ),
@@ -152,7 +192,10 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: ElevatedButton(
-                      onPressed: () {}, // Substituir por lógica de execução
+                      onPressed: () {
+                        // Chama a função para executar a rotina quando o botão for pressionado
+                        executarRotina(rotina);
+                      },
                       child: Text('Executar Rotina ${rotina['nome']}'),
                     ),
                   ),
