@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'dart:io';
 import 'src/screens/home.dart';
-import 'src/screens/bluetooth.dart';
+import 'src/screens/bluetooth.dart'; 
 import 'src/screens/controle.dart'; 
 import 'src/screens/rotinas.dart';
 import 'src/screens/testes.dart';
@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const HomeScreen(),
         '/controle': (context) => const ControlePage(connectedDevices: [], connections: []), 
         '/bluetooth': (context) => const MainScreen(connectedDevices: []),
-        '/rotinas': (context) => const RotinasPage(),
+        '/rotinas': (context) => const RotinasPage(connectedDevices: [], connections: []),
         '/testes': (context) => const Testetela(),
       },
     );

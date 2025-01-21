@@ -58,7 +58,7 @@ class SendBD {
   static String acaoBotao2 = '';
   static int qtdBotao2 = 0;
   static String acaoPlataforma = '';
-  static String qtdPlataforma = ''; 
+  static String qtdPlataforma = '';
   static int dtExecucao = 0;
 }
 
