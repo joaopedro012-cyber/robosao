@@ -12,8 +12,9 @@ class GPSModule {
   double longitude = 0.0;
 
   Future<void> coletarDados() async {
-    if (kIsWeb || !Platform.isAndroid && !Platform.isIOS) {
-      latitude = -23.5505; // São Paulo, exemplo
+    if (kIsWeb || (!Platform.isAndroid && !Platform.isIOS)) {
+      // Para plataformas web ou desconhecidas
+      latitude = -23.5505; // São Paulo (exemplo)
       longitude = -46.6333;
     } else {
       bool serviceEnabled;
@@ -27,11 +28,14 @@ class GPSModule {
       permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
-        if (permission != LocationPermission.whileInUse &&
-            permission != LocationPermission.always) {
+        if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
           throw Exception('Permissões de localização negadas');
         }
       }
+
+      Position position = await Geolocator.getCurrentPosition();
+      latitude = position.latitude;
+      longitude = position.longitude;
     }
   }
 
@@ -55,12 +59,11 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
   String localizacao = "Aguardando...";
   LatLng _currentPosition = const LatLng(0.0, 0.0);
   final MapController _mapController = MapController();
-  
-  // Variáveis para controle de tempo e detecção de movimento
-  LatLng? ultimoMovimento; // Agora é LatLng, não DateTime
+
+  LatLng? ultimoMovimento;
   Timer? _timer;
   bool alarmeDisparado = false;
-  final AudioPlayer _audioPlayer = AudioPlayer(); // Criando o player de áudio
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   @override
   void initState() {
@@ -68,7 +71,13 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
     _iniciarLocalizacao();
   }
 
-  // Função para obter a localização inicial e começar a escutar em tempo real
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
   Future<void> _iniciarLocalizacao() async {
     try {
       await gpsModule.coletarDados();
@@ -80,24 +89,22 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
 
         _mapController.move(_currentPosition, 16.0);
 
-        // Iniciar o stream para atualização contínua da posição
         Geolocator.getPositionStream(
           locationSettings: const LocationSettings(
             accuracy: LocationAccuracy.high,
-            distanceFilter:
-                10, // Distância mínima para atualizações (em metros)
+            distanceFilter: 10,
           ),
         ).listen((Position position) {
           setState(() {
             _currentPosition = LatLng(position.latitude, position.longitude);
+            gpsModule.latitude = position.latitude;
+            gpsModule.longitude = position.longitude;
             localizacao = gpsModule.obterLocalizacao();
           });
 
-          // Verifica se houve movimento
-          if (ultimoMovimento == null || 
-              _currentPosition.latitude != ultimoMovimento!.latitude || 
+          if (ultimoMovimento == null ||
+              _currentPosition.latitude != ultimoMovimento!.latitude ||
               _currentPosition.longitude != ultimoMovimento!.longitude) {
-            // Se houve movimento, reinicia o contador de tempo
             if (_timer != null) {
               _timer!.cancel();
             }
@@ -105,7 +112,6 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
             _iniciarContadorInatividade();
           }
 
-          // Move o mapa para a nova posição em tempo real
           _mapController.move(_currentPosition, 16.0);
         });
       }
@@ -116,33 +122,19 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
     }
   }
 
-  // Função para iniciar o contador de inatividade
   void _iniciarContadorInatividade() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (ultimoMovimento == null) return;
-
-      final tempoInativo = DateTime.now().difference(DateTime.now());
-
-      if (tempoInativo.inMinutes >= 2 && !alarmeDisparado) {
-        // Disparar alarme
+    _timer = Timer(const Duration(minutes: 2), () {
+      if (!alarmeDisparado && mounted) {
         setState(() {
           alarmeDisparado = true;
         });
-
-        // Verifica se ainda está montado antes de disparar o alarme
-        if (mounted) {
-          _dispararAlarme();
-        }
+        _dispararAlarme();
       }
     });
   }
 
-  // Função para disparar o alarme com som
   void _dispararAlarme() async {
-    // Reproduz o som de alarme (usando um arquivo de áudio)
-    await _audioPlayer.play(AssetSource('assets/sounds/alarme.mp3')); // Caminho do arquivo de áudio
-
-    // Verifica se ainda está montado antes de exibir o diálogo
+    await _audioPlayer.play(AssetSource('lib/src/assets/sounds/alarme.mp3'));
     if (mounted) {
       showDialog(
         context: context,
@@ -153,11 +145,11 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
             actions: <Widget>[
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Fecha a janela de alerta
+                  Navigator.of(context).pop();
                   setState(() {
                     alarmeDisparado = false;
                   });
-                  _audioPlayer.stop(); // Para o som do alarme
+                  _audioPlayer.stop();
                 },
                 child: const Text("OK"),
               ),
@@ -180,8 +172,8 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              initialCenter: _currentPosition, // Use 'initialCenter' aqui
-              initialZoom: 16.0, // Use 'initialZoom' aqui
+              initialCenter: _currentPosition,
+              initialZoom: 16.0,
             ),
             children: [
               TileLayer(
@@ -205,7 +197,6 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
               ),
             ],
           ),
-          // Informações e botão na parte inferior
           Positioned(
             bottom: 70,
             left: 10,
@@ -219,7 +210,7 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
-                  onPressed: _iniciarLocalizacao, // Botão para iniciar a atualização
+                  onPressed: _iniciarLocalizacao,
                   child: const Text('Atualizar Localização'),
                 ),
               ],
