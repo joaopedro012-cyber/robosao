@@ -35,7 +35,7 @@ class GPSModule {
     }
   }
 
-  String obterLocalizacao() {
+  String obterLocalizacao(double latitude, double longitude) {
     String latDirection = latitude >= 0 ? 'Norte' : 'Sul';
     String lonDirection = longitude >= 0 ? 'Leste' : 'Oeste';
 
@@ -55,9 +55,9 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
   String localizacao = "Aguardando...";
   LatLng _currentPosition = const LatLng(0.0, 0.0);
   final MapController _mapController = MapController();
-  
-  // Variáveis para controle de tempo e detecção de movimento
-  LatLng? ultimoMovimento; // Agora é LatLng, não DateTime
+
+  LatLng? ultimoMovimento;
+  DateTime? ultimoMovimentoTime;  // Armazenar o horário do último movimento
   Timer? _timer;
   bool alarmeDisparado = false;
   final AudioPlayer _audioPlayer = AudioPlayer(); // Criando o player de áudio
@@ -74,8 +74,9 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
       await gpsModule.coletarDados();
       if (mounted) {
         setState(() {
-          localizacao = gpsModule.obterLocalizacao();
           _currentPosition = LatLng(gpsModule.latitude, gpsModule.longitude);
+          localizacao =
+              gpsModule.obterLocalizacao(gpsModule.latitude, gpsModule.longitude);
         });
 
         _mapController.move(_currentPosition, 16.0);
@@ -84,24 +85,25 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
         Geolocator.getPositionStream(
           locationSettings: const LocationSettings(
             accuracy: LocationAccuracy.high,
-            distanceFilter:
-                10, // Distância mínima para atualizações (em metros)
+            distanceFilter: 10, // Distância mínima para atualizações (em metros)
           ),
         ).listen((Position position) {
           setState(() {
             _currentPosition = LatLng(position.latitude, position.longitude);
-            localizacao = gpsModule.obterLocalizacao();
+            localizacao =
+                gpsModule.obterLocalizacao(position.latitude, position.longitude);
           });
 
           // Verifica se houve movimento
-          if (ultimoMovimento == null || 
-              _currentPosition.latitude != ultimoMovimento!.latitude || 
+          if (ultimoMovimento == null ||
+              _currentPosition.latitude != ultimoMovimento!.latitude ||
               _currentPosition.longitude != ultimoMovimento!.longitude) {
             // Se houve movimento, reinicia o contador de tempo
             if (_timer != null) {
               _timer!.cancel();
             }
             ultimoMovimento = _currentPosition;
+            ultimoMovimentoTime = DateTime.now();  // Atualiza a hora do último movimento
             _iniciarContadorInatividade();
           }
 
@@ -119,9 +121,9 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
   // Função para iniciar o contador de inatividade
   void _iniciarContadorInatividade() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (ultimoMovimento == null) return;
+      if (ultimoMovimentoTime == null) return;
 
-      final tempoInativo = DateTime.now().difference(DateTime.now());
+      final tempoInativo = DateTime.now().difference(ultimoMovimentoTime!);
 
       if (tempoInativo.inMinutes >= 2 && !alarmeDisparado) {
         // Disparar alarme
@@ -129,7 +131,6 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
           alarmeDisparado = true;
         });
 
-        // Verifica se ainda está montado antes de disparar o alarme
         if (mounted) {
           _dispararAlarme();
         }
@@ -139,10 +140,8 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
 
   // Função para disparar o alarme com som
   void _dispararAlarme() async {
-    // Reproduz o som de alarme (usando um arquivo de áudio)
-    await _audioPlayer.play(AssetSource('assets/sounds/alarme.mp3')); // Caminho do arquivo de áudio
+    await _audioPlayer.play(AssetSource('assets/sounds/alarme.mp3'));
 
-    // Verifica se ainda está montado antes de exibir o diálogo
     if (mounted) {
       showDialog(
         context: context,
@@ -153,11 +152,11 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
             actions: <Widget>[
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Fecha a janela de alerta
+                  Navigator.of(context).pop();
                   setState(() {
                     alarmeDisparado = false;
                   });
-                  _audioPlayer.stop(); // Para o som do alarme
+                  _audioPlayer.stop();
                 },
                 child: const Text("OK"),
               ),
@@ -180,8 +179,8 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              initialCenter: _currentPosition, // Use 'initialCenter' aqui
-              initialZoom: 16.0, // Use 'initialZoom' aqui
+              initialCenter: _currentPosition, // Passando LatLng aqui
+              initialZoom: 16.0, // Ajuste do zoom para o mapa
             ),
             children: [
               TileLayer(
@@ -205,7 +204,6 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
               ),
             ],
           ),
-          // Informações e botão na parte inferior
           Positioned(
             bottom: 70,
             left: 10,
@@ -219,7 +217,7 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
-                  onPressed: _iniciarLocalizacao, // Botão para iniciar a atualização
+                  onPressed: _iniciarLocalizacao,
                   child: const Text('Atualizar Localização'),
                 ),
               ],

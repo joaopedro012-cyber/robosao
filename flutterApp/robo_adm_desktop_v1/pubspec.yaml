@@ -1,5 +1,5 @@
 name: robo_adm_desktop_v1
-description: "Versão desktop para administração do robo."
+description: "Versão desktop para administração do robô."
 publish_to: 'none'
 version: 0.2.0
 
@@ -22,7 +22,7 @@ dependencies:
   window_manager: 0.2.4
   libserialport: ^0.3.0+1
   flutter_map: ^7.0.2    # Para uso do mapa
-  latlong2: ^0.9.1        # Para coordenadas geográficas (para o mapa)
+  latlong2: ^0.9.1       # Para coordenadas geográficas (para o mapa)
   geolocator: ^13.0.2
   flutter_blue_plus_windows: ^1.24.22
   flutter_blue_plus: ^1.24.22
@@ -49,3 +49,4 @@ flutter:
   uses-material-design: true
   assets:
     - lib/src/assets/trinca.png
+    - lib/src/assets/sounds/alarme.mp3 # Adicionado arquivo de áudio do alarme
