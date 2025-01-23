@@ -48,5 +48,5 @@ flutter_launcher_icons:
 flutter:
   uses-material-design: true
   assets:
-    - lib/src/assets/trinca.png
-    - lib/src/assets/sounds/alarme.mp3 # Adicionado arquivo de áudio do alarme
+    - assets/trinca.png
+    - assets/sounds/alarme.mp3 # Adicionado arquivo de áudio do alarme
