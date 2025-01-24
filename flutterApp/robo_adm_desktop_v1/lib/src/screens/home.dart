@@ -40,8 +40,7 @@ class _HomePageState extends State<HomePage> {
       PaneItem(
         icon: const Icon(FluentIcons.power_button),
         title: const Text('Inicialização'),
-        body: const Center(
-            child: Text('Inicialização')), // Página de Inicialização
+        body: const Center(child: Text('Inicialização')), // Página de Inicialização
       ),
       PaneItem(
         icon: const Icon(FluentIcons.log_remove),
@@ -54,11 +53,20 @@ class _HomePageState extends State<HomePage> {
         body: const Center(child: Text('Mobile')), // Página de Mobile
       ),
       PaneItem(
-      icon: const Icon(FluentIcons.clipboard_list),
+        icon: const Icon(FluentIcons.clipboard_list),
         title: const Text('Rotinas'),
-        body: const RotinasPage(conexaoAtiva: true), // Pass the 'conexaoAtiva' parameter here
+        body: RotinasPage(
+          conexaoAtiva: true, // Passando o parâmetro de conexão
+          onPause: () {
+            // Função que será chamada para pausar a execução da rotina
+            print('Rotina pausada');
+          },
+          onResume: () {
+            // Função que será chamada para retomar a execução da rotina
+            print('Rotina retomada');
+          },
+        ), // Passando os parâmetros onPause e onResume
       ),
-
       PaneItem(
         icon: const Icon(FluentIcons.communications),
         title: const Text('Sensores'),
@@ -68,7 +76,7 @@ class _HomePageState extends State<HomePage> {
         icon: const Icon(FluentIcons.waitlist_confirm),
         title: const Text('Status'),
         body: const StatusPage(), // Página de Status
-      )
+      ),
     ];
   }
 

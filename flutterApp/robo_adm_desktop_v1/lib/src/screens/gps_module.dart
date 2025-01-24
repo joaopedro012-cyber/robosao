@@ -134,7 +134,8 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
   }
 
   void _dispararAlarme() async {
-    await _audioPlayer.play(AssetSource('assets/sounds/alarme.mp3'));
+    await _audioPlayer.play(AssetSource('assets/assets/alarme.mp3'));
+
     if (mounted) {
       showDialog(
         context: context,
