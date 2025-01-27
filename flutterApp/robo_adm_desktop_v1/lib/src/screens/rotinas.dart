@@ -8,8 +8,15 @@ import 'package:flutter/services.dart';
 
 class RotinasPage extends StatefulWidget {
   final bool conexaoAtiva; // Receberá o estado da conexão
+  final Function onPause;
+  final Function onResume;
 
-  const RotinasPage({super.key, required this.conexaoAtiva});
+  const RotinasPage({
+    super.key,
+    required this.conexaoAtiva,
+    required this.onPause,
+    required this.onResume,
+  });
 
   @override
   RotinasPageState createState() => RotinasPageState();
@@ -17,6 +24,7 @@ class RotinasPage extends StatefulWidget {
 
 class RotinasPageState extends State<RotinasPage> {
   List<PlatformFile>? _paths;
+  bool isPaused = false; // Controle para verificar se a rotina está pausada
 
   void _logException(String message) {
     print(message);
@@ -56,10 +64,10 @@ class RotinasPageState extends State<RotinasPage> {
         print("Rotina carregada: $rotina");
 
         // Iniciar a execução da rotina se a conexão estiver ativa
-        if (widget.conexaoAtiva) {
+        if (widget.conexaoAtiva && !isPaused) {
           _executarRotina(rotina);
         } else {
-          _logException('Conexão não estabelecida. Por favor, conecte-se à porta primeiro.');
+          _logException('Conexão não estabelecida ou rotina pausada.');
         }
       }
     } on PlatformException catch (e) {
@@ -73,6 +81,8 @@ class RotinasPageState extends State<RotinasPage> {
   void _executarRotina(Map<String, dynamic> rotina) {
     if (rotina['acoes'] != null && rotina['acoes'] is List) {
       for (var acao in rotina['acoes']) {
+        if (isPaused) break; // Pausar a execução quando necessário
+
         final comando = acao['comando'];
         final duracao = acao['duracao'];
 
@@ -81,12 +91,30 @@ class RotinasPageState extends State<RotinasPage> {
         // Simula o envio do comando ao robô
         // Substitua pelo código real de envio, por exemplo: bluetooth.send(comando);
         Future.delayed(Duration(milliseconds: duracao), () {
-          print("Comando $comando concluído");
+          if (!isPaused) {
+            print("Comando $comando concluído");
+          }
         });
       }
     } else {
       print("Formato de rotina inválido. 'acoes' não encontrado.");
     }
+  }
+
+  // Função para pausar a rotina
+  void pauseRoutine() {
+    setState(() {
+      isPaused = true;
+    });
+    widget.onPause(); // Notificar a pausa para o `SensoresPage`
+  }
+
+  // Função para retomar a rotina
+  void resumeRoutine() {
+    setState(() {
+      isPaused = false;
+    });
+    widget.onResume(); // Notificar para retomar a rotina
   }
 
   void _resetState() {
