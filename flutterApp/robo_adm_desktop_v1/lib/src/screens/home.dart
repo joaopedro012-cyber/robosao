@@ -2,11 +2,11 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:robo_adm_desktop_v1/src/screens/automacao.dart';
 import 'package:robo_adm_desktop_v1/src/screens/rotinas.dart';
-import 'package:robo_adm_desktop_v1/src/screens/sensores.dart'; // Importando a tela de Bluetooth
-import 'package:robo_adm_desktop_v1/src/screens/gps_module.dart'; // Importando a tela de GPS
-import 'package:robo_adm_desktop_v1/src/screens/log_module.dart'; // Tela de Log
-import 'package:robo_adm_desktop_v1/src/screens/status_module.dart'; // Tela de Status
-import 'package:robo_adm_desktop_v1/src/screens/settings_page.dart'; // Importando a tela de configurações
+import 'package:robo_adm_desktop_v1/src/screens/sensores.dart';
+import 'package:robo_adm_desktop_v1/src/screens/gps_module.dart';
+import 'package:robo_adm_desktop_v1/src/screens/log_module.dart';
+import 'package:robo_adm_desktop_v1/src/screens/status_module.dart';
+import 'package:robo_adm_desktop_v1/src/screens/settings_page.dart';
 
 class HomePage extends StatefulWidget {
   final bool isDarkMode; // Recebe a variável de modo escuro
@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> {
       PaneItem(
         icon: const Icon(FluentIcons.home),
         title: const Text('Inicio'),
-        body: const Center(child: Text('Inicio')),
+        body: const Center(child: Text('Inicio')), // Página de Início
       ),
       PaneItemSeparator(),
       PaneItem(
@@ -113,7 +113,9 @@ class _HomePageState extends State<HomePage> {
         pane: NavigationPane(
           selected: topIndex,
           displayMode: displayMode,
-          onChanged: (index) => setState(() => topIndex = index),
+          onChanged: (index) => setState(() {
+            topIndex = index;
+          }),
           items: _getNavigationItems(),
         ),
       ),
