@@ -6,9 +6,13 @@ import 'package:robo_adm_desktop_v1/src/screens/sensores.dart'; // Importando a 
 import 'package:robo_adm_desktop_v1/src/screens/gps_module.dart'; // Importando a tela de GPS
 import 'package:robo_adm_desktop_v1/src/screens/log_module.dart'; // Tela de Log
 import 'package:robo_adm_desktop_v1/src/screens/status_module.dart'; // Tela de Status
+import 'package:robo_adm_desktop_v1/src/screens/settings_page.dart'; // Importando a tela de configurações
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final bool isDarkMode; // Recebe a variável de modo escuro
+  final ValueChanged<bool> onThemeChanged; // Função para alterar o tema
+
+  const HomePage({super.key, required this.isDarkMode, required this.onThemeChanged});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -77,6 +81,24 @@ class _HomePageState extends State<HomePage> {
         title: const Text('Status'),
         body: const StatusPage(), // Página de Status
       ),
+      // Item de navegação para as configurações
+      PaneItem(
+        icon: const Icon(FluentIcons.settings),
+        title: const Text('Configurações'),
+        body: const Center(child: Text('Página de Configurações')),
+        onTap: () {
+          // Ao clicar em Configurações, navega para a tela de configurações
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ConfiguracoesPage(
+                isDarkMode: widget.isDarkMode,
+                onThemeChanged: widget.onThemeChanged,
+              ),
+            ),
+          );
+        },
+      ),
     ];
   }
 
@@ -93,13 +115,6 @@ class _HomePageState extends State<HomePage> {
           displayMode: displayMode,
           onChanged: (index) => setState(() => topIndex = index),
           items: _getNavigationItems(),
-          footerItems: [
-            PaneItem(
-              icon: const Icon(FluentIcons.settings),
-              title: const Text('Configurações'),
-              body: const Center(child: Text('Página de Configurações')),
-            ),
-          ],
         ),
       ),
     );

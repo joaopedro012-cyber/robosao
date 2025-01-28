@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:robo_adm_desktop_v1/src/screens/home.dart';
 import 'package:robo_adm_desktop_v1/src/widgets/cria_config_json.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> criarPastaDeRotinas() async {
   final Directory documentsDirectory = await getApplicationDocumentsDirectory();
@@ -38,15 +39,49 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool isDarkMode = false; // Controlador de tema
+  String screenMode = 'Janela'; // Controlador do modo da tela
+
+  // Função para salvar as configurações (tema e tamanho da tela)
+  void _saveSettings() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isDarkMode', isDarkMode);
+    prefs.setString('screenMode', screenMode);
+
+    // Altera o tamanho da janela dependendo do modo de exibição
+    if (screenMode == 'Tela cheia') {
+      await windowManager.setFullScreen(true); // Tela cheia
+    } else {
+      await windowManager.setFullScreen(false); // Desativa a tela cheia
+      if (screenMode == 'Janela') {
+        // Tamanho personalizado da janela
+        await windowManager.setSize(const Size(1960, 800));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return FluentApp(
-      title: 'Navegação',
-      theme: FluentThemeData(),
-      home: const HomePage(),
+      title: 'Robo Administrativo Desktop',
+      theme: isDarkMode ? FluentThemeData.dark() : FluentThemeData.light(),
+      home: HomePage(
+        isDarkMode: isDarkMode,
+        onThemeChanged: (value) {
+          setState(() {
+            isDarkMode = value;
+          });
+          _saveSettings();
+        },
+      ),
     );
   }
 }

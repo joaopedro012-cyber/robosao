@@ -48,7 +48,7 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
     'Motores Vertical': null,  
     'Plataforma': null,  
     'Botões Plataforma': null,  
-    'Botão Roda Dianteira': null,  
+      
   };  
 
   Map<String, bool> statusConexao = {  
@@ -57,7 +57,7 @@ class _AutomacaoPageState extends State<AutomacaoPage> {
     'Motores Vertical': false,  
     'Plataforma': false,  
     'Botões Plataforma': false,  
-    'Botão Roda Dianteira': false,  
+     
   };  
 
   List<String> portasDisponiveis = [];  
