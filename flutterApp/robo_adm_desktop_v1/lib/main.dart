@@ -6,6 +6,8 @@ import 'package:robo_adm_desktop_v1/src/screens/home.dart';
 import 'package:robo_adm_desktop_v1/src/widgets/cria_config_json.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'package:robo_adm_desktop_v1/src/providers/conexao_provider.dart';
 
 Future<void> criarPastaDeRotinas() async {
   final Directory documentsDirectory = await getApplicationDocumentsDirectory();
@@ -18,7 +20,7 @@ Future<void> criarPastaDeRotinas() async {
 
   final File configFile = File('${novoDiretorio.path}/config.json');
   if (!await configFile.exists()) {
-    CriadorConfig(); // Criação da configuração inicial, sem necessidade de comentários
+    CriadorConfig(); // Criação da configuração inicial
   }
 }
 
@@ -36,7 +38,14 @@ void main() async {
     await windowManager.setSkipTaskbar(false);
   });
 
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ConexaoProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -47,25 +56,40 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  bool isDarkMode = false; // Controlador de tema
-  String screenMode = 'Janela'; // Controlador do modo da tela
+  bool isDarkMode = false;
+  String screenMode = 'Janela';
 
-  // Função para salvar as configurações (tema e tamanho da tela)
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+      screenMode = prefs.getString('screenMode') ?? 'Janela';
+    });
+    _applyScreenMode();
+  }
+
+  Future<void> _applyScreenMode() async {
+    if (screenMode == 'Tela cheia') {
+      await windowManager.setFullScreen(true);
+    } else {
+      await windowManager.setFullScreen(false);
+      if (screenMode == 'Janela') {
+        await windowManager.setSize(const Size(1960, 800));
+      }
+    }
+  }
+
   void _saveSettings() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('isDarkMode', isDarkMode);
     prefs.setString('screenMode', screenMode);
-
-    // Altera o tamanho da janela dependendo do modo de exibição
-    if (screenMode == 'Tela cheia') {
-      await windowManager.setFullScreen(true); // Tela cheia
-    } else {
-      await windowManager.setFullScreen(false); // Desativa a tela cheia
-      if (screenMode == 'Janela') {
-        // Tamanho personalizado da janela
-        await windowManager.setSize(const Size(1960, 800));
-      }
-    }
+    _applyScreenMode();
   }
 
   @override

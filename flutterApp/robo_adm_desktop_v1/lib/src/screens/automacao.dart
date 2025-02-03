@@ -1,83 +1,15 @@
-import 'package:flutter/foundation.dart';
+import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:provider/provider.dart';
-
-class ConexaoProvider extends ChangeNotifier {
-  final Map<String, String?> configuracoesPortas = {
-    'Sensores': null,
-    'Motores Horizontal': null,
-    'Motores Vertical': null,
-    'Plataforma': null,
-    'Botões Plataforma': null,
-  };
-
-  final Map<String, bool> statusConexao = {
-    'Sensores': false,
-    'Motores Horizontal': false,
-    'Motores Vertical': false,
-    'Plataforma': false,
-    'Botões Plataforma': false,
-  };
-
-  bool conexaoAtiva = false;
-  late SerialPort porta;
-
-  void alterarConfiguracaoPorta(String objeto, String? novaPorta) {
-    configuracoesPortas[objeto] = novaPorta;
-    statusConexao[objeto] = false; // Desconecta automaticamente ao alterar a porta
-    notifyListeners();
-  }
-
-  void iniciarConexao() {
-    try {
-      bool algumaConexaoBemSucedida = false;
-
-      configuracoesPortas.forEach((key, value) {
-        if (value != null && value.isNotEmpty) {
-          try {
-            porta = SerialPort(value);
-            inicializadorSerialPort(porta);
-            statusConexao[key] = true;
-            algumaConexaoBemSucedida = true;
-          } catch (e) {
-            statusConexao[key] = false;
-            if (kDebugMode) print("Erro ao conectar na porta $key: $e");
-          }
-        }
-      });
-
-      conexaoAtiva = algumaConexaoBemSucedida;
-      notifyListeners();
-    } catch (e) {
-      if (kDebugMode) print('Erro ao iniciar conexão: $e');
-    }
-  }
-
-  void fecharConexao() {
-    try {
-      if (conexaoAtiva) {
-        porta.close();
-        conexaoAtiva = false;
-        statusConexao.updateAll((key, value) => false);
-        configuracoesPortas.updateAll((key, value) => null);
-        notifyListeners();
-      }
-    } catch (e) {
-      if (kDebugMode) print('Erro ao fechar conexão: $e');
-    }
-  }
-}
+import 'package:flutter_libserialport/flutter_libserialport.dart';
+import 'package:robo_adm_desktop_v1/src/providers/conexao_provider.dart';
 
 class AutomacaoPage extends StatelessWidget {
   const AutomacaoPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ConexaoProvider(),
-      child: const AutomacaoView(),
-    );
+    return const AutomacaoView();
   }
 }
 
@@ -131,14 +63,13 @@ class _AutomacaoViewState extends State<AutomacaoView> {
                 itemBuilder: (context, index) {
                   String objetoAutomacao =
                       conexaoProvider.configuracoesPortas.keys.elementAt(index);
-
                   return Container(
                     decoration: BoxDecoration(
-                      color: Colors.grey[100],
+                      color: const Color(0xFFF3F2F1),
                       borderRadius: BorderRadius.circular(8.0),
                       boxShadow: const [
                         BoxShadow(
-                          color: Colors.black12,
+                          color: Color(0x1A000000),
                           blurRadius: 8.0,
                           offset: Offset(0, 4),
                         ),
@@ -148,8 +79,10 @@ class _AutomacaoViewState extends State<AutomacaoView> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('$objetoAutomacao:',
-                            style: Theme.of(context).textTheme.titleLarge),
+                        Text(
+                          '$objetoAutomacao:',
+                          style: FluentTheme.of(context).typography.subtitle,
+                        ),
                         DropdownButton<String>(
                           value: conexaoProvider.configuracoesPortas[objetoAutomacao],
                           onChanged: (novaPorta) {
@@ -179,13 +112,11 @@ class _AutomacaoViewState extends State<AutomacaoView> {
                         ),
                         Icon(
                           conexaoProvider.statusConexao[objetoAutomacao] == true
-                              ? Icons.check_circle
-                              : Icons.cancel,
-                          color:
-                              conexaoProvider.statusConexao[objetoAutomacao] ==
-                                      true
-                                  ? Colors.green
-                                  : Colors.red,
+                              ? FluentIcons.accept
+                              : FluentIcons.cancel,
+                          color: conexaoProvider.statusConexao[objetoAutomacao] == true
+                              ? const Color(0xFF107C10)
+                              : const Color(0xFFE81123),
                         ),
                       ],
                     ),
@@ -196,39 +127,21 @@ class _AutomacaoViewState extends State<AutomacaoView> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton.icon(
+                  Button(
                     onPressed: conexaoProvider.iniciarConexao,
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text('Iniciar Conexão'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 32, vertical: 16),
-                      textStyle: const TextStyle(fontSize: 16),
-                    ),
+                    child: const Text('Iniciar Conexão'),
                   ),
                   const SizedBox(width: 16),
-                  ElevatedButton.icon(
+                  Button(
                     onPressed: conexaoProvider.fecharConexao,
-                    icon: const Icon(Icons.stop),
-                    label: const Text('Fechar Conexão'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 32, vertical: 16),
-                      textStyle: const TextStyle(fontSize: 16),
-                    ),
+                    child: const Text('Fechar Conexão'),
                   ),
                 ],
               ),
               const SizedBox(height: 32),
-              ElevatedButton.icon(
+              Button(
                 onPressed: _listarPortasDisponiveis,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Atualizar Lista de Portas COM'),
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  textStyle: const TextStyle(fontSize: 16),
-                ),
+                child: const Text('Atualizar Lista de Portas COM'),
               ),
             ],
           ),
@@ -236,8 +149,4 @@ class _AutomacaoViewState extends State<AutomacaoView> {
       ),
     );
   }
-}
-
-void inicializadorSerialPort(SerialPort porta) {
-  porta.open(mode: SerialPortMode.readWrite);
 }
