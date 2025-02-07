@@ -260,7 +260,6 @@ class ControlePageState extends State<ControlePage> {
           dtExecucao: DateTime.now().millisecondsSinceEpoch,
         );
         log.info('Ação do robô registrada com sucesso: $actionDescription');
-        sendBluetoothCommand(bluetoothCommand);
       } catch (e) {
         log.severe('Erro ao registrar ação do robô: $e');
       }
