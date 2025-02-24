@@ -72,7 +72,7 @@ class _HomePageState extends State<HomePage> {
       PaneItem(
         icon: const Icon(FluentIcons.communications),
         title: const Text('Sensores'),
-        body: const SensoresPage(),
+        body: const ControlePage(),
       ),
       PaneItem(
         icon: const Icon(FluentIcons.waitlist_confirm),
