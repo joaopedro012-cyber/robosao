@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
@@ -7,14 +8,23 @@ import 'package:robo_adm_desktop_v1/src/providers/conexao_provider.dart';
 class ArduinoController {
   SerialPort? port;
   SerialPortReader? reader;
+  Function(String)? onDataReceived;
 
-  void conectar(String portName, int baudRate) {
+  void conectar(String portName, int baudRate, {Function(String)? onData}) {
     port = SerialPort(portName);
     if (!port!.openReadWrite()) {
       throw Exception('Falha ao abrir a porta serial.');
     }
     port!.config = SerialPortConfig()..baudRate = baudRate;
     reader = SerialPortReader(port!);
+    onDataReceived = onData;
+
+    reader!.stream.listen((data) {
+      final mensagem = String.fromCharCodes(data);
+      if (onDataReceived != null) {
+        onDataReceived!(mensagem);
+      }
+    });
   }
 
   void sendCommand(String command) {
@@ -38,6 +48,7 @@ class ControlePage extends StatefulWidget {
 
 class _ControlePageState extends State<ControlePage> {
   final ArduinoController arduino = ArduinoController();
+  String dadosSensores = "Aguardando sensores...";
 
   @override
   void didChangeDependencies() {
@@ -45,7 +56,11 @@ class _ControlePageState extends State<ControlePage> {
     final conexaoProvider = Provider.of<ConexaoProvider>(context, listen: false);
     final portaSelecionada = conexaoProvider.configuracoesPortas['robo'];
     if (portaSelecionada != null) {
-      arduino.conectar(portaSelecionada, 9600);
+      arduino.conectar(portaSelecionada, 9600, onData: (String dados) {
+        setState(() {
+          dadosSensores = dados;
+        });
+      });
     }
   }
 
@@ -67,6 +82,8 @@ class _ControlePageState extends State<ControlePage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Text("Sensores: $dadosSensores", style: const TextStyle(fontSize: 16)),
+          const SizedBox(height: 20),
           ElevatedButton(onPressed: moverFrente, child: const Text('Frente')),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
