@@ -8,6 +8,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_libserialport
   screen_retriever
   system_theme
+  url_launcher_linux
   window_manager
 )
 

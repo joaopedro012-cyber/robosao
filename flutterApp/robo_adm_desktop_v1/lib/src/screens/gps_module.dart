@@ -2,48 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:flutter/foundation.dart'; // Para detectar a plataforma
-import 'dart:io';
-import 'dart:async'; // Para usar o Timer
-import 'package:audioplayers/audioplayers.dart'; // Importando o pacote de áudio
+import 'dart:async';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class GPSModule {
   double latitude = 0.0;
   double longitude = 0.0;
 
   Future<void> coletarDados() async {
-    if (kIsWeb || (!Platform.isAndroid && !Platform.isIOS)) {
-      // Para plataformas web ou desconhecidas
-      latitude = -23.5505; // São Paulo (exemplo)
-      longitude = -46.6333;
-    } else {
-      bool serviceEnabled;
-      LocationPermission permission;
-
-      serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        throw Exception('Serviço de localização desativado');
-      }
-
-      permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-          throw Exception('Permissões de localização negadas');
-        }
-      }
-
-      Position position = await Geolocator.getCurrentPosition();
-      latitude = position.latitude;
-      longitude = position.longitude;
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      throw Exception('Serviço de localização desativado');
     }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.deniedForever) {
+        throw Exception('Permissões de localização negadas');
+      }
+    }
+
+    Position position = await Geolocator.getCurrentPosition();
+    latitude = position.latitude;
+    longitude = position.longitude;
   }
 
   String obterLocalizacao() {
-    String latDirection = latitude >= 0 ? 'Norte' : 'Sul';
-    String lonDirection = longitude >= 0 ? 'Leste' : 'Oeste';
-
-    return 'Latitude: ${latitude.abs()}° $latDirection, Longitude: ${longitude.abs()}° $lonDirection';
+    return 'Lat: ${latitude.toStringAsFixed(5)}, Lon: ${longitude.toStringAsFixed(5)}';
   }
 }
 
@@ -59,11 +46,9 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
   String localizacao = "Aguardando...";
   LatLng _currentPosition = const LatLng(0.0, 0.0);
   final MapController _mapController = MapController();
-
-  LatLng? ultimoMovimento;
-  Timer? _timer;
-  bool alarmeDisparado = false;
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  Timer? _inatividadeTimer;
+  Timer? _sonarTimer;
+  bool mostrarSonar = false;
 
   @override
   void initState() {
@@ -73,8 +58,8 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
 
   @override
   void dispose() {
-    _timer?.cancel();
-    _audioPlayer.dispose();
+    _inatividadeTimer?.cancel();
+    _sonarTimer?.cancel();
     super.dispose();
   }
 
@@ -100,19 +85,11 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
             gpsModule.latitude = position.latitude;
             gpsModule.longitude = position.longitude;
             localizacao = gpsModule.obterLocalizacao();
+            mostrarSonar = false;
           });
 
-          if (ultimoMovimento == null ||
-              _currentPosition.latitude != ultimoMovimento!.latitude ||
-              _currentPosition.longitude != ultimoMovimento!.longitude) {
-            if (_timer != null) {
-              _timer!.cancel();
-            }
-            ultimoMovimento = _currentPosition;
-            _iniciarContadorInatividade();
-          }
-
           _mapController.move(_currentPosition, 16.0);
+          _reiniciarContadorInatividade();
         });
       }
     } catch (e) {
@@ -122,42 +99,61 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
     }
   }
 
-  void _iniciarContadorInatividade() {
-    _timer = Timer(const Duration(minutes: 2), () {
-      if (!alarmeDisparado && mounted) {
+  void _reiniciarContadorInatividade() {
+    _inatividadeTimer?.cancel();
+    _sonarTimer?.cancel();
+
+    _inatividadeTimer = Timer(const Duration(seconds: 30), () {
+      if (mounted) {
         setState(() {
-          alarmeDisparado = true;
+          mostrarSonar = true;
         });
-        _dispararAlarme();
+        _iniciarSonarLoop();
+        enviarSMS();
       }
     });
   }
 
-  void _dispararAlarme() async {
-    await _audioPlayer.play(AssetSource('assets/assets/alarme.mp3'));
+  void _iniciarSonarLoop() {
+    _sonarTimer?.cancel();
+    _sonarTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      if (mostrarSonar) {
+        setState(() {});
+      } else {
+        timer.cancel();
+      }
+    });
+  }
 
-    if (mounted) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text("Alarme"),
-            content: const Text("O robô está parado!"),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  setState(() {
-                    alarmeDisparado = false;
-                  });
-                  _audioPlayer.stop();
-                },
-                child: const Text("OK"),
-              ),
-            ],
-          );
-        },
-      );
+  Future<void> enviarSMS() async {
+    String username = "jekdenss";
+    String apiKey = "FC9BBD9E-C360-6BB6-5D45-04DE7665DB4D";
+    String toNumber = "+5511939499593";
+    String message = "Alerta: Robo esta parado, verificar por gentileza. Localização: Lat: ${gpsModule.latitude.toStringAsFixed(5)}, Lon: ${gpsModule.longitude.toStringAsFixed(5)}. Por favor, verifique.";
+
+
+    final response = await http.post(
+      Uri.parse("https://rest.clicksend.com/v3/sms/send"),
+      headers: {
+        "Authorization": "Basic ${base64Encode(utf8.encode('$username:$apiKey'))}",
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        "messages": [
+          {
+            "source": "flutter_app",
+            "body": message,
+            "to": toNumber,
+            "from": "ClickSend",
+          }
+        ]
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print("SMS enviado com sucesso!");
+    } else {
+      print("Erro ao enviar SMS: ${response.body}");
     }
   }
 
@@ -166,20 +162,18 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('GPS Module'),
-        backgroundColor: const Color.fromARGB(235, 253, 253, 253),
       ),
       body: Stack(
         children: [
           FlutterMap(
             mapController: _mapController,
-            options: MapOptions(
-              initialCenter: _currentPosition,
-              initialZoom: 16.0,
+            options: const MapOptions(
+              minZoom: 10.0,
+              maxZoom: 20.0,
             ),
             children: [
               TileLayer(
-                urlTemplate:
-                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                 subdomains: const ['a', 'b', 'c'],
               ),
               MarkerLayer(
@@ -198,16 +192,24 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
               ),
             ],
           ),
+          if (mostrarSonar)
+            Positioned.fill(
+              child: CustomPaint(
+                painter: SonarPainter(),
+                child: Container(),
+              ),
+            ),
           Positioned(
             bottom: 70,
             left: 10,
             right: 10,
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
                   localizacao,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
@@ -223,11 +225,15 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
   }
 }
 
-void main() {
-  runApp(
-    const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: GPSModuleWidget(),
-    ),
-  );
+class SonarPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.red.withValues()
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(size.center(Offset.zero), size.width / 3, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
