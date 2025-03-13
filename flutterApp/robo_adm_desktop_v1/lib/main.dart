@@ -2,12 +2,15 @@ import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart' as flutter_acrylic;
 import 'package:path_provider/path_provider.dart';
-import 'package:robo_adm_desktop_v1/src/screens/home.dart';
+import 'package:robo_adm_desktop_v1/src/screens/login.dart'; // Importa a tela de login
 import 'package:robo_adm_desktop_v1/src/widgets/cria_config_json.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:robo_adm_desktop_v1/src/providers/conexao_provider.dart';
+
+// 🟢 Adicionando suporte ao banco de dados SQLite para desktop
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 Future<void> criarPastaDeRotinas() async {
   final Directory documentsDirectory = await getApplicationDocumentsDirectory();
@@ -26,6 +29,10 @@ Future<void> criarPastaDeRotinas() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 🟢 Inicializa SQLite corretamente para Windows, Linux e macOS
+  sqfliteFfiInit();
+  databaseFactory = databaseFactoryFfi;
 
   await flutter_acrylic.Window.initialize();
   await WindowManager.instance.ensureInitialized();
@@ -85,7 +92,7 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  void _saveSettings() async {
+  void saveSettings() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('isDarkMode', isDarkMode);
     prefs.setString('screenMode', screenMode);
@@ -97,15 +104,7 @@ class _MyAppState extends State<MyApp> {
     return FluentApp(
       title: 'Robo Administrativo Desktop',
       theme: isDarkMode ? FluentThemeData.dark() : FluentThemeData.light(),
-      home: HomePage(
-        isDarkMode: isDarkMode,
-        onThemeChanged: (value) {
-          setState(() {
-            isDarkMode = value;
-          });
-          _saveSettings();
-        },
-      ),
+      home: const LoginPage(), // Agora inicia na tela de login
     );
   }
 }

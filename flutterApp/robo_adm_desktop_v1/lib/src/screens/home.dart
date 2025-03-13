@@ -10,9 +10,9 @@ import 'package:robo_adm_desktop_v1/src/screens/settings_page.dart';
 
 class HomePage extends StatefulWidget {
   final bool isDarkMode; // Modo escuro
-  final ValueChanged<bool> onThemeChanged; // Função para alterar o tema
+  final ValueChanged<bool>? onThemeChanged; // Tornar opcional
 
-  const HomePage({super.key, required this.isDarkMode, required this.onThemeChanged});
+  const HomePage({super.key, required this.isDarkMode, this.onThemeChanged});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -90,7 +90,7 @@ class _HomePageState extends State<HomePage> {
             MaterialPageRoute(
               builder: (context) => ConfiguracoesPage(
                 isDarkMode: widget.isDarkMode,
-                onThemeChanged: widget.onThemeChanged,
+                onThemeChanged: widget.onThemeChanged ?? (value) {}, // Passa a função ou null
               ),
             ),
           );
