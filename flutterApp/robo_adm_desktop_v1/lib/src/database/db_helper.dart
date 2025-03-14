@@ -10,21 +10,31 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  
+
+  static final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
+      GlobalKey<ScaffoldMessengerState>();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Login SQLite',
       theme: ThemeData(primarySwatch: Colors.blue),
+      scaffoldMessengerKey: _scaffoldMessengerKey,
       home: const LoginPage(),
+    );
+  }
+
+  static void showSnackBar(String message) {
+    _scaffoldMessengerKey.currentState?.showSnackBar(
+      SnackBar(content: Text(message)),
     );
   }
 }
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
-  
+
   @override
   LoginPageState createState() => LoginPageState();
 }
@@ -34,42 +44,23 @@ class LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   Future<void> _login() async {
-    // Capture o BuildContext imediatamente
-    final BuildContext ctx = context as BuildContext;
     final String username = _usernameController.text.trim();
     final String password = _passwordController.text.trim();
 
-    // Verifica se os campos foram preenchidos
     if (username.isEmpty || password.isEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(ctx).showSnackBar(
-          const SnackBar(content: Text('Preencha os campos!')),
-        );
-      });
+      MyApp.showSnackBar('Preencha os campos!');
       return;
     }
 
-    // Validação do usuário
-    final bool isValid =
-        await DatabaseHelper.instance.validateUser(username, password);
+    final bool isValid = await DatabaseHelper.instance.validateUser(username, password);
 
-    if (!mounted) return;
-
-    // Agendar a exibição do SnackBar para o próximo frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      if (isValid) {
-        ScaffoldMessenger.of(ctx).showSnackBar(
-          const SnackBar(content: Text('Login bem-sucedido!')),
-        );
-        // Aqui você pode navegar para outra tela, se desejar
-      } else {
-        ScaffoldMessenger.of(ctx).showSnackBar(
-          const SnackBar(content: Text('Usuário ou senha incorretos!')),
-        );
-      }
-    });
+    if (isValid) {
+      MyApp.showSnackBar('Login bem-sucedido!');
+      // Aqui você pode navegar para outra tela
+      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomePage()));
+    } else {
+      MyApp.showSnackBar('Usuário ou senha incorretos!');
+    }
   }
 
   @override
@@ -112,7 +103,7 @@ class DatabaseHelper {
     _database = await _initDB();
     return _database!;
   }
-  
+
   Future<Database> _initDB() async {
     final String path = join(await getDatabasesPath(), 'usuarios.db');
     return await openDatabase(
@@ -129,26 +120,22 @@ class DatabaseHelper {
       },
     );
   }
-  
+
   Future<void> initDatabase() async {
     await database;
-    // Usando ConflictAlgorithm.replace para atualizar ou inserir os usuários padrão
     await addUser('admin', '1234');
-    await addUser('joao', '456456'); // Cria ou atualiza o usuário "joao"
+    await addUser('joao', 'joao132');
   }
-  
+
   Future<void> addUser(String username, String password) async {
     final db = await database;
     await db.insert(
       'usuarios',
-      {
-        'username': username,
-        'password': password,
-      },
+      {'username': username, 'password': password},
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
-  
+
   Future<bool> validateUser(String username, String password) async {
     final db = await database;
     final List<Map<String, dynamic>> result = await db.query(

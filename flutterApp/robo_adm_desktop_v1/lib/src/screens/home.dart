@@ -28,33 +28,33 @@ class _HomePageState extends State<HomePage> {
       PaneItem(
         icon: const Icon(FluentIcons.home),
         title: const Text('Início'),
-        body: const Center(child: Text('Início')),
+        body: const Center(child: Text('Início')), // Adicionei o corpo do item
       ),
       PaneItemSeparator(),
       PaneItem(
         icon: const Icon(FluentIcons.robot),
         title: const Text('Automação'),
-        body: const Center(child: AutomacaoPage()),
+        body: const AutomacaoPage(), // Adicionei o corpo do item
       ),
       PaneItem(
         icon: const Icon(FluentIcons.compass_n_w),
         title: const Text('GPS'),
-        body: const Center(child: GPSModuleWidget()),
+        body: const GPSModuleWidget(), // Adicionei o corpo do item
       ),
       PaneItem(
         icon: const Icon(FluentIcons.power_button),
         title: const Text('Inicialização'),
-        body: const Center(child: Text('Inicialização')),
+        body: const Center(child: Text('Inicialização')), // Adicionei o corpo do item
       ),
       PaneItem(
         icon: const Icon(FluentIcons.log_remove),
         title: const Text('Log'),
-        body: const LogPage(),
+        body: const LogPage(), // Adicionei o corpo do item
       ),
       PaneItem(
         icon: const Icon(FluentIcons.mobile_selected),
         title: const Text('Mobile'),
-        body: const Center(child: Text('Mobile')),
+        body: const Center(child: Text('Mobile')), // Adicionei o corpo do item
       ),
       PaneItem(
         icon: const Icon(FluentIcons.clipboard_list),
@@ -67,23 +67,23 @@ class _HomePageState extends State<HomePage> {
           onResume: () {
             print('Rotina retomada');
           },
-        ),
+        ), // Adicionei o corpo do item
       ),
       PaneItem(
         icon: const Icon(FluentIcons.communications),
         title: const Text('Sensores'),
-        body: const ControlePage(),
+        body: const ControlePage(), // Adicionei o corpo do item
       ),
       PaneItem(
         icon: const Icon(FluentIcons.waitlist_confirm),
         title: const Text('Status'),
-        body: const StatusPage(),
+        body: const StatusPage(), // Adicionei o corpo do item
       ),
       // Item de navegação para Configurações
       PaneItem(
         icon: const Icon(FluentIcons.settings),
         title: const Text('Configurações'),
-        body: const Center(child: Text('Página de Configurações')),
+        body: const Center(child: Text('Página de Configurações')), // Adicionei o corpo do item
         onTap: () {
           Navigator.push(
             context,
