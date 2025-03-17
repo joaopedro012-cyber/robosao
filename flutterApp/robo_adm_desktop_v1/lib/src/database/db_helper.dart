@@ -1,97 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await DatabaseHelper.instance.initDatabase();
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  static final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
-      GlobalKey<ScaffoldMessengerState>();
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Login SQLite',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      scaffoldMessengerKey: _scaffoldMessengerKey,
-      home: const LoginPage(),
-    );
-  }
-
-  static void showSnackBar(String message) {
-    _scaffoldMessengerKey.currentState?.showSnackBar(
-      SnackBar(content: Text(message)),
-    );
-  }
-}
-
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
-
-  @override
-  LoginPageState createState() => LoginPageState();
-}
-
-class LoginPageState extends State<LoginPage> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  Future<void> _login() async {
-    final String username = _usernameController.text.trim();
-    final String password = _passwordController.text.trim();
-
-    if (username.isEmpty || password.isEmpty) {
-      MyApp.showSnackBar('Preencha os campos!');
-      return;
-    }
-
-    final bool isValid = await DatabaseHelper.instance.validateUser(username, password);
-
-    if (isValid) {
-      MyApp.showSnackBar('Login bem-sucedido!');
-      // Aqui você pode navegar para outra tela
-      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomePage()));
-    } else {
-      MyApp.showSnackBar('Usuário ou senha incorretos!');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _usernameController,
-              decoration: const InputDecoration(labelText: 'Usuário'),
-            ),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Senha'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _login,
-              child: const Text('Entrar'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
@@ -105,7 +12,7 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDB() async {
-    final String path = join(await getDatabasesPath(), 'usuarios.db');
+    const String path = 'C:/Users/joao-/Documents/Github/robo_automacao/flutterApp/robo_adm_desktop_v1/usuarios.db';
     return await openDatabase(
       path,
       version: 1,
@@ -117,23 +24,27 @@ class DatabaseHelper {
             password TEXT
           )
         ''');
+        await _insertDefaultUsers(db);
       },
     );
   }
 
-  Future<void> initDatabase() async {
-    await database;
-    await addUser('admin', '1234');
-    await addUser('joao', 'joao132');
+  Future<void> _insertDefaultUsers(Database db) async {
+    await addUser(db, 'admin', '1234');
+    await addUser(db, 'joao', 'joao132');
   }
 
-  Future<void> addUser(String username, String password) async {
-    final db = await database;
-    await db.insert(
-      'usuarios',
-      {'username': username, 'password': password},
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+  Future<void> addUser(Database db, String username, String password) async {
+    try {
+      await db.insert(
+        'usuarios',
+        {'username': username, 'password': password},
+        conflictAlgorithm: ConflictAlgorithm.ignore, // Evita erro se usuário já existir
+      );
+      print('Usuário adicionado: $username');
+    } catch (e) {
+      print('Erro ao adicionar usuário: $e');
+    }
   }
 
   Future<bool> validateUser(String username, String password) async {
@@ -141,8 +52,25 @@ class DatabaseHelper {
     final List<Map<String, dynamic>> result = await db.query(
       'usuarios',
       where: 'username = ? AND password = ?',
-      whereArgs: [username, password],
+      whereArgs: [username, password.trim()],
     );
-    return result.isNotEmpty;
+    if (result.isNotEmpty) {
+      print('Usuário validado com sucesso!');
+      return true;
+    } else {
+      print('Usuário ou senha incorretos.');
+      return false;
+    }
+  }
+
+  Future<void> initDatabase() async {
+    final db = await database;
+    final List<Map<String, dynamic>> users = await db.query('usuarios');
+    if (users.isEmpty) {
+      print('Nenhum usuário encontrado. Criando usuários padrão...');
+      await _insertDefaultUsers(db);
+    } else {
+      print('Usuários já cadastrados: $users');
+    }
   }
 }

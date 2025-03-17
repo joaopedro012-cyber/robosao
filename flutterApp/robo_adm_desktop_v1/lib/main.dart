@@ -2,15 +2,12 @@ import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart' as flutter_acrylic;
 import 'package:path_provider/path_provider.dart';
-import 'package:robo_adm_desktop_v1/src/database/db_helper.dart';
-// Importa a tela de login
+import 'package:robo_adm_desktop_v1/src/screens/login.dart'; // Corrigido: import da tela de login
 import 'package:robo_adm_desktop_v1/src/widgets/cria_config_json.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:robo_adm_desktop_v1/src/providers/conexao_provider.dart';
-
-// 🟢 Adicionando suporte ao banco de dados SQLite para desktop
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 Future<void> criarPastaDeRotinas() async {
@@ -31,7 +28,6 @@ Future<void> criarPastaDeRotinas() async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 🟢 Inicializa SQLite corretamente para Windows, Linux e macOS
   sqfliteFfiInit();
   databaseFactory = databaseFactoryFfi;
 

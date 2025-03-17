@@ -1,8 +1,15 @@
-import 'package:flutter/material.dart'; 
+import 'package:fluent_ui/fluent_ui.dart';
 import 'package:robo_adm_desktop_v1/src/database/db_helper.dart';
 import 'package:robo_adm_desktop_v1/src/screens/home.dart';
 
-class LoginPageState extends State<LoginPage> {
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -10,66 +17,110 @@ class LoginPageState extends State<LoginPage> {
     final String username = _usernameController.text.trim();
     final String password = _passwordController.text.trim();
 
-    // Verifica se os campos foram preenchidos
     if (username.isEmpty || password.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Preencha os campos!')),
-        );
-      }
+      if (!mounted) return;
+      displayInfoBar(
+        context,
+        builder: (context, close) => InfoBar(
+          title: const Text('Erro'),
+          content: const Text('Preencha os campos!'),
+          severity: InfoBarSeverity.warning,
+          onClose: close,
+        ),
+      );
       return;
     }
 
-    // Validação do usuário
     final bool isValid = await DatabaseHelper.instance.validateUser(username, password);
 
-    if (mounted) { // Verifica se o widget ainda está montado antes de usar o BuildContext
-      if (isValid) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login bem-sucedido!')),
-        );
+    if (!mounted) return;
 
-        // Navegue para a próxima tela (ex: HomePage)
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomePage(
-              isDarkMode: false, // Adicione um valor para 'isDarkMode'
-            ),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Usuário ou senha incorretos!')),
-        );
-      }
+    if (isValid) {
+      displayInfoBar(
+        context,
+        builder: (context, close) => InfoBar(
+          title: const Text('Sucesso'),
+          content: const Text('Login bem-sucedido!'),
+          severity: InfoBarSeverity.success,
+          onClose: close,
+        ),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        FluentPageRoute(
+          builder: (context) => const HomePage(isDarkMode: false),
+        ),
+      );
+    } else {
+      displayInfoBar(
+        context,
+        builder: (context, close) => InfoBar(
+          title: const Text('Erro'),
+          content: const Text('Usuário ou senha incorretos!'),
+          severity: InfoBarSeverity.error,
+          onClose: close,
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _usernameController,
-              decoration: const InputDecoration(labelText: 'Usuário'),
+    return ScaffoldPage(
+      content: Center(
+        child: Container(
+          width: 400,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF4A00E0), // Roxo
+                Color(0xFF8E2DE2), // Roxo Claro
+              ],
+              stops: [0.2, 0.8],
             ),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Senha'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _login,
-              child: const Text('Entrar'),
-            ),
-          ],
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white.withValues()),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blue.withValues(),
+                blurRadius: 20,
+                spreadRadius: 5,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Acesso Futurista',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextBox(
+                controller: _usernameController,
+                placeholder: 'Usuário',
+              ),
+              const SizedBox(height: 10),
+              TextBox(
+                controller: _passwordController,
+                placeholder: 'Senha',
+                obscureText: true,
+              ),
+              const SizedBox(height: 20),
+              FilledButton(
+                onPressed: _login,
+                child: const Text('Entrar'),
+              ),
+            ],
+          ),
         ),
       ),
     );
