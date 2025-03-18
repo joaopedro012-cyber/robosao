@@ -7,6 +7,7 @@ import 'package:robo_adm_desktop_v1/src/screens/gps_module.dart';
 import 'package:robo_adm_desktop_v1/src/screens/log_module.dart';
 import 'package:robo_adm_desktop_v1/src/screens/status_module.dart';
 import 'package:robo_adm_desktop_v1/src/screens/settings_page.dart';
+import 'package:robo_adm_desktop_v1/src/screens/login.dart';
 
 class HomePage extends StatefulWidget {
   final bool isDarkMode; // Modo escuro
@@ -25,74 +26,106 @@ class _HomePageState extends State<HomePage> {
   // Função para gerar a lista de itens de navegação
   List<NavigationPaneItem> _getNavigationItems() {
     return [
+      // Página Inicial
       PaneItem(
         icon: const Icon(FluentIcons.home),
         title: const Text('Início'),
-        body: const Center(child: Text('Início')), // Adicionei o corpo do item
+        body: const Center(child: Text('Início')),
       ),
       PaneItemSeparator(),
+
+      // Página de Automação
       PaneItem(
         icon: const Icon(FluentIcons.robot),
         title: const Text('Automação'),
-        body: const AutomacaoPage(), // Adicionei o corpo do item
+        body: const AutomacaoPage(),
       ),
+
+      // Página de GPS
       PaneItem(
         icon: const Icon(FluentIcons.compass_n_w),
         title: const Text('GPS'),
-        body: const GPSModuleWidget(), // Adicionei o corpo do item
+        body: const GPSModuleWidget(),
       ),
+
+      // Página de Inicialização
       PaneItem(
         icon: const Icon(FluentIcons.power_button),
         title: const Text('Inicialização'),
-        body: const Center(child: Text('Inicialização')), // Adicionei o corpo do item
+        body: const Center(child: Text('Inicialização')),
       ),
+
+      // Página de Log
       PaneItem(
         icon: const Icon(FluentIcons.log_remove),
         title: const Text('Log'),
-        body: const LogPage(), // Adicionei o corpo do item
+        body: const LogPage(),
       ),
+
+      // Página Mobile
       PaneItem(
         icon: const Icon(FluentIcons.mobile_selected),
         title: const Text('Mobile'),
-        body: const Center(child: Text('Mobile')), // Adicionei o corpo do item
+        body: const Center(child: Text('Mobile')),
       ),
+
+      // Página de Rotinas
       PaneItem(
         icon: const Icon(FluentIcons.clipboard_list),
         title: const Text('Rotinas'),
         body: RotinasPage(
-          conexaoAtiva: true, // Parâmetro de conexão
+          conexaoAtiva: true,
           onPause: () {
             print('Rotina pausada');
           },
           onResume: () {
             print('Rotina retomada');
           },
-        ), // Adicionei o corpo do item
+        ),
       ),
+
+      // Página de Sensores
       PaneItem(
         icon: const Icon(FluentIcons.communications),
         title: const Text('Sensores'),
-        body: const ControlePage(), // Adicionei o corpo do item
+        body: const ControlePage(),
       ),
+
+      // Página de Status
       PaneItem(
         icon: const Icon(FluentIcons.waitlist_confirm),
         title: const Text('Status'),
-        body: const StatusPage(), // Adicionei o corpo do item
+        body: const StatusPage(),
       ),
-      // Item de navegação para Configurações
+
+      // Página de Configurações
       PaneItem(
         icon: const Icon(FluentIcons.settings),
         title: const Text('Configurações'),
-        body: const Center(child: Text('Página de Configurações')), // Adicionei o corpo do item
+        body: const Center(child: Text('Página de Configurações')),
         onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ConfiguracoesPage(
                 isDarkMode: widget.isDarkMode,
-                onThemeChanged: widget.onThemeChanged ?? (value) {}, // Passa a função ou null
+                onThemeChanged: widget.onThemeChanged ?? (value) {},
               ),
             ),
+          );
+        },
+      ),
+      PaneItemSeparator(),
+
+      // Página de Sair
+      PaneItem(
+        icon: const Icon(FluentIcons.sign_out),
+        title: const Text('Sair'),
+        body: const Center(child: Text('Saindo...')), // Adicionando um corpo obrigatório
+        onTap: () {
+          Navigator.pushReplacement(
+            context,
+            FluentPageRoute(builder: (context) => const LoginPage()),
           );
         },
       ),
