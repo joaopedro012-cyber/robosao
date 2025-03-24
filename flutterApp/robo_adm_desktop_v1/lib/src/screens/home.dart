@@ -7,6 +7,7 @@ import 'package:robo_adm_desktop_v1/src/screens/gps_module.dart';
 import 'package:robo_adm_desktop_v1/src/screens/log_module.dart';
 import 'package:robo_adm_desktop_v1/src/screens/status_module.dart';
 import 'package:robo_adm_desktop_v1/src/screens/settings_page.dart';
+import 'package:robo_adm_desktop_v1/src/screens/login.dart'; // A tela de login
 
 class HomePage extends StatefulWidget {
   final bool isDarkMode; // Modo escuro
@@ -96,7 +97,25 @@ class _HomePageState extends State<HomePage> {
           );
         },
       ),
+      // Item de navegação para "Sair"
+      PaneItem(
+        icon: const Icon(FluentIcons.sign_out),
+        title: const Text('Sair'),
+        body: const SizedBox.shrink(),  // Adiciona um corpo vazio
+        onTap: () {
+          _logout();
+        },
+      ),
     ];
+  }
+
+  // Função para logout e navegação para o menu de login
+  void _logout() {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+      (Route<dynamic> route) => false, // Remove todas as rotas anteriores
+    );
   }
 
   @override
