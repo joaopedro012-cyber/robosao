@@ -218,31 +218,31 @@ class ControlePageState extends State<ControlePage> {
           if (actionDescription.contains('Desligar Tomada 1')) {
             SendBD.acaoBotao1 = actionDescription ;
             SendBD.qtdBotao1 = quantidade;
-            sendBluetoothCommand('Desligar Tomada 1');
+            bluetoothCommand = ("Desligar Tomada 1");
           } else if (actionDescription.contains('Desligar Tomada 2')) {
             SendBD.acaoBotao2 = actionDescription;
             SendBD.qtdBotao2 = quantidade;
-            sendBluetoothCommand('Desligar Tomada 2');
+            bluetoothCommand = ("Desligar Tomada 2");
           }
         } else if (actionDescription.contains('Ligar Tomada')) {
           if (actionDescription.contains('Ligar Tomada 1')) {
             SendBD.acaoBotao1 = actionDescription;
             SendBD.qtdBotao1 = quantidade;
-            sendBluetoothCommand('Ligar Tomada 1');
+            bluetoothCommand = ("Ligar Tomada 1");
           } else if (actionDescription.contains('Ligar Tomada 2')) {
             SendBD.acaoBotao2 = actionDescription;
             SendBD.qtdBotao2 = quantidade;
-            sendBluetoothCommand('Ligar Tomada 2');
+            bluetoothCommand = ("Ligar Tomada 2");
           }
         } else if (actionDescription.contains('Movendo Plataforma: ')) {
           if (actionDescription.contains('Movendo Plataforma: c')) {
             SendBD.acaoPlataforma = actionDescription;
             SendBD.qtdPlataforma = 'c';
-            sendBluetoothCommand('Movendo Plataforma: c');
+            bluetoothCommand = ("Movendo Plataforma: c");
           } else if (actionDescription.contains('Movendo Plataforma: b')) {
             SendBD.acaoPlataforma = actionDescription;
             SendBD.qtdPlataforma = 'b'; 
-            sendBluetoothCommand('Movendo Plataforma: b');
+            bluetoothCommand = ("Movendo Plataforma: b");
           }
         }
         await db.insertAcao(
@@ -260,6 +260,7 @@ class ControlePageState extends State<ControlePage> {
           dtExecucao: DateTime.now().millisecondsSinceEpoch,
         );
         log.info('Ação do robô registrada com sucesso: $actionDescription');
+        sendBluetoothCommand(bluetoothCommand);
       } catch (e) {
         log.severe('Erro ao registrar ação do robô: $e');
       }
