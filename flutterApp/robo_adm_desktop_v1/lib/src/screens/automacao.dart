@@ -128,12 +128,18 @@ class _AutomacaoViewState extends State<AutomacaoView> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Button(
-                    onPressed: conexaoProvider.iniciarConexao,
+                    onPressed: () {
+                      // Chama o método para iniciar a conexão
+                      conexaoProvider.iniciarConexao();
+                    },
                     child: const Text('Iniciar Conexão'),
                   ),
                   const SizedBox(width: 16),
                   Button(
-                    onPressed: conexaoProvider.fecharConexao,
+                    onPressed: () {
+                      // Chama o método para fechar a conexão
+                      conexaoProvider.fecharConexao();
+                    },
                     child: const Text('Fechar Conexão'),
                   ),
                 ],

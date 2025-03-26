@@ -27,14 +27,18 @@ class ConexaoProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  String? obterPortaSelecionada(String objeto) {
+    return configuracoesPortas[objeto];
+  }
+
   void iniciarConexao() {
     try {
       bool algumaConexaoBemSucedida = false;
 
       configuracoesPortas.forEach((key, value) {
-        if (value != null && value.isNotEmpty) {
+        if ((value ?? '').isNotEmpty) {
           try {
-            porta = SerialPort(value);
+            porta = SerialPort(value!);
             inicializadorSerialPort(porta);
             statusConexao[key] = true;
             algumaConexaoBemSucedida = true;
@@ -58,7 +62,6 @@ class ConexaoProvider extends ChangeNotifier {
         porta.close();
         conexaoAtiva = false;
         statusConexao.updateAll((key, value) => false);
-        configuracoesPortas.updateAll((key, value) => null);
         notifyListeners();
       }
     } catch (e) {

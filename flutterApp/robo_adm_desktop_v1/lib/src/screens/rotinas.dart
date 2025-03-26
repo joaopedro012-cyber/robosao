@@ -1,14 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:fluent_ui/fluent_ui.dart' as fui;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
+import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:robo_adm_desktop_v1/src/providers/conexao_provider.dart';
 
 class RotinasPage extends StatefulWidget {
   final bool conexaoAtiva;
-  final Function onPause;
-  final Function onResume;
+  final VoidCallback onPause;
+  final VoidCallback onResume;
 
   const RotinasPage({
     super.key,
@@ -18,42 +20,19 @@ class RotinasPage extends StatefulWidget {
   });
 
   @override
-  RotinasPageState createState() => RotinasPageState();
+  State<RotinasPage> createState() => _RotinasPageState();
 }
 
-class RotinasPageState extends State<RotinasPage> {
+class _RotinasPageState extends State<RotinasPage> {
   List<PlatformFile>? _paths;
-  bool isPaused = false;
-  String? _rotinaTexto; // Armazena o conteúdo do JSON selecionado
-  Map<String, dynamic>? _rotina; // Armazena a rotina em formato de mapa
-
-  void _logException(String message) {
-    print(message);
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(
-            color: Colors.white,
-          ),
-        ),
-      ),
-    );
-  }
+  Map<String, dynamic>? _rotina;
+  bool isExecuting = false;
 
   void _selecionaArquivos() async {
-    _resetState();
     try {
       _paths = (await FilePicker.platform.pickFiles(
-        compressionQuality: 30,
         type: FileType.custom,
-        allowMultiple: false,
-        onFileLoading: (FilePickerStatus status) => print(status),
         allowedExtensions: ['json'],
-        dialogTitle: "Selecione o Arquivo de Rotina",
-        initialDirectory: "C:\\",
-        lockParentWindow: false,
       ))?.files;
 
       if (_paths != null && _paths!.isNotEmpty) {
@@ -62,72 +41,65 @@ class RotinasPageState extends State<RotinasPage> {
         final rotina = jsonDecode(content);
 
         setState(() {
-          _rotinaTexto = jsonEncode(rotina); // Atualiza o estado para exibir no Expander
-          _rotina = rotina; // Armazena a rotina para execução posterior
+          _rotina = rotina;
         });
 
-        print("Rotina carregada: $_rotinaTexto");
+        print("Rotina carregada: $_rotina");
       }
-    } on PlatformException catch (e) {
-      _logException('Unsupported operation: ${e.toString()}');
     } catch (e) {
-      _logException(e.toString());
+      print('Erro ao selecionar arquivo: ${e.toString()}');
     }
   }
 
-  // Função para executar a rotina
-  void _executarRotina() {
-    if (_rotina != null && widget.conexaoAtiva && !isPaused) {
-      if (_rotina!['acoes'] != null && _rotina!['acoes'] is List) {
-        for (var acao in _rotina!['acoes']) {
-          if (isPaused) break;
-
-          final comando = acao['comando'];
-          final duracao = acao['duracao'];
-
-          print("Executando comando: $comando por $duracao ms");
-
-          Future.delayed(Duration(milliseconds: duracao), () {
-            if (!isPaused) {
-              print("Comando $comando concluído");
-            }
-          });
-        }
-      } else {
-        print("Formato de rotina inválido. 'acoes' não encontrado.");
-      }
-    } else {
-      _logException('Conexão não estabelecida ou rotina pausada.');
+  void _executarRotina(ConexaoProvider conexaoProvider) async {
+    if (_rotina == null) {
+      print("Nenhuma rotina carregada.");
+      return;
     }
-  }
 
-  // Função para pausar a rotina
-  void pauseRoutine() {
+    // Supondo que o método requer um identificador de dispositivo ou similar
+    String? portaSelecionada = conexaoProvider.obterPortaSelecionada('identificador_necessario');
+    if (portaSelecionada == null) {
+      print("Erro: Nenhuma porta COM foi selecionada!");
+      return;
+    }
+
+    final port = SerialPort(portaSelecionada);
+    if (!port.openReadWrite()) {
+      print("Erro: Não foi possível abrir a porta $portaSelecionada");
+      return;
+    }
+
     setState(() {
-      isPaused = true;
+      isExecuting = true;
     });
+
     widget.onPause();
-  }
 
-  // Função para retomar a rotina
-  void resumeRoutine() {
+    for (var acao in _rotina!['acoes']) {
+      String comando = acao['comando'];
+      int duracao = acao['duracao'];
+
+      print("Enviando comando: $comando por $duracao ms");
+
+      port.write(utf8.encode('$comando\n'));
+      await Future.delayed(Duration(milliseconds: duracao));
+    }
+
+    port.close();
+
     setState(() {
-      isPaused = false;
+      isExecuting = false;
     });
+
     widget.onResume();
-  }
 
-  void _resetState() {
-    setState(() {
-      _paths = null;
-      _rotinaTexto = null;
-      _rotina = null;
-    });
+    print("Rotina finalizada!");
   }
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
+    final conexaoProvider = Provider.of<ConexaoProvider>(context);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Gerenciamento de Rotinas')),
@@ -137,45 +109,32 @@ class RotinasPageState extends State<RotinasPage> {
           children: [
             Row(
               children: [
-                SizedBox(
-                  width: screenWidth * 0.27,
-                  child: fui.TextBox(
+                Expanded(
+                  child: fluent.TextBox(
                     readOnly: true,
-                    placeholder: _rotinaTexto != null
+                    placeholder: _rotina != null
                         ? 'Rotina Selecionada'
-                        : 'Selecione a Rotina.json',
-                    style: const TextStyle(fontSize: 16),
+                        : 'Selecione um arquivo JSON',
                   ),
                 ),
-                SizedBox(
-                  width: screenWidth * 0.08,
-                  child: FilledButton(
-                    onPressed: _selecionaArquivos,
-                    child: const Text('Selecionar'),
-                  ),
+                const SizedBox(width: 10),
+                fluent.FilledButton(
+                  onPressed: _selecionaArquivos,
+                  child: const Text('Selecionar Rotina'),
                 ),
               ],
             ),
             const SizedBox(height: 20),
-            SizedBox(
-              width: screenWidth * 0.35,
-              child: fui.Expander(
+            if (_rotina != null)
+              fluent.Expander(
                 header: const Text('Rotina Selecionada'),
-                content: SizedBox(
-                  height: 300,
-                  child: SingleChildScrollView(
-                    child: Text(
-                      _rotinaTexto ?? 'Nenhuma rotina carregada.',
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                  ),
-                ),
+                content: Text(jsonEncode(_rotina), style: const TextStyle(fontSize: 14)),
               ),
-            ),
             const SizedBox(height: 20),
-            // Botão para executar a rotina
-            FilledButton(
-              onPressed: _executarRotina,
+            fluent.FilledButton(
+              onPressed: (_rotina != null && conexaoProvider.obterPortaSelecionada('identificador_necessario') != null)
+                  ? () => _executarRotina(conexaoProvider)
+                  : null,
               child: const Text('Iniciar Execução'),
             ),
           ],
