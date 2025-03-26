@@ -6,7 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 
 class RotinasPage extends StatefulWidget {
-  final bool conexaoAtiva; // Receberá o estado da conexão
+  final bool conexaoAtiva;
   final Function onPause;
   final Function onResume;
 
@@ -23,7 +23,9 @@ class RotinasPage extends StatefulWidget {
 
 class RotinasPageState extends State<RotinasPage> {
   List<PlatformFile>? _paths;
-  bool isPaused = false; // Controle para verificar se a rotina está pausada
+  bool isPaused = false;
+  String? _rotinaTexto; // Armazena o conteúdo do JSON selecionado
+  Map<String, dynamic>? _rotina; // Armazena a rotina em formato de mapa
 
   void _logException(String message) {
     print(message);
@@ -40,7 +42,6 @@ class RotinasPageState extends State<RotinasPage> {
     );
   }
 
-  // Função para selecionar e carregar arquivos
   void _selecionaArquivos() async {
     _resetState();
     try {
@@ -60,14 +61,12 @@ class RotinasPageState extends State<RotinasPage> {
         final content = await file.readAsString();
         final rotina = jsonDecode(content);
 
-        print("Rotina carregada: $rotina");
+        setState(() {
+          _rotinaTexto = jsonEncode(rotina); // Atualiza o estado para exibir no Expander
+          _rotina = rotina; // Armazena a rotina para execução posterior
+        });
 
-        // Iniciar a execução da rotina se a conexão estiver ativa
-        if (widget.conexaoAtiva && !isPaused) {
-          _executarRotina(rotina);
-        } else {
-          _logException('Conexão não estabelecida ou rotina pausada.');
-        }
+        print("Rotina carregada: $_rotinaTexto");
       }
     } on PlatformException catch (e) {
       _logException('Unsupported operation: ${e.toString()}');
@@ -77,26 +76,28 @@ class RotinasPageState extends State<RotinasPage> {
   }
 
   // Função para executar a rotina
-  void _executarRotina(Map<String, dynamic> rotina) {
-    if (rotina['acoes'] != null && rotina['acoes'] is List) {
-      for (var acao in rotina['acoes']) {
-        if (isPaused) break; // Pausar a execução quando necessário
+  void _executarRotina() {
+    if (_rotina != null && widget.conexaoAtiva && !isPaused) {
+      if (_rotina!['acoes'] != null && _rotina!['acoes'] is List) {
+        for (var acao in _rotina!['acoes']) {
+          if (isPaused) break;
 
-        final comando = acao['comando'];
-        final duracao = acao['duracao'];
+          final comando = acao['comando'];
+          final duracao = acao['duracao'];
 
-        print("Executando comando: $comando por $duracao ms");
+          print("Executando comando: $comando por $duracao ms");
 
-        // Simula o envio do comando ao robô
-        // Substitua pelo código real de envio, por exemplo: bluetooth.send(comando);
-        Future.delayed(Duration(milliseconds: duracao), () {
-          if (!isPaused) {
-            print("Comando $comando concluído");
-          }
-        });
+          Future.delayed(Duration(milliseconds: duracao), () {
+            if (!isPaused) {
+              print("Comando $comando concluído");
+            }
+          });
+        }
+      } else {
+        print("Formato de rotina inválido. 'acoes' não encontrado.");
       }
     } else {
-      print("Formato de rotina inválido. 'acoes' não encontrado.");
+      _logException('Conexão não estabelecida ou rotina pausada.');
     }
   }
 
@@ -105,7 +106,7 @@ class RotinasPageState extends State<RotinasPage> {
     setState(() {
       isPaused = true;
     });
-    widget.onPause(); // Notificar a pausa para o `SensoresPage`
+    widget.onPause();
   }
 
   // Função para retomar a rotina
@@ -113,12 +114,14 @@ class RotinasPageState extends State<RotinasPage> {
     setState(() {
       isPaused = false;
     });
-    widget.onResume(); // Notificar para retomar a rotina
+    widget.onResume();
   }
 
   void _resetState() {
     setState(() {
       _paths = null;
+      _rotinaTexto = null;
+      _rotina = null;
     });
   }
 
@@ -136,12 +139,12 @@ class RotinasPageState extends State<RotinasPage> {
               children: [
                 SizedBox(
                   width: screenWidth * 0.27,
-                  child: const fui.TextBox(
+                  child: fui.TextBox(
                     readOnly: true,
-                    placeholder: 'Selecione a Rotina.json',
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
+                    placeholder: _rotinaTexto != null
+                        ? 'Rotina Selecionada'
+                        : 'Selecione a Rotina.json',
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
                 SizedBox(
@@ -156,15 +159,24 @@ class RotinasPageState extends State<RotinasPage> {
             const SizedBox(height: 20),
             SizedBox(
               width: screenWidth * 0.35,
-              child: const fui.Expander(
-                header: Text('Selecione a Rotina'),
+              child: fui.Expander(
+                header: const Text('Rotina Selecionada'),
                 content: SizedBox(
                   height: 300,
                   child: SingleChildScrollView(
-                    child: Text('Texto longo aqui'),
+                    child: Text(
+                      _rotinaTexto ?? 'Nenhuma rotina carregada.',
+                      style: const TextStyle(fontSize: 14),
+                    ),
                   ),
                 ),
               ),
+            ),
+            const SizedBox(height: 20),
+            // Botão para executar a rotina
+            FilledButton(
+              onPressed: _executarRotina,
+              child: const Text('Iniciar Execução'),
             ),
           ],
         ),
