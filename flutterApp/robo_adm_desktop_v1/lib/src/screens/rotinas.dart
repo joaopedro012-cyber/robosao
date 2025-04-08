@@ -1,3 +1,4 @@
+// rotinas_page.dart
 import 'dart:convert';
 import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
@@ -24,77 +25,57 @@ class RotinasPage extends StatefulWidget {
 }
 
 class _RotinasPageState extends State<RotinasPage> {
-  List<PlatformFile>? _paths;
   Map<String, dynamic>? _rotina;
-  bool isExecuting = false;
 
   void _selecionaArquivos() async {
-    try {
-      _paths = (await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-      ))?.files;
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (result != null) {
+      final file = File(result.files.first.path!);
+      final jsonContent = jsonDecode(await file.readAsString());
 
-      if (_paths != null && _paths!.isNotEmpty) {
-        final file = File(_paths!.first.path!);
-        final content = await file.readAsString();
-        final rotina = jsonDecode(content);
+      setState(() {
+        _rotina = jsonContent;
+      });
 
-        setState(() {
-          _rotina = rotina;
-        });
-
-        print("Rotina carregada: $_rotina");
-      }
-    } catch (e) {
-      print('Erro ao selecionar arquivo: ${e.toString()}');
+      print("Rotina carregada: $_rotina");
     }
   }
 
   void _executarRotina(ConexaoProvider conexaoProvider) async {
-    if (_rotina == null) {
-      print("Nenhuma rotina carregada.");
+    if (_rotina == null || _rotina!['acoes'] == null) {
+      print("Rotina inválida ou não carregada.");
       return;
     }
 
-    // Supondo que o método requer um identificador de dispositivo ou similar
-    String? portaSelecionada = conexaoProvider.obterPortaSelecionada('identificador_necessario');
-    if (portaSelecionada == null) {
-      print("Erro: Nenhuma porta COM foi selecionada!");
+    final porta = conexaoProvider.obterPortaSelecionada('identificador_necessario');
+    if (porta == null || !SerialPort.availablePorts.contains(porta)) {
+      print("Porta serial não encontrada ou não conectada.");
       return;
     }
 
-    final port = SerialPort(portaSelecionada);
-    if (!port.openReadWrite()) {
-      print("Erro: Não foi possível abrir a porta $portaSelecionada");
+    final serialPort = SerialPort(porta);
+    if (!serialPort.openReadWrite()) {
+      print("Erro ao abrir porta $porta.");
       return;
     }
-
-    setState(() {
-      isExecuting = true;
-    });
 
     widget.onPause();
 
     for (var acao in _rotina!['acoes']) {
-      String comando = acao['comando'];
-      int duracao = acao['duracao'];
+      final comando = acao['comando'];
+      final duracao = acao['duracao'];
 
-      print("Enviando comando: $comando por $duracao ms");
-
-      port.write(utf8.encode('$comando\n'));
+      print("Comando: $comando | Duração: $duracao ms");
+      serialPort.write(utf8.encode('$comando\n'));
       await Future.delayed(Duration(milliseconds: duracao));
     }
 
-    port.close();
-
-    setState(() {
-      isExecuting = false;
-    });
-
+    serialPort.close();
     widget.onResume();
-
-    print("Rotina finalizada!");
+    print("Rotina finalizada com sucesso!");
   }
 
   @override
@@ -104,7 +85,7 @@ class _RotinasPageState extends State<RotinasPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Gerenciamento de Rotinas')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             Row(
@@ -113,7 +94,7 @@ class _RotinasPageState extends State<RotinasPage> {
                   child: fluent.TextBox(
                     readOnly: true,
                     placeholder: _rotina != null
-                        ? 'Rotina Selecionada'
+                        ? 'Rotina carregada'
                         : 'Selecione um arquivo JSON',
                   ),
                 ),
@@ -127,12 +108,12 @@ class _RotinasPageState extends State<RotinasPage> {
             const SizedBox(height: 20),
             if (_rotina != null)
               fluent.Expander(
-                header: const Text('Rotina Selecionada'),
-                content: Text(jsonEncode(_rotina), style: const TextStyle(fontSize: 14)),
+                header: const Text('Conteúdo da Rotina'),
+                content: Text(jsonEncode(_rotina), style: const TextStyle(fontSize: 12)),
               ),
             const SizedBox(height: 20),
             fluent.FilledButton(
-              onPressed: (_rotina != null && conexaoProvider.obterPortaSelecionada('identificador_necessario') != null)
+              onPressed: conexaoProvider.obterPortaSelecionada('identificador_necessario') != null
                   ? () => _executarRotina(conexaoProvider)
                   : null,
               child: const Text('Iniciar Execução'),

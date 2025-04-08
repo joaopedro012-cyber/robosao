@@ -1,26 +1,26 @@
-import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/material.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/material.dart' as material;
 import 'package:provider/provider.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:robo_adm_desktop_v1/src/providers/conexao_provider.dart';
 
-class AutomacaoPage extends StatelessWidget {
+class AutomacaoPage extends fluent.StatelessWidget {
   const AutomacaoPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  fluent.Widget build(fluent.BuildContext context) {
     return const AutomacaoView();
   }
 }
 
-class AutomacaoView extends StatefulWidget {
+class AutomacaoView extends fluent.StatefulWidget {
   const AutomacaoView({super.key});
 
   @override
-  State<AutomacaoView> createState() => _AutomacaoViewState();
+  fluent.State<AutomacaoView> createState() => _AutomacaoViewState();
 }
 
-class _AutomacaoViewState extends State<AutomacaoView> {
+class _AutomacaoViewState extends fluent.State<AutomacaoView> {
   List<String> portasDisponiveis = [];
 
   @override
@@ -30,127 +30,91 @@ class _AutomacaoViewState extends State<AutomacaoView> {
   }
 
   void _listarPortasDisponiveis() {
-    final listaPortas = SerialPort.availablePorts;
     setState(() {
-      portasDisponiveis = listaPortas;
+      portasDisponiveis = SerialPort.availablePorts;
     });
   }
 
   @override
-  Widget build(BuildContext context) {
+  fluent.Widget build(fluent.BuildContext context) {
     final conexaoProvider = Provider.of<ConexaoProvider>(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Automação de Robô'),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 16.0,
-                  mainAxisSpacing: 16.0,
-                  childAspectRatio: 3 / 2,
-                ),
-                itemCount: conexaoProvider.configuracoesPortas.keys.length,
-                itemBuilder: (context, index) {
-                  String objetoAutomacao =
-                      conexaoProvider.configuracoesPortas.keys.elementAt(index);
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3F2F1),
-                      borderRadius: BorderRadius.circular(8.0),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color(0x1A000000),
-                          blurRadius: 8.0,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+    return material.Scaffold(
+      appBar: material.AppBar(title: const material.Text('Automação de Robô')),
+      body: material.Padding(
+        padding: const material.EdgeInsets.all(16.0),
+        child: material.Column(
+          children: [
+            material.GridView.builder(
+              shrinkWrap: true,
+              physics: const material.NeverScrollableScrollPhysics(),
+              itemCount: conexaoProvider.configuracoesPortas.keys.length,
+              gridDelegate: const material.SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                childAspectRatio: 3 / 2,
+                mainAxisSpacing: 16.0,
+                crossAxisSpacing: 16.0,
+              ),
+              itemBuilder: (context, index) {
+                final chave = conexaoProvider.configuracoesPortas.keys.elementAt(index);
+                return material.Card(
+                  child: material.Padding(
+                    padding: const material.EdgeInsets.all(8),
+                    child: material.Column(
+                      crossAxisAlignment: material.CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          '$objetoAutomacao:',
-                          style: FluentTheme.of(context).typography.subtitle,
+                        material.Text(
+                          '$chave:',
+                          style: const material.TextStyle(fontWeight: material.FontWeight.bold),
                         ),
-                        DropdownButton<String>(
-                          value: conexaoProvider.configuracoesPortas[objetoAutomacao],
-                          onChanged: (novaPorta) {
-                            conexaoProvider.alterarConfiguracaoPorta(
-                                objetoAutomacao, novaPorta);
+                        material.DropdownButton<String>(
+                          value: conexaoProvider.configuracoesPortas[chave],
+                          hint: const material.Text('Selecione a porta'),
+                          items: portasDisponiveis.map((porta) {
+                            return material.DropdownMenuItem(
+                              value: porta,
+                              child: material.Text(porta),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            conexaoProvider.alterarConfiguracaoPorta(chave, value);
                           },
-                          hint: const Text('Selecione a porta'),
-                          items: portasDisponiveis.isEmpty
-                              ? [
-                                  const DropdownMenuItem<String>(
-                                    value: null,
-                                    child: Text('Nenhuma porta disponível'),
-                                  )
-                                ]
-                              : [
-                                  const DropdownMenuItem<String>(
-                                    value: null,
-                                    child: Text('Nenhuma porta selecionada'),
-                                  ),
-                                  ...portasDisponiveis.map((porta) {
-                                    return DropdownMenuItem<String>(
-                                      value: porta,
-                                      child: Text(porta),
-                                    );
-                                  }),
-                                ],
                         ),
-                        Icon(
-                          conexaoProvider.statusConexao[objetoAutomacao] == true
-                              ? FluentIcons.accept
-                              : FluentIcons.cancel,
-                          color: conexaoProvider.statusConexao[objetoAutomacao] == true
-                              ? const Color(0xFF107C10)
-                              : const Color(0xFFE81123),
+                        material.Icon(
+                          conexaoProvider.statusConexao[chave] == true
+                              ? fluent.FluentIcons.accept
+                              : fluent.FluentIcons.cancel,
+                          color: conexaoProvider.statusConexao[chave] == true
+                              ? material.Colors.green
+                              : material.Colors.red,
                         ),
                       ],
                     ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Button(
-                    onPressed: () {
-                      // Chama o método para iniciar a conexão
-                      conexaoProvider.iniciarConexao();
-                    },
-                    child: const Text('Iniciar Conexão'),
                   ),
-                  const SizedBox(width: 16),
-                  Button(
-                    onPressed: () {
-                      // Chama o método para fechar a conexão
-                      conexaoProvider.fecharConexao();
-                    },
-                    child: const Text('Fechar Conexão'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-              Button(
-                onPressed: _listarPortasDisponiveis,
-                child: const Text('Atualizar Lista de Portas COM'),
-              ),
-            ],
-          ),
+                );
+              },
+            ),
+            const material.SizedBox(height: 20),
+            material.Row(
+              mainAxisAlignment: material.MainAxisAlignment.center,
+              children: [
+                fluent.Button(
+                  onPressed: conexaoProvider.iniciarConexao,
+                  child: const fluent.Text('Iniciar Conexão'),
+                ),
+                const material.SizedBox(width: 16),
+                fluent.Button(
+                  onPressed: conexaoProvider.fecharConexao,
+                  child: const fluent.Text('Fechar Conexão'),
+                ),
+              ],
+            ),
+            const material.SizedBox(height: 20),
+            fluent.Button(
+              onPressed: _listarPortasDisponiveis,
+              child: const fluent.Text('Atualizar Lista de Portas COM'),
+            ),
+          ],
         ),
       ),
     );
