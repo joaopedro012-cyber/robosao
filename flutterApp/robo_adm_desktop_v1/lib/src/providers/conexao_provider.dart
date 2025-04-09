@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 
@@ -18,8 +20,9 @@ class ConexaoProvider extends ChangeNotifier {
     'Botões Plataforma': false,
   };
 
-  bool conexaoAtiva = false;
-  late SerialPort porta;
+  final Map<String, SerialPort> portasAtivas = {};
+
+  bool get conexaoAtiva => statusConexao.values.any((status) => status);
 
   void alterarConfiguracaoPorta(String objeto, String? novaPorta) {
     configuracoesPortas[objeto] = novaPorta;
@@ -31,45 +34,84 @@ class ConexaoProvider extends ChangeNotifier {
     return configuracoesPortas[objeto];
   }
 
-  void iniciarConexao() {
-    try {
-      bool algumaConexaoBemSucedida = false;
+  Future<void> iniciarConexao() async {
+    for (var entrada in configuracoesPortas.entries) {
+      final key = entrada.key;
+      final portaSelecionada = entrada.value;
 
-      configuracoesPortas.forEach((key, value) {
-        if ((value ?? '').isNotEmpty) {
-          try {
-            porta = SerialPort(value!);
-            inicializadorSerialPort(porta);
-            statusConexao[key] = true;
-            algumaConexaoBemSucedida = true;
-          } catch (e) {
-            statusConexao[key] = false;
-            if (kDebugMode) print("Erro ao conectar na porta $key: $e");
+      if ((portaSelecionada ?? '').isNotEmpty) {
+        try {
+          final porta = SerialPort(portaSelecionada!);
+          if (!porta.isOpen) {
+            porta.open(mode: SerialPortMode.readWrite);
+          }
+
+          portasAtivas[key] = porta;
+          statusConexao[key] = true;
+
+        } catch (e) {
+          statusConexao[key] = false;
+          if (kDebugMode) {
+            print('Erro ao conectar na porta [$key] ($portaSelecionada): $e');
           }
         }
-      });
-
-      conexaoAtiva = algumaConexaoBemSucedida;
-      notifyListeners();
-    } catch (e) {
-      if (kDebugMode) print('Erro ao iniciar conexão: $e');
+      }
     }
+
+    notifyListeners();
   }
 
   void fecharConexao() {
-    try {
-      if (conexaoAtiva) {
-        porta.close();
-        conexaoAtiva = false;
-        statusConexao.updateAll((key, value) => false);
-        notifyListeners();
+    for (var entry in portasAtivas.entries) {
+      final key = entry.key;
+      final porta = entry.value;
+
+      if (porta.isOpen) {
+        try {
+          porta.close();
+        } catch (e) {
+          if (kDebugMode) {
+            print('Erro ao fechar porta [$key]: $e');
+          }
+        }
       }
-    } catch (e) {
-      if (kDebugMode) print('Erro ao fechar conexão: $e');
+
+      statusConexao[key] = false;
+    }
+
+    portasAtivas.clear();
+    notifyListeners();
+  }
+
+  Future<void> executarRotina(dynamic rotinaJson) async {
+    // Exemplo de como você poderia distribuir comandos por porta
+    for (var comando in rotinaJson) {
+      final tipo = comando['tipo']; // Ex: "Motores Horizontal"
+      final dados = comando['dados']; // Dados a serem enviados
+
+      final porta = portasAtivas[tipo];
+      if (porta != null && porta.isOpen) {
+        final config = SerialPortConfig()
+          ..baudRate = 9600
+          ..bits = 8
+          ..stopBits = 1
+          ..parity = SerialPortParity.none;
+
+        porta.config = config;
+
+        final writer = porta.write(const Utf8Encoder().convert(dados.toString()));
+        if (writer < 0) {
+          if (kDebugMode) {
+            print('Erro ao escrever para porta [$tipo]');
+          }
+        } else {
+          if (kDebugMode) {
+            print('Comando enviado para [$tipo]: $dados');
+          }
+        }
+
+        // Pode adicionar await Future.delayed(...) aqui se quiser dar intervalo entre comandos
+      }
     }
   }
-}
-
-void inicializadorSerialPort(SerialPort porta) {
-  porta.open(mode: SerialPortMode.readWrite);
 }
