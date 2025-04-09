@@ -1,4 +1,3 @@
-// rotinas_page.dart
 import 'dart:convert';
 import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
@@ -26,6 +25,7 @@ class RotinasPage extends StatefulWidget {
 
 class _RotinasPageState extends State<RotinasPage> {
   Map<String, dynamic>? _rotina;
+  String? _nomeArquivo;
 
   void _selecionaArquivos() async {
     final result = await FilePicker.platform.pickFiles(
@@ -36,9 +36,16 @@ class _RotinasPageState extends State<RotinasPage> {
       final file = File(result.files.first.path!);
       final jsonContent = jsonDecode(await file.readAsString());
 
+      if (!mounted) return; // EVITA usar context se widget foi desmontado
+
       setState(() {
         _rotina = jsonContent;
+        _nomeArquivo = result.files.first.name;
       });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Rotina carregada com sucesso!')),
+      );
 
       print("Rotina carregada: $_rotina");
     }
@@ -50,7 +57,8 @@ class _RotinasPageState extends State<RotinasPage> {
       return;
     }
 
-    final porta = conexaoProvider.obterPortaSelecionada('identificador_necessario');
+    final porta = conexaoProvider.obterPortaSelecionada('porta_horizontal');
+
     if (porta == null || !SerialPort.availablePorts.contains(porta)) {
       print("Porta serial não encontrada ou não conectada.");
       return;
@@ -64,23 +72,28 @@ class _RotinasPageState extends State<RotinasPage> {
 
     widget.onPause();
 
-    for (var acao in _rotina!['acoes']) {
-      final comando = acao['comando'];
-      final duracao = acao['duracao'];
+    try {
+      for (var acao in _rotina!['acoes']) {
+        final comando = acao['comando'];
+        final duracao = acao['duracao'];
 
-      print("Comando: $comando | Duração: $duracao ms");
-      serialPort.write(utf8.encode('$comando\n'));
-      await Future.delayed(Duration(milliseconds: duracao));
+        print("Comando: $comando | Duração: $duracao ms");
+        serialPort.write(utf8.encode('$comando\n'));
+        await Future.delayed(Duration(milliseconds: duracao));
+      }
+    } catch (e) {
+      print("Erro durante execução: $e");
+    } finally {
+      serialPort.close();
+      widget.onResume();
+      print("Rotina finalizada com sucesso!");
     }
-
-    serialPort.close();
-    widget.onResume();
-    print("Rotina finalizada com sucesso!");
   }
 
   @override
   Widget build(BuildContext context) {
     final conexaoProvider = Provider.of<ConexaoProvider>(context);
+    final portaDisponivel = conexaoProvider.obterPortaSelecionada('porta_horizontal') != null;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Gerenciamento de Rotinas')),
@@ -93,9 +106,7 @@ class _RotinasPageState extends State<RotinasPage> {
                 Expanded(
                   child: fluent.TextBox(
                     readOnly: true,
-                    placeholder: _rotina != null
-                        ? 'Rotina carregada'
-                        : 'Selecione um arquivo JSON',
+                    placeholder: _nomeArquivo ?? 'Selecione um arquivo JSON',
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -113,7 +124,7 @@ class _RotinasPageState extends State<RotinasPage> {
               ),
             const SizedBox(height: 20),
             fluent.FilledButton(
-              onPressed: conexaoProvider.obterPortaSelecionada('identificador_necessario') != null
+              onPressed: (_rotina != null && portaDisponivel)
                   ? () => _executarRotina(conexaoProvider)
                   : null,
               child: const Text('Iniciar Execução'),
