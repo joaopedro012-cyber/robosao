@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 
@@ -20,7 +19,7 @@ class ConexaoProvider extends ChangeNotifier {
     'Botões Plataforma': false,
   };
 
-  final Map<String, SerialPort> portasAtivas = {};
+  final Map<String, SerialPort> portasAtivas = {}; // Manter todas as portas ativas
 
   bool get conexaoAtiva => statusConexao.values.any((status) => status);
 
@@ -34,6 +33,7 @@ class ConexaoProvider extends ChangeNotifier {
     return configuracoesPortas[objeto];
   }
 
+  // Inicia a conexão com todos os dispositivos, um por vez
   Future<void> iniciarConexao() async {
     for (var entrada in configuracoesPortas.entries) {
       final key = entrada.key;
@@ -42,7 +42,14 @@ class ConexaoProvider extends ChangeNotifier {
       if ((portaSelecionada ?? '').isNotEmpty) {
         try {
           final porta = SerialPort(portaSelecionada!);
+
           if (!porta.isOpen) {
+            final config = SerialPortConfig()
+              ..baudRate = 9600
+              ..bits = 8
+              ..stopBits = 1
+              ..parity = SerialPortParity.none;
+            porta.config = config;
             porta.open(mode: SerialPortMode.readWrite);
           }
 
@@ -61,6 +68,7 @@ class ConexaoProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Fecha a conexão de todas as portas ativas
   void fecharConexao() {
     for (var entry in portasAtivas.entries) {
       final key = entry.key;
@@ -83,22 +91,14 @@ class ConexaoProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Executa a rotina em todas as portas conectadas
   Future<void> executarRotina(dynamic rotinaJson) async {
-    // Exemplo de como você poderia distribuir comandos por porta
     for (var comando in rotinaJson) {
       final tipo = comando['tipo']; // Ex: "Motores Horizontal"
       final dados = comando['dados']; // Dados a serem enviados
 
-      final porta = portasAtivas[tipo];
+      final porta = portasAtivas[tipo]; // Verifica se a porta está ativa para o tipo
       if (porta != null && porta.isOpen) {
-        final config = SerialPortConfig()
-          ..baudRate = 9600
-          ..bits = 8
-          ..stopBits = 1
-          ..parity = SerialPortParity.none;
-
-        porta.config = config;
-
         final writer = porta.write(const Utf8Encoder().convert(dados.toString()));
         if (writer < 0) {
           if (kDebugMode) {
@@ -110,7 +110,8 @@ class ConexaoProvider extends ChangeNotifier {
           }
         }
 
-        // Pode adicionar await Future.delayed(...) aqui se quiser dar intervalo entre comandos
+        // Você pode adicionar uma pausa entre os comandos, se necessário
+        // await Future.delayed(Duration(milliseconds: 500));
       }
     }
   }
