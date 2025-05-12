@@ -5,8 +5,9 @@ import 'package:flutter_libserialport/flutter_libserialport.dart';
 
 class ArduinoComando {
   late final SerialPort _porta;
+  final int timeoutMs;
 
-  ArduinoComando(String portaName) {
+  ArduinoComando(String portaName, {this.timeoutMs = 3000}) {
     _porta = SerialPort(portaName);
     _porta.config = SerialPortConfig()
       ..baudRate = 9600
@@ -39,7 +40,7 @@ class ArduinoComando {
     }
   }
 
-  Future<bool> _aguardarOK(StringBuffer buffer, {int timeoutMs = 3000}) async {
+  Future<bool> _aguardarOK(StringBuffer buffer) async {
     final start = DateTime.now();
     while (!buffer.toString().contains('OK')) {
       if (DateTime.now().difference(start).inMilliseconds > timeoutMs) {
@@ -69,21 +70,17 @@ class ArduinoComando {
           for (var item in decoded) {
             if (item is Map) {
               final int tempo = (item['tempo'] is int) ? item['tempo'] : 500;
+              final String comandoHorizontal = item['horizontal'] ?? "";
 
-              // Envia todos os comandos do item (exceto 'tempo')
-              for (final entrada in item.entries) {
-                final chave = entrada.key;
-                final valor = entrada.value;
-
-                if (chave == 'tempo' || valor is! String || valor.isEmpty) continue;
-
+              // Envia o comando horizontal
+              if (comandoHorizontal.isNotEmpty) {
                 buffer.clear();
-                enviarComando(valor);
+                enviarComando(comandoHorizontal);
 
                 final sucesso = await _aguardarOK(buffer);
                 if (!sucesso) {
                   if (kDebugMode) {
-                    print('Timeout esperando OK para comando: $valor');
+                    print('Timeout esperando OK para comando: $comandoHorizontal');
                   }
                 }
               }
@@ -106,3 +103,4 @@ class ArduinoComando {
     }
   }
 }
+
