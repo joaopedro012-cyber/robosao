@@ -6,10 +6,12 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+// Classe responsável por obter a localização GPS do dispositivo.
 class GPSModule {
   double latitude = 0.0;
   double longitude = 0.0;
 
+  // Método para coletar os dados de localização do GPS.
   Future<void> coletarDados() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
@@ -29,11 +31,13 @@ class GPSModule {
     longitude = position.longitude;
   }
 
+  // Método para retornar a localização no formato string.
   String obterLocalizacao() {
     return 'Lat: ${latitude.toStringAsFixed(5)}, Lon: ${longitude.toStringAsFixed(5)}';
   }
 }
 
+// Widget principal do módulo GPS, que exibe o mapa e a localização atual.
 class GPSModuleWidget extends StatefulWidget {
   const GPSModuleWidget({super.key});
 
@@ -42,18 +46,18 @@ class GPSModuleWidget extends StatefulWidget {
 }
 
 class GPSModuleWidgetState extends State<GPSModuleWidget> {
-  final GPSModule gpsModule = GPSModule();
-  String localizacao = "Aguardando...";
-  LatLng _currentPosition = const LatLng(0.0, 0.0);
-  final MapController _mapController = MapController();
-  Timer? _inatividadeTimer;
-  Timer? _sonarTimer;
-  bool mostrarSonar = false;
+  final GPSModule gpsModule = GPSModule();  // Instância da classe GPSModule
+  String localizacao = "Aguardando...";  // Texto para exibir a localização
+  LatLng _currentPosition = const LatLng(0.0, 0.0);  // Posição inicial no mapa
+  final MapController _mapController = MapController();  // Controlador do mapa
+  Timer? _inatividadeTimer;  // Timer para inatividade
+  Timer? _sonarTimer;  // Timer para o loop de sonar
+  bool mostrarSonar = false;  // Flag para exibir o sonar
 
   @override
   void initState() {
     super.initState();
-    _iniciarLocalizacao();
+    _iniciarLocalizacao();  // Inicia a coleta da localização ao carregar o widget
   }
 
   @override
@@ -63,21 +67,24 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
     super.dispose();
   }
 
+  // Função para iniciar a coleta de dados de localização e acompanhar mudanças
   Future<void> _iniciarLocalizacao() async {
     try {
       await gpsModule.coletarDados();
       if (mounted) {
         setState(() {
-          localizacao = gpsModule.obterLocalizacao();
+          localizacao = gpsModule.obterLocalizacao();  // Atualiza a localização exibida
           _currentPosition = LatLng(gpsModule.latitude, gpsModule.longitude);
         });
 
+        // Move o mapa para a nova posição
         _mapController.move(_currentPosition, 16.0);
 
+        // Configura a stream para monitorar a posição do GPS continuamente
         Geolocator.getPositionStream(
           locationSettings: const LocationSettings(
             accuracy: LocationAccuracy.high,
-            distanceFilter: 10,
+            distanceFilter: 10,  // Atualiza a posição a cada 10 metros
           ),
         ).listen((Position position) {
           setState(() {
@@ -85,53 +92,57 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
             gpsModule.latitude = position.latitude;
             gpsModule.longitude = position.longitude;
             localizacao = gpsModule.obterLocalizacao();
-            mostrarSonar = false;
+            mostrarSonar = false;  // Desativa o sonar se o GPS for atualizado
           });
 
           _mapController.move(_currentPosition, 16.0);
-          _reiniciarContadorInatividade();
+          _reiniciarContadorInatividade();  // Reinicia o contador de inatividade
         });
       }
     } catch (e) {
       setState(() {
-        localizacao = "Erro: $e";
+        localizacao = "Erro: $e";  // Exibe mensagem de erro, caso haja algum problema
       });
     }
   }
 
+  // Função que reinicia o contador de inatividade
   void _reiniciarContadorInatividade() {
     _inatividadeTimer?.cancel();
     _sonarTimer?.cancel();
 
+    // Se não houver atividade por 30 segundos, ativa o sonar e envia um SMS
     _inatividadeTimer = Timer(const Duration(seconds: 30), () {
       if (mounted) {
         setState(() {
           mostrarSonar = true;
         });
         _iniciarSonarLoop();
-        enviarSMS();
+        enviarSMS();  // Envia SMS de alerta
       }
     });
   }
 
+  // Função para iniciar o loop de sonar
   void _iniciarSonarLoop() {
     _sonarTimer?.cancel();
     _sonarTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
       if (mostrarSonar) {
-        setState(() {});
+        setState(() {});  // Atualiza o estado para redibujar o sonar
       } else {
-        timer.cancel();
+        timer.cancel();  // Cancela o timer quando o sonar não é necessário
       }
     });
   }
 
+  // Função para enviar um SMS de alerta
   Future<void> enviarSMS() async {
-    String username = "jekdenss";
-    String apiKey = "FC9BBD9E-C360-6BB6-5D45-04DE7665DB4D";
-    String toNumber = "+5511939499593";
+    String username = "jekdenss";  // Usuário para autenticação
+    String apiKey = "FC9BBD9E-C360-6BB6-5D45-04DE7665DB4D";  // Chave de API
+    String toNumber = "+5511939499593";  // Número de destino para o SMS
     String message = "Alerta: Robo esta parado, verificar por gentileza. Localização: Lat: ${gpsModule.latitude.toStringAsFixed(5)}, Lon: ${gpsModule.longitude.toStringAsFixed(5)}. Por favor, verifique.";
 
-
+    // Envio do SMS via API ClickSend
     final response = await http.post(
       Uri.parse("https://rest.clicksend.com/v3/sms/send"),
       headers: {
@@ -150,6 +161,7 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
       }),
     );
 
+    // Verifica se o SMS foi enviado com sucesso
     if (response.statusCode == 200) {
       print("SMS enviado com sucesso!");
     } else {
@@ -192,6 +204,7 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
               ),
             ],
           ),
+          // Exibe o efeito de sonar quando necessário
           if (mostrarSonar)
             Positioned.fill(
               child: CustomPaint(
@@ -199,6 +212,7 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
                 child: Container(),
               ),
             ),
+          // Painel inferior com a localização e botão de atualização
           Positioned(
             bottom: 70,
             left: 10,
@@ -225,15 +239,16 @@ class GPSModuleWidgetState extends State<GPSModuleWidget> {
   }
 }
 
+// CustomPainter para desenhar o efeito de sonar na tela
 class SonarPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.red.withValues()
-      ..style = PaintingStyle.fill;
+      ..color = Colors.red.withValues()  // Cor do sonar o withvalues ajuda no tamanho tambem
+      ..style = PaintingStyle.fill;  // Preenchimento do círculo
     canvas.drawCircle(size.center(Offset.zero), size.width / 3, paint);
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) => true;
+  bool shouldRepaint(CustomPainter oldDelegate) => true;  // Sempre repinta o sonar
 }

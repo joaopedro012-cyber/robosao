@@ -1,7 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:robo_adm_desktop_v1/src/screens/automacao.dart';
-import 'package:robo_adm_desktop_v1/src/screens/rotinas.dart';
 import 'package:robo_adm_desktop_v1/src/screens/sensores.dart';
 import 'package:robo_adm_desktop_v1/src/screens/gps_module.dart';
 import 'package:robo_adm_desktop_v1/src/screens/log_module.dart';
@@ -67,21 +66,6 @@ class _HomePageState extends State<HomePage> {
         icon: const Icon(FluentIcons.mobile_selected),
         title: const Text('Mobile'),
         body: const Center(child: Text('Mobile')),
-      ),
-
-      // Página de Rotinas
-      PaneItem(
-        icon: const Icon(FluentIcons.clipboard_list),
-        title: const Text('Rotinas'),
-        body: RotinasPage(
-          conexaoAtiva: true,
-          onPause: () {
-            print('Rotina pausada');
-          },
-          onResume: () {
-            print('Rotina retomada');
-          },
-        ),
       ),
 
       // Página de Sensores

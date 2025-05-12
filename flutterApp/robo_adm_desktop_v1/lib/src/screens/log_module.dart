@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:robo_adm_desktop_v1/src/log.dart'; // Importando o LogModule
 
+// Página que exibe os logs de eventos do robô
 class LogPage extends StatefulWidget {
   const LogPage({super.key});
 
@@ -9,22 +10,25 @@ class LogPage extends StatefulWidget {
 }
 
 class LogPageState extends State<LogPage> {
-  final LogModule logModule = LogModule(); // Instanciando o LogModule
+  final LogModule logModule = LogModule(); // Instanciando o LogModule para registrar e obter os logs
 
-  String statusRobo = 'Parado'; // Variável para armazenar o estado do robô
-  String statusArduino = 'Funcionando'; // Variável para armazenar o estado do Arduino
+  // Variáveis que armazenam o estado atual do robô e do Arduino
+  String statusRobo = 'Parado'; 
+  String statusArduino = 'Funcionando';
 
   // Função para simular o movimento do robô e registrar eventos automaticamente
   void _simularMovimento() {
-    // Simulação de movimento, com logs sendo registrados em intervalos
+    // Simulação de movimento, com logs sendo registrados em intervalos de tempo
 
+    // Movendo o robô para frente
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
-        statusRobo = 'Movendo para frente...';
-        logModule.registrarEvento("Movendo o robô para frente...");
+        statusRobo = 'Movendo para frente...'; // Atualiza o status do robô
+        logModule.registrarEvento("Movendo o robô para frente..."); // Registra o evento
       });
     });
 
+    // Parando o robô
     Future.delayed(const Duration(seconds: 5), () {
       setState(() {
         statusRobo = 'Parado';
@@ -32,6 +36,7 @@ class LogPageState extends State<LogPage> {
       });
     });
 
+    // Movendo o robô para a esquerda
     Future.delayed(const Duration(seconds: 8), () {
       setState(() {
         statusRobo = 'Movendo para a esquerda...';
@@ -39,6 +44,7 @@ class LogPageState extends State<LogPage> {
       });
     });
 
+    // Parando o robô novamente
     Future.delayed(const Duration(seconds: 11), () {
       setState(() {
         statusRobo = 'Parado';
@@ -46,7 +52,7 @@ class LogPageState extends State<LogPage> {
       });
     });
 
-    // Simulação de falha no Arduino
+    // Simulando uma falha no Arduino
     Future.delayed(const Duration(seconds: 20), () {
       setState(() {
         statusArduino = 'Parou de funcionar';
@@ -54,7 +60,7 @@ class LogPageState extends State<LogPage> {
       });
     });
 
-    // Repetir o movimento para continuar gerando logs
+    // Repetindo o movimento após 24 segundos, para continuar gerando logs
     Future.delayed(const Duration(seconds: 24), _simularMovimento);
   }
 
@@ -76,11 +82,11 @@ class LogPageState extends State<LogPage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              'Status do Robô: $statusRobo',
+              'Status do Robô: $statusRobo', // Exibe o status do robô
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: statusRobo == 'Parado' ? Colors.red : Colors.green,
+                color: statusRobo == 'Parado' ? Colors.red : Colors.green, // Alterando a cor com base no status
               ),
             ),
           ),
@@ -88,21 +94,21 @@ class LogPageState extends State<LogPage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              'Status do Arduino: $statusArduino',
+              'Status do Arduino: $statusArduino', // Exibe o status do Arduino
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: statusArduino == 'Funcionando' ? Colors.green : Colors.red,
+                color: statusArduino == 'Funcionando' ? Colors.green : Colors.red, // Alterando a cor com base no status
               ),
             ),
           ),
           // Exibindo os logs na tela
           Expanded(
             child: ListView.builder(
-              itemCount: logModule.obterLogs().length,
+              itemCount: logModule.obterLogs().length, // Obtém a quantidade de logs registrados
               itemBuilder: (context, index) {
                 return ListTile(
-                  title: Text(logModule.obterLogs()[index]),
+                  title: Text(logModule.obterLogs()[index]), // Exibe cada log
                 );
               },
             ),
@@ -112,7 +118,7 @@ class LogPageState extends State<LogPage> {
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
               onPressed: () {
-                logModule.salvarLogEmArquivo(); // Salva os logs em um arquivo
+                logModule.salvarLogEmArquivo(); // Chama a função para salvar os logs em arquivo
               },
               child: const Text('Salvar Logs'),
             ),
