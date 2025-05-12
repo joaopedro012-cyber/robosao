@@ -67,22 +67,28 @@ class ArduinoComando {
           });
 
           for (var item in decoded) {
-            if (item is Map && item.containsKey('comando') && item['comando'] is String) {
-              final String comando = item['comando'];
+            if (item is Map) {
               final int tempo = (item['tempo'] is int) ? item['tempo'] : 500;
 
-              if (comando.isNotEmpty) {
+              // Envia todos os comandos do item (exceto 'tempo')
+              for (final entrada in item.entries) {
+                final chave = entrada.key;
+                final valor = entrada.value;
+
+                if (chave == 'tempo' || valor is! String || valor.isEmpty) continue;
+
                 buffer.clear();
-                enviarComando(comando);
+                enviarComando(valor);
 
                 final sucesso = await _aguardarOK(buffer);
                 if (!sucesso) {
-                  if (kDebugMode) print('Timeout esperando resposta OK para comando: $comando');
-                  continue; // ou `break;` se quiser abortar
+                  if (kDebugMode) {
+                    print('Timeout esperando OK para comando: $valor');
+                  }
                 }
-
-                await Future.delayed(Duration(milliseconds: tempo));
               }
+
+              await Future.delayed(Duration(milliseconds: tempo));
             } else {
               if (kDebugMode) print('Item inválido no JSON: $item');
             }
