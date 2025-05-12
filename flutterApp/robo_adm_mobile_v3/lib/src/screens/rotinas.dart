@@ -4,8 +4,6 @@ import 'dart:io'; // Import necessário para manipulação de arquivos
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_classic/flutter_blue_classic.dart';
 import 'package:robo_adm_mobile_v2/src/database/db.dart';
-import 'package:robo_adm_mobile_v2/src/screens/bluetooth.dart'; 
-import 'package:flutter/foundation.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -104,181 +102,6 @@ class RotinasPageState extends State<RotinasPage> {
     await DB.instance.deleteRotina(idRotina);
     await _loadRotinas();
   }
-
-void lerDados(int idRotina) async {
-  try {
-    final db = await DB.instance.database;
-
-    // Carrega as ações associadas a essa rotina
-    final List<Map<String, dynamic>> acoes = await db.query(
-      'adm_execucao_rotinas',
-      where: 'id_rotina = ? AND dt_exclusao_unix_microssegundos IS NULL',
-      whereArgs: [idRotina],
-    );
-
-    if (acoes.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Nenhuma ação encontrada para esta rotina!'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-      return;
-    }
-
-    // Executa as ações uma por uma
-    for (var acao in acoes) {
-      // Processar cada tipo de ação de acordo com sua quantidade e tipo
-      await _executarAcao(acao);
-    }
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Todas as ações foram executadas!'),
-          backgroundColor: Colors.blue,
-        ),
-      );
-    }
-  } catch (e) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao executar as ações: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-}
-Future<void> _executarAcao(Map<String, dynamic> acao) async {
-  try {
-    // Lógica para a ação horizontal
-    if (acao['acao_horizontal'] != null) {
-      String tipoAcao = acao['acao_horizontal'];
-      int qtd = acao['qtd_horizontal'] ?? 1; // Quantidade de movimento horizontal
-      print('Executando ação horizontal: $tipoAcao com quantidade $qtd');
-      await _realizarAcaoHorizontal(tipoAcao, qtd);
-    }
-
-    // Lógica para a ação vertical
-    if (acao['acao_vertical'] != null) {
-      String tipoAcao = acao['acao_vertical'];
-      int qtd = acao['qtd_vertical'] ?? 1; // Quantidade de movimento vertical
-      print('Executando ação vertical: $tipoAcao com quantidade $qtd');
-      await _realizarAcaoVertical(tipoAcao, qtd);
-    }
-
-    // Lógica para a ação de plataforma
-    if (acao['acao_plataforma'] != null) {
-      String tipoAcao = acao['acao_plataforma'];
-      int qtd = acao['qtd_plataforma'] ?? 1; // Quantidade de plataforma
-      print('Executando ação de plataforma: $tipoAcao com quantidade $qtd');
-      await _realizarAcaoPlataforma(tipoAcao, qtd);
-    }
-
-    // Lógica para a ação de botão 1
-    if (acao['acao_botao1'] != null) {
-      String tipoAcao = acao['acao_botao1'];
-      int qtd = acao['qtd_botao1'] ?? 1; // Quantidade de vezes que o botão 1 é pressionado
-      print('Executando ação de botão 1: $tipoAcao com quantidade $qtd');
-      await _realizarAcaoBotao(tipoAcao, qtd, 1);
-    }
-
-    // Lógica para a ação de botão 2
-    if (acao['acao_botao2'] != null) {
-      String tipoAcao = acao['acao_botao2'];
-      int qtd = acao['qtd_botao2'] ?? 1; // Quantidade de vezes que o botão 2 é pressionado
-      print('Executando ação de botão 2: $tipoAcao com quantidade $qtd');
-      await _realizarAcaoBotao(tipoAcao, qtd, 2);
-    }
-  } catch (e) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao executar ação: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-}
-Future<void> _realizarAcaoHorizontal(String tipoAcao, int qtd) async {
-  for (var connection in widget.connections) {
-  String address = connection.address;
-  if (address == BluetoothManager.macVertical) {
-    // Enviar o primeiro comando (tipoAcao)
-    List<int> tipoAcaoBytes = utf8.encode(tipoAcao);
-    connection.output.add(Uint8List.fromList(tipoAcaoBytes));
-    await Future.delayed(const Duration(milliseconds: 100));  // Pequeno atraso entre os comandos
-    print('Comando "$tipoAcao" enviado para o módulo Vertical ($address)');
-
-    // Enviar o segundo comando (qtd)
-    List<int> qtdBytes = utf8.encode(qtd.toString());  // Convertendo qtd para string antes de codificar em bytes
-    connection.output.add(Uint8List.fromList(qtdBytes));
-    await connection.output.allSent;  // Garantir que o comando seja enviado antes de continuar
-    print('Comando "$qtd" enviado para o módulo Vertical ($address)');
-        } else {
-          print('Comando "$tipoAcao" ignorado. Endereço MAC incorreto para Vertical: $address');
-        }
-      }
-  await Future.delayed(Duration(seconds: qtd)); // Ajuste o tempo com base no valor de qtd
-  print('Movendo horizontalmente $tipoAcao por $qtd unidades');
-}
-
-Future<void> _realizarAcaoVertical(String tipoAcao, int qtd) async {
-  for (var connection in widget.connections) {
-        String address = connection.address;
-        if (address == BluetoothManager.macVertical) {
-          List<int> bytes = utf8.encode(tipoAcao);
-          connection.output.add(Uint8List.fromList(bytes));
-          await Future.delayed(const Duration(milliseconds: 100));
-          print('Comando "$tipoAcao" enviado para o módulo Vertical ($address)');
-          await connection.output.allSent;
-        } else {
-          print('Comando "$tipoAcao" ignorado. Endereço MAC incorreto para Vertical: $address');
-        }
-      }
-  await Future.delayed(Duration(seconds: qtd)); // Ajuste o tempo com base no valor de qtd
-  print('Movendo verticalmente $tipoAcao por $qtd unidades');
-}
-
-Future<void> _realizarAcaoPlataforma(String tipoAcao, int qtd) async {
-  for (var connection in widget.connections) {
-        String address = connection.address;
-        if (address == BluetoothManager.macPlataforma) {
-          List<int> bytes = utf8.encode(tipoAcao);
-          connection.output.add(Uint8List.fromList(bytes));
-          await Future.delayed(const Duration(milliseconds: 100));
-          print('Comando "$tipoAcao" enviado para o módulo Vertical ($address)');
-          await connection.output.allSent;
-        } else {
-          print('Comando "$tipoAcao" ignorado. Endereço MAC incorreto para Vertical: $address');
-        }
-      }
-  await Future.delayed(Duration(seconds: qtd)); // Ajuste o tempo com base no valor de qtd
-  print('Realizando ação de plataforma: $tipoAcao com $qtd unidades');
-}
-
-Future<void> _realizarAcaoBotao(String tipoAcao, int qtd, int botao) async {
-  for (var connection in widget.connections) {
-        String address = connection.address;
-        if (address == BluetoothManager.macTomadas) {
-          List<int> bytes = utf8.encode(tipoAcao);
-          connection.output.add(Uint8List.fromList(bytes));
-          await Future.delayed(const Duration(milliseconds: 100));
-          print('Comando "$tipoAcao" enviado para o módulo Vertical ($address)');
-          await connection.output.allSent;
-        } else {
-          print('Comando "$tipoAcao" ignorado. Endereço MAC incorreto para Vertical: $address');
-        }
-      }
-  await Future.delayed(Duration(seconds: qtd)); // Ajuste o tempo com base no valor de qtd
-  print('Pressionando botão $botao: $tipoAcao por $qtd vezes');
-}
-
     Future<void> _exportRotina(int idRotina) async {
     // Encontrar a rotina com base no ID
     final rotina = _rotinas.firstWhere((r) => r['id_rotina'] == idRotina);
@@ -558,10 +381,6 @@ Future<void> _realizarAcaoBotao(String tipoAcao, int qtd, int botao) async {
                               IconButton(
                                 icon: const Icon(Icons.download, color: Color.fromARGB(255, 82, 48, 238)),
                                 onPressed: () => _exportRotina(rotina['id_rotina']),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.play_arrow, color: Color.fromARGB(255, 56, 44, 219)),
-                                onPressed: () => lerDados(rotina['id_rotina']),
                               ),
                               IconButton(
                                 icon: Icon(
