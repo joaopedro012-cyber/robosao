@@ -1,16 +1,19 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_libserialport/flutter_libserialport.dart';
-import 'package:file_picker/file_picker.dart';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:async';
-import 'arduino_comando.dart';
-import 'package:robo_adm_desktop_v1/main.dart';
+// Importações necessárias para o funcionamento do app
+import 'package:flutter/material.dart'; // Interface gráfica
+import 'package:flutter_libserialport/flutter_libserialport.dart'; // Comunicação serial
+import 'package:file_picker/file_picker.dart'; // Seleção de arquivos
+import 'dart:convert'; // Leitura e conversão de JSON
+import 'dart:io'; // Manipulação de arquivos
+import 'dart:async'; // Delays
+import 'arduino_comando.dart'; // Classe que gerencia a comunicação com Arduino
+import 'package:robo_adm_desktop_v1/main.dart'; // Main principal do app (caso use navegação entre telas)
 
+// Ponto de entrada do app
 void main() {
-  runApp(const MyApp());
+  runApp(const MyApp()); // Roda o app principal
 }
 
+// Tela específica da automação com múltiplos Arduinos
 class AutomacaoPage extends StatelessWidget {
   const AutomacaoPage({super.key});
 
@@ -19,11 +22,12 @@ class AutomacaoPage extends StatelessWidget {
     return MaterialApp(
       title: 'Controle Arduino Múltiplo',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const HomePage(),
+      home: const HomePage(), // Carrega a HomePage como tela principal
     );
   }
 }
 
+// Tela com estado (interface e lógica)
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -31,24 +35,28 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+// Classe de estado que gerencia o funcionamento da HomePage
 class _HomePageState extends State<HomePage> {
+  // Variáveis para armazenar as portas e objetos Arduino conectados
   List<String> portasDisponiveis = [];
   String? porta1, porta2, porta3;
   ArduinoComando? arduino1, arduino2, arduino3;
-  List<Map<String, dynamic>> comandosGravados = [];
+  List<Map<String, dynamic>> comandosGravados = []; // Armazena os comandos para rotina
 
   @override
   void initState() {
     super.initState();
-    _carregarPortas();
+    _carregarPortas(); // Carrega portas disponíveis assim que a tela abre
   }
 
+  // Busca todas as portas seriais disponíveis no sistema
   void _carregarPortas() {
     setState(() {
       portasDisponiveis = SerialPort.availablePorts;
     });
   }
 
+  // Conecta a uma das portas selecionadas
   void _conectar(int numero) {
     String? porta;
     if (numero == 1) porta = porta1;
@@ -56,8 +64,9 @@ class _HomePageState extends State<HomePage> {
     if (numero == 3) porta = porta3;
 
     if (porta != null) {
-      final arduino = ArduinoComando(porta);
+      final arduino = ArduinoComando(porta); // Cria instância do Arduino
       if (arduino.conectar()) {
+        // Se conectou com sucesso, salva a instância correspondente
         setState(() {
           if (numero == 1) arduino1 = arduino;
           if (numero == 2) arduino2 = arduino;
@@ -70,12 +79,14 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  // Envia um comando para todos os Arduinos conectados
   void _enviarParaTodos(String comando, {bool gravar = false}) async {
     if (arduino1 == null && arduino2 == null && arduino3 == null) {
       _mostrarMensagem('Nenhum Arduino conectado!');
       return;
     }
 
+    // Envia comando com delay entre cada envio
     if (arduino1 != null) {
       arduino1!.enviarComando(comando);
       await Future.delayed(const Duration(milliseconds: 100));
@@ -91,6 +102,7 @@ class _HomePageState extends State<HomePage> {
       await Future.delayed(const Duration(milliseconds: 100));
     }
 
+    // Se a flag gravar estiver ativa, adiciona aos comandos gravados
     if (gravar) {
       setState(() {
         comandosGravados.add({'comando': comando, 'tempo': 500});
@@ -100,6 +112,7 @@ class _HomePageState extends State<HomePage> {
     _mostrarMensagem('Comando "$comando" enviado para todos os Arduinos conectados.');
   }
 
+  // Exibe uma mensagem na tela (Snackbar)
   void _mostrarMensagem(String mensagem) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -108,6 +121,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  // Executa os comandos salvos na lista `comandosGravados`
   void _executarRotina() async {
     if (comandosGravados.isEmpty) {
       _mostrarMensagem('Nenhuma rotina gravada!');
@@ -116,18 +130,21 @@ class _HomePageState extends State<HomePage> {
 
     _mostrarMensagem('Executando rotina...');
 
+    // Envia comando por comando com seus respectivos tempos
     for (var item in comandosGravados) {
       final String comando = item['comando'];
       final int tempo = item['tempo'];
 
-      _enviarParaTodos(comando, gravar: false);
+      _enviarParaTodos(comando, gravar: false); // Não grava novamente
       await Future.delayed(Duration(milliseconds: tempo));
     }
 
     _mostrarMensagem('Rotina executada com sucesso!');
   }
 
+  // Executa rotina baseada em um arquivo JSON
   void _executarRotinaViaJson() async {
+    // Abre seletor de arquivos
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['json'],
@@ -144,6 +161,7 @@ class _HomePageState extends State<HomePage> {
         for (var acao in acoes) {
           final int tempo = acao['tempo'] ?? 500;
 
+          // Cada chave pode conter um comando para uma função específica
           if (acao.containsKey('horizontal') && arduino1 != null) {
             arduino1!.enviarComando(acao['horizontal']);
             await Future.delayed(Duration(milliseconds: tempo));
@@ -179,6 +197,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  // Limpa todos os comandos gravados
   void _excluirRotina() {
     setState(() {
       comandosGravados.clear();
@@ -187,6 +206,7 @@ class _HomePageState extends State<HomePage> {
     _mostrarMensagem('Rotina excluída com sucesso!');
   }
 
+  // Fecha as portas seriais ao sair
   @override
   void dispose() {
     arduino1?.fecharPorta();
@@ -195,6 +215,7 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  // Constrói a interface para selecionar portas e conectar
   Widget _seletorPorta(int numero, String? portaSelecionada, ValueChanged<String?> onChanged) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,7 +230,7 @@ class _HomePageState extends State<HomePage> {
           onChanged: onChanged,
         ),
         ElevatedButton.icon(
-          onPressed: () => _conectar(numero),
+          onPressed: () => _conectar(numero), // Chama _conectar()
           icon: const Icon(Icons.usb),
           label: const Text('Conectar'),
         ),
@@ -218,6 +239,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Botões de controle e ações
   Widget _botoesComando() {
     return Wrap(
       spacing: 8,
@@ -237,6 +259,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Layout principal da tela
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -251,7 +274,7 @@ class _HomePageState extends State<HomePage> {
               _seletorPorta(2, porta2, (porta) => setState(() => porta2 = porta)),
               _seletorPorta(3, porta3, (porta) => setState(() => porta3 = porta)),
               const SizedBox(height: 20),
-              _botoesComando(),
+              _botoesComando(), // Exibe todos os botões de controle
             ],
           ),
         ),
