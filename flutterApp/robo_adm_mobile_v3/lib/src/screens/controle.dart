@@ -48,7 +48,7 @@ class ControlePage extends StatefulWidget {
 }
 
 class SendBD {
-  static int idRotina = int.parse(ControlePageState.selectedRoutine!);
+  static int idRotina = 0;
   static String acaoHorizontal = '';
   static int qtdHorizontal = 0;
   static String acaoVertical = '';
@@ -60,6 +60,20 @@ class SendBD {
   static String acaoPlataforma = '';
   static String qtdPlataforma = '';
   static int dtExecucao = 0;
+
+  static void limpar() {
+    acaoHorizontal = '';
+    qtdHorizontal = 0;
+    acaoVertical = '';
+    qtdVertical = 0;
+    acaoBotao1 = '';
+    qtdBotao1 = 0;
+    acaoBotao2 = '';
+    qtdBotao2 = 0;
+    acaoPlataforma = '';
+    qtdPlataforma = '';
+    dtExecucao = 0;
+  }
 }
 
 class ControlePageState extends State<ControlePage> {
@@ -194,6 +208,7 @@ class ControlePageState extends State<ControlePage> {
     required int quantidade,
     required String bluetoothCommand,
   }) async {
+    SendBD.limpar();
     if (selectedRoutine != null && actionDescription.isNotEmpty) {
       try {
 

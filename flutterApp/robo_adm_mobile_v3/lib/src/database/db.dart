@@ -53,7 +53,7 @@ class DB {
         FOREIGN KEY(id_rotina) REFERENCES rotinas(id_rotina)
       )
     ''');
-
+  
     await db.execute(''' 
       CREATE TABLE adm_acao_robo (
         id_acao INTEGER PRIMARY KEY AUTOINCREMENT,
