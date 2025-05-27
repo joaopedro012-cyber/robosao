@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 
@@ -28,12 +29,18 @@ class ArduinoComando {
 
   Future<void> enviarComando(String comando) async {
     if (_porta.isOpen) {
-      final Uint8List dados = Uint8List.fromList(utf8.encode(comando));
-      _porta.write(dados);
-      if (kDebugMode) {
-        print('Comando enviado: $comando');
+      final String comandoFinal = '$comando\n'; // <-- ADICIONA \n
+      final Uint8List dados = Uint8List.fromList(utf8.encode(comandoFinal));
+      final bytesEscritos = _porta.write(dados);
+      if (bytesEscritos != dados.length) {
+        if (kDebugMode) {
+          print('Aviso: Nem todos os bytes foram escritos na porta.');
+        }
       }
-      await Future.delayed(const Duration(milliseconds: 100)); // Aguarda um pequeno tempo para garantir que o comando foi enviado
+      if (kDebugMode) {
+        print('Comando enviado: $comandoFinal');
+      }
+      await Future.delayed(const Duration(milliseconds: 100));
     } else {
       if (kDebugMode) {
         print('Erro: Porta não está aberta para enviar comando!');
@@ -45,11 +52,11 @@ class ArduinoComando {
     final start = DateTime.now();
     while (!buffer.toString().contains('OK')) {
       if (DateTime.now().difference(start).inMilliseconds > timeoutMs) {
-        return false;
+        return false; // Timeout
       }
       await Future.delayed(const Duration(milliseconds: 50));
     }
-    return true;
+    return true; // Recebeu OK
   }
 
   Future<void> executarComandos(String path) async {
@@ -63,8 +70,14 @@ class ArduinoComando {
       final jsonString = await file.readAsString();
       final dynamic decoded = jsonDecode(jsonString);
 
-      if (decoded is! List) {
-        if (kDebugMode) print('JSON inválido: esperado uma lista de comandos.');
+      if (decoded is! Map) {
+        if (kDebugMode) print('JSON inválido: esperado um objeto com "acoes".');
+        return;
+      }
+
+      final List<dynamic>? acoes = decoded['acoes'];
+      if (acoes == null || acoes.isEmpty) {
+        if (kDebugMode) print('Nenhuma ação encontrada no JSON.');
         return;
       }
 
@@ -78,32 +91,47 @@ class ArduinoComando {
       final subscription = reader.stream.listen((data) {
         final texto = utf8.decode(data);
         buffer.write(texto);
+        if (kDebugMode) print('Recebido da serial: $texto');
       });
 
-      for (var item in decoded) {
+      int? ultimoTimestampMicros;
+
+      for (var item in acoes) {
         if (item is! Map) {
-          if (kDebugMode) print('Item inválido no JSON: $item');
+          if (kDebugMode) print('Item inválido na lista de ações: $item');
           continue;
         }
 
-        final int tempo = (item['tempo'] is int) ? item['tempo'] : 500;
-        final String? horizontal = item['horizontal'];
-        final String? vertical = item['vertical'];
-        final String? plataforma = item['plataforma'];
-        final String? tomada1 = item['tomada1'];
-        final String? tomada2 = item['tomada2'];
+        final int? timestampMicros = item['dt_execucao_unix_microssegundos'] is int
+            ? item['dt_execucao_unix_microssegundos']
+            : null;
 
-        // Envia os comandos existentes
-        for (var comando in [horizontal, vertical, plataforma, tomada1, tomada2]) {
-          if (comando != null && comando.isNotEmpty) {
-            buffer.clear();
-            enviarComando(comando);
+        if (ultimoTimestampMicros != null && timestampMicros != null) {
+          final int diffMicros = timestampMicros - ultimoTimestampMicros;
+          if (diffMicros > 0) {
+            if (kDebugMode) print('Aguardando $diffMicros microssegundos antes do próximo comando.');
+            await Future.delayed(Duration(microseconds: diffMicros));
+          }
+        }
 
-            final sucesso = await _aguardarOK(buffer);
-            if (!sucesso && kDebugMode) {
-              print('Timeout esperando OK para comando: $comando');
-            }
-            await Future.delayed(Duration(milliseconds: tempo));
+        ultimoTimestampMicros = timestampMicros;
+
+        final comandos = <String>[
+          item['acao_horizontal'] ?? '',
+          item['acao_vertical'] ?? '',
+          item['acao_plataforma'] ?? '',
+          item['botao1'] ?? '',
+          item['botao2'] ?? '',
+          item['botao3'] ?? '',
+        ];
+
+        for (var comando in comandos.where((c) => c.isNotEmpty)) {
+          buffer.clear();
+          await enviarComando(comando);
+
+          final sucesso = await _aguardarOK(buffer);
+          if (!sucesso && kDebugMode) {
+            print('Timeout esperando OK para comando: $comando');
           }
         }
       }
