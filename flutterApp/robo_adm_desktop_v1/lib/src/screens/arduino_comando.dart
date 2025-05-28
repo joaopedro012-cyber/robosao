@@ -18,19 +18,35 @@ class ArduinoComando {
   }
 
   bool conectar() {
-    return _porta.open(mode: SerialPortMode.readWrite);
+    if (_porta.isOpen) {
+      if (kDebugMode) print('Porta já está aberta.');
+      return true;
+    }
+    final openSuccess = _porta.open(mode: SerialPortMode.readWrite);
+if (!openSuccess) {
+  if (kDebugMode) print('Falha ao abrir a porta serial: ${SerialPort.lastError}');
+}
+return openSuccess;
   }
 
   void fecharPorta() {
     if (_porta.isOpen) {
       _porta.close();
+      if (kDebugMode) print('Porta serial fechada.');
     }
   }
 
   Future<void> enviarComando(String comando) async {
-    if (_porta.isOpen) {
-      final String comandoFinal = '$comando\n'; // <-- ADICIONA \n
-      final Uint8List dados = Uint8List.fromList(utf8.encode(comandoFinal));
+    if (!_porta.isOpen) {
+      if (kDebugMode) print('Erro: Porta não está aberta para enviar comando!');
+      return;
+    }
+
+    // Use \r\n para garantir que Arduino reconheça fim de linha
+    final String comandoFinal = '$comando\r\n';
+    final Uint8List dados = Uint8List.fromList(utf8.encode(comandoFinal));
+
+    try {
       final bytesEscritos = _porta.write(dados);
       if (bytesEscritos != dados.length) {
         if (kDebugMode) {
@@ -40,23 +56,26 @@ class ArduinoComando {
       if (kDebugMode) {
         print('Comando enviado: $comandoFinal');
       }
-      await Future.delayed(const Duration(milliseconds: 100));
-    } else {
+    } catch (e) {
       if (kDebugMode) {
-        print('Erro: Porta não está aberta para enviar comando!');
+        print('Erro ao enviar comando: $e');
       }
     }
+    await Future.delayed(const Duration(milliseconds: 150)); // Pequena pausa após enviar
   }
 
   Future<bool> _aguardarOK(StringBuffer buffer) async {
     final start = DateTime.now();
-    while (!buffer.toString().contains('OK')) {
+    while (true) {
+      final conteudo = buffer.toString();
+      if (conteudo.contains('OK')) {
+        return true;
+      }
       if (DateTime.now().difference(start).inMilliseconds > timeoutMs) {
         return false; // Timeout
       }
       await Future.delayed(const Duration(milliseconds: 50));
     }
-    return true; // Recebeu OK
   }
 
   Future<void> executarComandos(String path) async {
@@ -94,27 +113,38 @@ class ArduinoComando {
         if (kDebugMode) print('Recebido da serial: $texto');
       });
 
-      int? ultimoTimestampMicros;
+      // Base de tempo inicial do sistema
+      final DateTime tempoInicialSistema = DateTime.now();
+
+      // Timestamp base do primeiro comando no JSON
+      final int? tempoInicialJson = (acoes.first['dt_execucao_unix_microssegundos'] is int)
+          ? acoes.first['dt_execucao_unix_microssegundos']
+          : null;
+
+      if (tempoInicialJson == null) {
+        if (kDebugMode) print('O primeiro comando não tem timestamp válido.');
+        await subscription.cancel();
+        fecharPorta();
+        return;
+      }
 
       for (var item in acoes) {
-        if (item is! Map) {
-          if (kDebugMode) print('Item inválido na lista de ações: $item');
-          continue;
-        }
+        if (item is! Map) continue;
 
-        final int? timestampMicros = item['dt_execucao_unix_microssegundos'] is int
-            ? item['dt_execucao_unix_microssegundos']
-            : null;
+        final int? timestampMicros = item['dt_execucao_unix_microssegundos'];
+        if (timestampMicros == null) continue;
 
-        if (ultimoTimestampMicros != null && timestampMicros != null) {
-          final int diffMicros = timestampMicros - ultimoTimestampMicros;
-          if (diffMicros > 0) {
-            if (kDebugMode) print('Aguardando $diffMicros microssegundos antes do próximo comando.');
-            await Future.delayed(Duration(microseconds: diffMicros));
+        final int diffMicros = timestampMicros - tempoInicialJson;
+
+        final DateTime tempoAlvo = tempoInicialSistema.add(Duration(microseconds: diffMicros));
+        final Duration delayRestante = tempoAlvo.difference(DateTime.now());
+
+        if (delayRestante.inMicroseconds > 0) {
+          if (kDebugMode) {
+            print('Aguardando ${delayRestante.inMicroseconds} microssegundos...');
           }
+          await Future.delayed(delayRestante);
         }
-
-        ultimoTimestampMicros = timestampMicros;
 
         final comandos = <String>[
           item['acao_horizontal'] ?? '',

@@ -123,32 +123,35 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _executarRotina() async {
-    if (comandosGravados.isEmpty) {
-      _mostrarMensagem('Nenhuma rotina gravada!');
-      return;
-    }
-
-    _mostrarMensagem('Executando rotina...');
-
-    for (int i = 0; i < comandosGravados.length; i++) {
-      final comandoAtual = comandosGravados[i];
-      final comando = comandoAtual['comando'];
-      final tempoAtual = comandoAtual['dt_execucao_unix_microssegundos'] as int;
-
-      await _enviarParaTodos(comando, gravar: false);
-
-      if (i + 1 < comandosGravados.length) {
-        final proximoTempo = comandosGravados[i + 1]['dt_execucao_unix_microssegundos'] as int;
-        final diferencaMicros = proximoTempo - tempoAtual;
-        final duracao = Duration(microseconds: diferencaMicros);
-        if (duracao.inMilliseconds > 0) {
-          await Future.delayed(duracao);
-        }
-      }
-    }
-
-    _mostrarMensagem('Rotina executada com sucesso!');
+  if (comandosGravados.isEmpty) {
+    _mostrarMensagem('Nenhuma rotina gravada!');
+    return;
   }
+
+  _mostrarMensagem('Executando rotina...');
+
+  final int inicioReal = DateTime.now().microsecondsSinceEpoch;
+  final int tempoInicial = comandosGravados.first['dt_execucao_unix_microssegundos'] as int;
+
+  for (int i = 0; i < comandosGravados.length; i++) {
+    final comandoAtual = comandosGravados[i];
+    final String comando = comandoAtual['comando'];
+    final int tempoComando = comandoAtual['dt_execucao_unix_microssegundos'] as int;
+
+    final int tempoEsperado = inicioReal + (tempoComando - tempoInicial);
+    final int agora = DateTime.now().microsecondsSinceEpoch;
+    final int atraso = tempoEsperado - agora;
+
+    if (atraso > 0) {
+      await Future.delayed(Duration(microseconds: atraso));
+    }
+
+    await _enviarParaTodos(comando, gravar: false);
+  }
+
+  _mostrarMensagem('Rotina executada com sucesso!');
+}
+
 
  Future<void> _executarRotinaViaJson() async {
   FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -165,22 +168,31 @@ class _HomePageState extends State<HomePage> {
     final file = File(result.files.single.path!);
     final content = await file.readAsString();
 
+    // Decodifica o JSON
     final Map<String, dynamic> dados = json.decode(content);
-    final List<dynamic> acoes = dados['acoes'] ?? [];
+
+    // Acessa a lista 'acoes' do JSON, certificando que é uma lista
+    final List<dynamic> acoes = dados['acoes'] is List ? dados['acoes'] : [];
 
     if (acoes.isEmpty) {
-      _mostrarMensagem('O JSON está vazio.');
+      _mostrarMensagem('O JSON está vazio ou não possui a lista "acoes".');
       return;
     }
 
     _mostrarMensagem('Executando comandos do JSON...');
 
-    // Tempo base de execução (primeira ação)
-    final int tempoInicial = acoes.first['dt_execucao_unix_microssegundos'] ?? 0;
+    // Garantir que o primeiro item tenha o campo correto para calcular os tempos
+    final int tempoInicial = (acoes.first['dt_execucao_unix_microssegundos'] is int)
+        ? acoes.first['dt_execucao_unix_microssegundos']
+        : 0;
     final int inicioReal = DateTime.now().microsecondsSinceEpoch;
 
     for (var acao in acoes) {
-      final int tempoAcao = acao['dt_execucao_unix_microssegundos'] ?? 0;
+      // Garante que o campo exista e é int
+      final int tempoAcao = (acao['dt_execucao_unix_microssegundos'] is int)
+          ? acao['dt_execucao_unix_microssegundos']
+          : 0;
+
       final int tempoEsperado = inicioReal + (tempoAcao - tempoInicial);
       final int agora = DateTime.now().microsecondsSinceEpoch;
       final int espera = tempoEsperado - agora;
@@ -189,20 +201,21 @@ class _HomePageState extends State<HomePage> {
         await Future.delayed(Duration(microseconds: espera));
       }
 
-      if (acao['acao_horizontal'] != null && acao['acao_horizontal'].toString().isNotEmpty) {
-        await arduino1?.enviarComando(acao['acao_horizontal'].toString());
+      // Para cada comando, verifica se o valor é uma String não vazia antes de enviar
+      if (acao['acao_horizontal'] is String && acao['acao_horizontal'].toString().isNotEmpty) {
+        await arduino1?.enviarComando(acao['acao_horizontal']);
       }
-      if (acao['acao_vertical'] != null && acao['acao_vertical'].toString().isNotEmpty) {
-        await arduino2?.enviarComando(acao['acao_vertical'].toString());
+      if (acao['acao_vertical'] is String && acao['acao_vertical'].toString().isNotEmpty) {
+        await arduino2?.enviarComando(acao['acao_vertical']);
       }
-      if (acao['acao_plataforma'] != null && acao['acao_plataforma'].toString().isNotEmpty) {
-        await arduino3?.enviarComando(acao['acao_plataforma'].toString());
+      if (acao['acao_plataforma'] is String && acao['acao_plataforma'].toString().isNotEmpty) {
+        await arduino3?.enviarComando(acao['acao_plataforma']);
       }
-      if (acao['botao1'] != null && acao['botao1'].toString().isNotEmpty) {
-        await arduino4?.enviarComando(acao['botao1'].toString());
+      if (acao['botao1'] is String && acao['botao1'].toString().isNotEmpty) {
+        await arduino4?.enviarComando(acao['botao1']);
       }
-      if (acao['botao2'] != null && acao['botao2'].toString().isNotEmpty) {
-        await arduino5?.enviarComando(acao['botao2'].toString());
+      if (acao['botao2'] is String && acao['botao2'].toString().isNotEmpty) {
+        await arduino5?.enviarComando(acao['botao2']);
       }
     }
 
@@ -211,6 +224,8 @@ class _HomePageState extends State<HomePage> {
     _mostrarMensagem('Erro ao executar JSON: $e');
   }
 }
+
+
 
 
   void _excluirRotina() {
