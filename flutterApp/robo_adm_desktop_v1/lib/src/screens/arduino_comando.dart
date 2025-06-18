@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 
@@ -23,10 +22,10 @@ class ArduinoComando {
       return true;
     }
     final openSuccess = _porta.open(mode: SerialPortMode.readWrite);
-if (!openSuccess) {
-  if (kDebugMode) print('Falha ao abrir a porta serial: ${SerialPort.lastError}');
-}
-return openSuccess;
+    if (!openSuccess) {
+      if (kDebugMode) print('Falha ao abrir a porta serial: ${SerialPort.lastError}');
+    }
+    return openSuccess;
   }
 
   void fecharPorta() {
@@ -42,37 +41,28 @@ return openSuccess;
       return;
     }
 
-    // Use \r\n para garantir que Arduino reconheça fim de linha
     final String comandoFinal = '$comando\r\n';
     final Uint8List dados = Uint8List.fromList(utf8.encode(comandoFinal));
 
     try {
       final bytesEscritos = _porta.write(dados);
       if (bytesEscritos != dados.length) {
-        if (kDebugMode) {
-          print('Aviso: Nem todos os bytes foram escritos na porta.');
-        }
+        if (kDebugMode) print('Aviso: Nem todos os bytes foram escritos na porta.');
       }
-      if (kDebugMode) {
-        print('Comando enviado: $comandoFinal');
-      }
+      if (kDebugMode) print('Comando enviado: $comandoFinal');
     } catch (e) {
-      if (kDebugMode) {
-        print('Erro ao enviar comando: $e');
-      }
+      if (kDebugMode) print('Erro ao enviar comando: $e');
     }
-    await Future.delayed(const Duration(milliseconds: 150)); // Pequena pausa após enviar
+
+    await Future.delayed(const Duration(milliseconds: 150));
   }
 
   Future<bool> _aguardarOK(StringBuffer buffer) async {
     final start = DateTime.now();
     while (true) {
-      final conteudo = buffer.toString();
-      if (conteudo.contains('OK')) {
-        return true;
-      }
+      if (buffer.toString().contains('OK')) return true;
       if (DateTime.now().difference(start).inMilliseconds > timeoutMs) {
-        return false; // Timeout
+        return false;
       }
       await Future.delayed(const Duration(milliseconds: 50));
     }
@@ -113,10 +103,7 @@ return openSuccess;
         if (kDebugMode) print('Recebido da serial: $texto');
       });
 
-      // Base de tempo inicial do sistema
       final DateTime tempoInicialSistema = DateTime.now();
-
-      // Timestamp base do primeiro comando no JSON
       final int? tempoInicialJson = (acoes.first['dt_execucao_unix_microssegundos'] is int)
           ? acoes.first['dt_execucao_unix_microssegundos']
           : null;
@@ -134,8 +121,21 @@ return openSuccess;
         final int? timestampMicros = item['dt_execucao_unix_microssegundos'];
         if (timestampMicros == null) continue;
 
-        final int diffMicros = timestampMicros - tempoInicialJson;
+        // Verifica se todos os comandos estão vazios
+        final todosComandosVazios = [
+          item['acao_horizontal'],
+          item['acao_vertical'],
+          item['acao_plataforma'],
+          item['botao1'],
+          item['botao2'],
+        ].every((c) => c == null || c.toString().trim().isEmpty);
 
+        if (todosComandosVazios) {
+          if (kDebugMode) print('Ação ignorada: todos os comandos estão vazios.');
+          continue;
+        }
+
+        final int diffMicros = timestampMicros - tempoInicialJson;
         final DateTime tempoAlvo = tempoInicialSistema.add(Duration(microseconds: diffMicros));
         final Duration delayRestante = tempoAlvo.difference(DateTime.now());
 
@@ -152,7 +152,6 @@ return openSuccess;
           item['acao_plataforma'] ?? '',
           item['botao1'] ?? '',
           item['botao2'] ?? '',
-          item['botao3'] ?? '',
         ];
 
         for (var comando in comandos.where((c) => c.isNotEmpty)) {
