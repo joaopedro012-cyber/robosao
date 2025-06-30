@@ -82,23 +82,6 @@ class DB {
       });
     }
     
-    final List<Map<String, dynamic>> existingExecucoes = await db.query('adm_execucao_rotinas');
-    if (existingExecucoes.isEmpty) {
-      List<Map<String, dynamic>> execucoesIniciais = [
-        {'id_rotina': 1, 'qtd_horizontal': 20, 'acao_horizontal': 'w'},
-        {'id_rotina': 2, 'qtd_horizontal': 30, 'acao_horizontal': 'w'},
-        {'id_rotina': 3, 'qtd_horizontal': 50, 'acao_horizontal': 's'},
-      ];
-
-      for (var execucao in execucoesIniciais) {
-        await db.execute(''' 
-          INSERT INTO adm_execucao_rotinas (id_rotina, qtd_horizontal, acao_horizontal, dt_execucao_unix_microssegundos)
-          VALUES (${execucao['id_rotina']}, ${execucao['qtd_horizontal']}, '${execucao['acao_horizontal']}', 
-          (strftime('%s', 'now') * 1000000));
-        ''');
-
-      }
-    }
   }
 
   Future<void> insertRotina(String nome, String descricao) async {

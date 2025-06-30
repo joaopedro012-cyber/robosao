@@ -1,16 +1,15 @@
-// Importações necessárias
+// automacao.dart – Etapa 2.5: exibição das portas COM com Dropdown e tema moderno
+
+// ignore_for_file: unused_import
+
 import 'package:flutter/material.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
+import 'dart:typed_data';
 import 'arduino_comando.dart';
-import 'package:robo_adm_desktop_v1/main.dart';
-
-void main() {
-  runApp(const MyApp());
-}
 
 class AutomacaoPage extends StatelessWidget {
   const AutomacaoPage({super.key});
@@ -19,7 +18,12 @@ class AutomacaoPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Controle Arduino Múltiplo',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+        useMaterial3: true,
+        scaffoldBackgroundColor: Colors.grey[100],
+        textTheme: const TextTheme(bodyMedium: TextStyle(fontSize: 16)),
+      ),
       home: const HomePage(),
     );
   }
@@ -32,11 +36,21 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+
 class _HomePageState extends State<HomePage> {
   List<String> portasDisponiveis = [];
   String? porta1, porta2, porta3, porta4, porta5;
   ArduinoComando? arduino1, arduino2, arduino3, arduino4, arduino5;
   List<Map<String, dynamic>> comandosGravados = [];
+  List<String> logComandos = [];
+
+  final Map<int, String> nomesPortas = {
+    1: 'Motor Horizontal',
+    2: 'Motor Vertical',
+    3: 'Plataforma',
+    4: 'Tomadas',
+    5: 'Sensores',
+  };
 
   @override
   void initState() {
@@ -54,316 +68,240 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _conectar(int numero) {
-    String? porta;
-    if (numero == 1) porta = porta1;
-    if (numero == 2) porta = porta2;
-    if (numero == 3) porta = porta3;
-    if (numero == 4) porta = porta4;
-    if (numero == 5) porta = porta5;
+  void _mostrarMensagem(String texto) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(texto)));
+  }
 
-    if (porta != null) {
-      final arduino = ArduinoComando(porta);
-      if (arduino.conectar()) {
-        setState(() {
-          switch (numero) {
-            case 1:
-              arduino1 = arduino;
-              break;
-            case 2:
-              arduino2 = arduino;
-              break;
-            case 3:
-              arduino3 = arduino;
-              break;
-            case 4:
-              arduino4 = arduino;
-              break;
-            case 5:
-              arduino5 = arduino;
-              break;
+  void _conectarArduino(int numero) {
+  String? porta;
+  switch (numero) {
+    case 1: porta = porta1; break;
+    case 2: porta = porta2; break;
+    case 3: porta = porta3; break;
+    case 4: porta = porta4; break;
+    case 5: porta = porta5; break;
+  }
+
+  if (porta == null) {
+    _mostrarMensagem('Porta $numero não selecionada.');
+    return;
+  }
+
+  final arduino = ArduinoComando(porta);
+  final conectado = arduino.conectar();
+
+  if (!conectado) {
+    _mostrarMensagem('Erro ao conectar na porta $porta.');
+    return;
+  }
+
+  setState(() {
+    switch (numero) {
+      case 1: arduino1 = arduino; break;
+      case 2: arduino2 = arduino; break;
+      case 3: arduino3 = arduino; break;
+      case 4: arduino4 = arduino; break;
+      case 5: arduino5 = arduino; break;
+    }
+  });
+
+  _mostrarMensagem('Conectado com sucesso: $porta');
+}
+
+
+  Future<void> carregarRotinaJson() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['json']);
+    if (result != null && result.files.single.path != null) {
+      final file = File(result.files.single.path!);
+      final conteudo = await file.readAsString();
+      final jsonCompleto = jsonDecode(conteudo);
+      final List<Map<String, dynamic>> comandos = [];
+
+      if (jsonCompleto.containsKey('acoes')) {
+        for (var acao in jsonCompleto['acoes']) {
+          final Map<String, dynamic> comando = {
+            'dt_execucao_unix_microssegundos': acao['dt_execucao_unix_microssegundos'],
+          };
+
+          if ((acao['acao_horizontal'] ?? '').toString().isNotEmpty) {
+            comando['acao_horizontal'] = acao['acao_horizontal'];
           }
-        });
-        _mostrarMensagem('Arduino $numero conectado com sucesso!');
+          if ((acao['acao_vertical'] ?? '').toString().isNotEmpty) {
+            comando['acao_vertical'] = acao['acao_vertical'];
+          }
+          if ((acao['acao_plataforma'] ?? '').toString().isNotEmpty) {
+            comando['acao_plataforma'] = acao['acao_plataforma'];
+          }
+          if ((acao['acao_botao1'] ?? '').toString().isNotEmpty) {
+            comando['acao_botao1'] = acao['acao_botao1'];
+          }
+          if ((acao['acao_botao2'] ?? '').toString().isNotEmpty) {
+            comando['acao_botao2'] = acao['acao_botao2'];
+          }
+
+          comandos.add(comando);
+        }
+
+          setState(() {
+            comandosGravados = comandos;
+          });
+
+          // LOG: imprime todos os comandos carregados
+          print('========== ROTINA CARREGADA ==========');
+          for (var i = 0; i < comandos.length; i++) {
+            print('[$i] → ${comandos[i]}');
+          }
+          print('======================================');
+          if (comandos.isNotEmpty) {
+            _mostrarMensagem('Rotina carregada com ${comandos.length} comandos.');
+          } else {
+            _mostrarMensagem('⚠️ Nenhum comando encontrado na rotina.');
+          }
+        _mostrarMensagem('Rotina carregada com sucesso!');
       } else {
-        _mostrarMensagem('Erro ao conectar Arduino $numero!');
+        _mostrarMensagem('Arquivo inválido: não contém "acoes".');
       }
+    } else {
+      _mostrarMensagem('Nenhum arquivo selecionado.');
     }
+    
   }
 
-  Future<void> _enviarParaTodos(String comando, {bool gravar = false}) async {
-    List<ArduinoComando?> arduinos = [arduino1, arduino2, arduino3, arduino4, arduino5];
-
-    if (arduinos.every((a) => a == null)) {
-      _mostrarMensagem('Nenhum Arduino conectado!');
+  void executarRotina() async {
+    if (comandosGravados.isEmpty) {
+      _mostrarMensagem('Nenhuma rotina carregada.');
       return;
     }
 
-    for (var arduino in arduinos) {
-      if (arduino != null) {
-        arduino.enviarComando(comando);
-        await Future.delayed(const Duration(milliseconds: 100));
+  comandosGravados.sort((a, b) =>
+    (a['dt_execucao_unix_microssegundos'] as int)
+        .compareTo(b['dt_execucao_unix_microssegundos'] as int));
+
+
+  final int baseMillis = comandosGravados.first['dt_execucao_unix_microssegundos'];
+  final DateTime baseTime = DateTime.now();
+
+  for (var comando in comandosGravados) {
+    final int atualMillis = comando['dt_execucao_unix_microssegundos'];
+    final Duration delayReal = Duration(milliseconds: atualMillis - baseMillis);
+    final DateTime alvo = baseTime.add(delayReal);
+    final Duration restante = alvo.difference(DateTime.now());
+
+      if (restante.inMilliseconds > 0) {
+        await Future.delayed(restante);
+    }
+
+
+    final acao = (comando['acao_horizontal'] ??
+        comando['acao_vertical'] ??
+        comando['acao_plataforma'] ??
+        comando['acao_botao1'] ??
+        comando['acao_botao2'])
+        ?.trim();
+        
+    if (acao != null) {
+      try {
+        if (["wr", "wl", "ss", "xr", "xl"].contains(acao) && arduino1 != null) {
+          if (arduino1!.porta.isOpen) {
+            await arduino1!.enviarComando(acao);
+          } else {
+            _mostrarMensagem("Erro: Porta 1 não está aberta.");
+          }
+        } else if (["a", "d"].contains(acao) && arduino2 != null) {
+          if (arduino2!.porta.isOpen) {
+            await arduino2!.enviarComando(acao);
+          } else {
+            _mostrarMensagem("Erro: Porta 2 não está aberta.");
+          }
+        } else if (["b", "c"].contains(acao) && arduino3 != null) {
+          if (arduino3!.porta.isOpen) {
+            await arduino3!.enviarComando(acao);
+          } else {
+            _mostrarMensagem("Erro: Porta 3 não está aberta.");
+          }
+        } else if ((acao == "Ligar Tomada" || acao == "Desligar Tomada") && arduino4 != null) {
+          if (arduino4!.porta.isOpen) {
+            await arduino4!.enviarComando(acao);
+          } else {
+            _mostrarMensagem("Erro: Porta 4 não está aberta.");
+          }
+        }
+      } catch (e) {
+        _mostrarMensagem("Erro ao enviar comando '$acao': $e");
       }
     }
-
-    if (gravar) {
-      final int microssegundos = DateTime.now().microsecondsSinceEpoch;
-      setState(() {
-        comandosGravados.add({'comando': comando, 'dt_execucao_unix_microssegundos': microssegundos});
-      });
-    }
-
-    _mostrarMensagem('Comando "$comando" enviado.');
   }
 
-  void _mostrarMensagem(String mensagem) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(mensagem)));
-    }
-  }
+  _mostrarMensagem('Rotina executada.');
 
-  void _executarRotina() async {
-  if (comandosGravados.isEmpty) {
-    _mostrarMensagem('Nenhuma rotina gravada!');
-    return;
-  }
-
-  _mostrarMensagem('Executando rotina...');
-
-  final int inicioReal = DateTime.now().microsecondsSinceEpoch;
-  final int tempoInicial = comandosGravados.first['dt_execucao_unix_microssegundos'] as int;
-
-  for (int i = 0; i < comandosGravados.length; i++) {
-    final comandoAtual = comandosGravados[i];
-    final String comando = comandoAtual['comando'];
-    final int tempoComando = comandoAtual['dt_execucao_unix_microssegundos'] as int;
-
-    final int tempoEsperado = inicioReal + (tempoComando - tempoInicial);
-    final int agora = DateTime.now().microsecondsSinceEpoch;
-    final int atraso = tempoEsperado - agora;
-
-    if (atraso > 0) {
-      await Future.delayed(Duration(microseconds: atraso));
-    }
-
-    await _enviarParaTodos(comando, gravar: false);
-  }
-
-  _mostrarMensagem('Rotina executada com sucesso!');
 }
 
 
- Future<void> _executarRotinaViaJson() async {
-  FilePickerResult? result = await FilePicker.platform.pickFiles(
-    type: FileType.custom,
-    allowedExtensions: ['json'],
-  );
-
-  if (result == null || result.files.single.path == null) {
-    _mostrarMensagem('Nenhum arquivo selecionado.');
-    return;
-  }
-
-  try {
-    final file = File(result.files.single.path!);
-    final content = await file.readAsString();
-
-    // Decodifica o JSON
-    final Map<String, dynamic> dados = json.decode(content);
-
-    // Acessa a lista 'acoes' do JSON, certificando que é uma lista
-    final List<dynamic> acoes = dados['acoes'] is List ? dados['acoes'] : [];
-
-    if (acoes.isEmpty) {
-      _mostrarMensagem('O JSON está vazio ou não possui a lista "acoes".');
-      return;
-    }
-
-    _mostrarMensagem('Executando comandos do JSON...');
-
-    // Garantir que o primeiro item tenha o campo correto para calcular os tempos
-    final int tempoInicial = (acoes.first['dt_execucao_unix_microssegundos'] is int)
-        ? acoes.first['dt_execucao_unix_microssegundos']
-        : 0;
-    final int inicioReal = DateTime.now().microsecondsSinceEpoch;
-
-    for (var acao in acoes) {
-      // Garante que o campo exista e é int
-      final int tempoAcao = (acao['dt_execucao_unix_microssegundos'] is int)
-          ? acao['dt_execucao_unix_microssegundos']
-          : 0;
-
-      final int tempoEsperado = inicioReal + (tempoAcao - tempoInicial);
-      final int agora = DateTime.now().microsecondsSinceEpoch;
-      final int espera = tempoEsperado - agora;
-
-      if (espera > 0) {
-        await Future.delayed(Duration(microseconds: espera));
-      }
-
-      // Para cada comando, verifica se o valor é uma String não vazia antes de enviar
-      if (acao['acao_horizontal'] is String && acao['acao_horizontal'].toString().isNotEmpty) {
-        await arduino1?.enviarComando(acao['acao_horizontal']);
-      }
-      if (acao['acao_vertical'] is String && acao['acao_vertical'].toString().isNotEmpty) {
-        await arduino2?.enviarComando(acao['acao_vertical']);
-      }
-      if (acao['acao_plataforma'] is String && acao['acao_plataforma'].toString().isNotEmpty) {
-        await arduino3?.enviarComando(acao['acao_plataforma']);
-      }
-      if (acao['botao1'] is String && acao['botao1'].toString().isNotEmpty) {
-        await arduino4?.enviarComando(acao['botao1']);
-      }
-      if (acao['botao2'] is String && acao['botao2'].toString().isNotEmpty) {
-        await arduino5?.enviarComando(acao['botao2']);
-      }
-    }
-
-    _mostrarMensagem('Execução via JSON concluída!');
-  } catch (e) {
-    _mostrarMensagem('Erro ao executar JSON: $e');
-  }
-}
-
-
-
-
-  void _excluirRotina() {
-    setState(() => comandosGravados.clear());
-    _mostrarMensagem('Rotina excluída com sucesso!');
-  }
-
-  @override
-  void dispose() {
-    arduino1?.fecharPorta();
-    arduino2?.fecharPorta();
-    arduino3?.fecharPorta();
-    arduino4?.fecharPorta();
-    arduino5?.fecharPorta();
-    super.dispose();
-  }
-
-  Widget _seletorPorta(int numero, String? portaSelecionada, ValueChanged<String?> onChanged) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Arduino $numero', style: const TextStyle(fontWeight: FontWeight.bold)),
-        DropdownButton<String>(
-          value: portaSelecionada,
-          hint: const Text('Selecione a porta COM'),
-          items: portasDisponiveis.map((String porta) {
-            return DropdownMenuItem(value: porta, child: Text(porta));
-          }).toList(),
-          onChanged: onChanged,
-        ),
-        ElevatedButton.icon(
-          onPressed: () => _conectar(numero),
-          icon: const Icon(Icons.usb),
-          label: const Text('Conectar'),
-        ),
-        const SizedBox(height: 20),
-      ],
-    );
-  }
-
-  Widget _botoesComando() {
-  return Wrap(
-    spacing: 8,
-    runSpacing: 8,
-    children: [
-      ElevatedButton(
-        onPressed: () => _enviarParaTodos('wl', gravar: true),
-        child: const Text('Frente Lenta (wl)'),
+  Widget dropdownPorta(int numero, String? selecionada, Function(String?) onChanged) {
+    return DropdownButtonFormField<String>(
+      value: selecionada,
+      decoration: InputDecoration(
+        labelText: nomesPortas[numero],
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        filled: true,
+        fillColor: Colors.white,
       ),
-      ElevatedButton(
-        onPressed: () => _enviarParaTodos('wr', gravar: true),
-        child: const Text('Frente Rápida (wr)'),
-      ),
-      ElevatedButton(
-        onPressed: () => _enviarParaTodos('xl', gravar: true),
-        child: const Text('Trás Lenta (xl)'),
-      ),
-      ElevatedButton(
-        onPressed: () => _enviarParaTodos('xr', gravar: true),
-        child: const Text('Trás Rápida (xr)'),
-      ),
-      ElevatedButton(
-        onPressed: () => _enviarParaTodos('ss', gravar: true),
-        child: const Text('Parar (ss)'),
-      ),
-      // Botões adicionais (se ainda quiser manter)
-      ElevatedButton(
-        onPressed: () => _enviarParaTodos('a', gravar: true),
-        child: const Text('Esquerda (a)'),
-      ),
-      ElevatedButton(
-        onPressed: () => _enviarParaTodos('d', gravar: true),
-        child: const Text('Direita (d)'),
-      ),
-      ElevatedButton(
-        onPressed: () => _enviarParaTodos('c', gravar: true),
-        child: const Text('Cima (c)'),
-      ),
-      ElevatedButton(
-        onPressed: () => _enviarParaTodos('b', gravar: true),
-        child: const Text('Baixo (b)'),
-      ),
-      ElevatedButton(
-        onPressed: () => _enviarParaTodos('ligar tomada 1', gravar: true),
-        child: const Text('Ligar Tomada 1'),
-      ),
-      ElevatedButton(
-        onPressed: () => _enviarParaTodos('desligar tomada 1', gravar: true),
-        child: const Text('Desligar Tomada 1'),
-      ),
-    ],
-  );
-}
-
-
-  Widget _listaComandosGravados() {
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: comandosGravados.length,
-      itemBuilder: (context, index) {
-        final comando = comandosGravados[index];
-        return ListTile(
-          title: Text(comando['comando']),
-          subtitle: Text('Timestamp micros: ${comando['dt_execucao_unix_microssegundos']}'),
-        );
-      },
+      items: portasDisponiveis.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
+      onChanged: onChanged,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Controle Arduino Múltiplo'),
-      ),
+      appBar: AppBar(title: const Text('Controle Arduino')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(24),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _seletorPorta(1, porta1, (val) => setState(() => porta1 = val)),
-            _seletorPorta(2, porta2, (val) => setState(() => porta2 = val)),
-            _seletorPorta(3, porta3, (val) => setState(() => porta3 = val)),
-            _seletorPorta(4, porta4, (val) => setState(() => porta4 = val)),
-            _seletorPorta(5, porta5, (val) => setState(() => porta5 = val)),
-            const SizedBox(height: 20),
-            _botoesComando(),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton.icon(onPressed: _executarRotina, icon: const Icon(Icons.play_arrow), label: const Text('Executar Rotina')),
-                ElevatedButton.icon(onPressed: _executarRotinaViaJson, icon: const Icon(Icons.file_open), label: const Text('Executar via JSON')),
-                ElevatedButton.icon(onPressed: _excluirRotina, icon: const Icon(Icons.delete), label: const Text('Excluir Rotina')),
-              ],
+            
+            dropdownPorta(1, porta1, (val) => setState(() => porta1 = val)),
+            ElevatedButton(
+              onPressed: () => _conectarArduino(1),
+              child: const Text('Conectar Motor Horizontal'),
             ),
-            const SizedBox(height: 20),
-            const Text('Comandos Gravados:', style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 200, child: _listaComandosGravados()),
+            const SizedBox(height: 12),
+            dropdownPorta(2, porta2, (val) => setState(() => porta2 = val)),
+            ElevatedButton(
+              onPressed: () => _conectarArduino(2),
+              child: const Text('Conectar Motor Vertical'),
+            ),
+            const SizedBox(height: 12),
+            dropdownPorta(3, porta3, (val) => setState(() => porta3 = val)),
+            ElevatedButton(
+              onPressed: () => _conectarArduino(3),
+              child: const Text('Conectar Plataforma'),
+            ),
+            const SizedBox(height: 12),
+            dropdownPorta(4, porta4, (val) => setState(() => porta4 = val)),
+            ElevatedButton(
+              onPressed: () => _conectarArduino(4),
+              child: const Text('Conectar Tomadas'),
+            ),
+            const SizedBox(height: 12),
+            dropdownPorta(5, porta5, (val) => setState(() => porta5 = val)),
+            ElevatedButton(
+              onPressed: () => _conectarArduino(5),
+              child: const Text('Conectar Sensores'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              onPressed: carregarRotinaJson,
+              icon: const Icon(Icons.upload_file),
+              label: const Text('Carregar rotina JSON'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: executarRotina,
+              icon: const Icon(Icons.play_arrow),
+              label: const Text('Executar rotina'),
+            ),
           ],
         ),
       ),
