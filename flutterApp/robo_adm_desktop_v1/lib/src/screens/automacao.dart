@@ -198,12 +198,12 @@ class _HomePageState extends State<HomePage> {
         comando['acao_botao1'] ??
         comando['acao_botao2'])
         ?.trim();
-        
+
     if (acao != null) {
       try {
         if (["wr", "wl", "ss", "xr", "xl"].contains(acao) && arduino1 != null) {
           if (arduino1!.porta.isOpen) {
-            await arduino1!.enviarComando(acao);
+            await arduino1!.enviarComando('$acao\n');
           } else {
             _mostrarMensagem("Erro: Porta 1 não está aberta.");
           }
